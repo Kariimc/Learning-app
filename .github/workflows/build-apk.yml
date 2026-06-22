@@ -1,0 +1,63 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+      - claude/fervent-sagan-noo8az
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Buildozer global directory
+        uses: actions/cache@v4
+        with:
+          path: ~/.buildozer
+          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec', 'requirements.txt') }}
+          restore-keys: |
+            buildozer-${{ runner.os }}-
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            git zip unzip autoconf libtool \
+            pkg-config zlib1g-dev libncurses5-dev libffi-dev libssl-dev \
+            cmake libltdl-dev
+
+      - name: Install Python packages
+        run: pip install buildozer cython
+
+      - name: Fetch AI-generated assets (art, font, Mabel voice)
+        run: |
+          python scripts/fetch_assets.py && echo "Assets fetched." \
+            || echo "::warning::Some assets failed to download — app will use built-in placeholders."
+
+      - name: Build debug APK
+        run: buildozer -v android debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ReadingLand-debug
+          path: bin/*.apk
+          retention-days: 30
+          if-no-files-found: error
