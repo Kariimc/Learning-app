@@ -20,6 +20,7 @@ from kivy.uix.screenmanager import Screen
 
 from .. import config
 from ..ui import particles, theme
+from ..ui.icons import IconButton
 from ..ui.widgets import BigButton, StarCounter
 
 
@@ -35,18 +36,25 @@ class _Cloud(Ellipse):
 class BaseScreen(Screen):
     bg_top = config.PALETTE["sky"]
     bg_bottom = config.PALETTE["sky_deep"]
+    bg_image_key = None          # set by subclasses to load a painted background
     show_topbar = True
     title = ""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        from ..ui.assets import background_image
+        self._bg_source = background_image(self.bg_image_key) if self.bg_image_key else None
         self._clouds = []
         with self.canvas.before:
             self._c_top = Color(*self.bg_top)
             self._rect_top = Rectangle()
             self._c_bottom = Color(*self.bg_bottom)
             self._rect_bottom = Rectangle()
-            Color(1, 1, 1, 0.85)
+            if self._bg_source:
+                # Painted land art covers the gradient; clouds drift on top of it.
+                Color(1, 1, 1, 1)
+                self._bg_rect = Rectangle(source=self._bg_source)
+            Color(1, 1, 1, 0.85 if not self._bg_source else 0.5)
             for _ in range(4):
                 self._clouds.append(Ellipse())
         self.bind(pos=self._sync_bg, size=self._sync_bg)
@@ -59,9 +67,10 @@ class BaseScreen(Screen):
             orientation="horizontal", size_hint=(1, None), height=theme.touch_size(),
             pos_hint={"top": 1}, padding=[dp(12), dp(6)], spacing=dp(8),
         )
-        self.back_btn = BigButton(
-            text="←", size=(theme.touch_size(), theme.touch_size()),
+        self.back_btn = IconButton(
+            icon="home", size=(theme.touch_size(), theme.touch_size()),
             size_hint=(None, None), bg_color=list(config.PALETTE["cream"]),
+            icon_color=list(config.PALETTE["grape"]),
             on_tap=lambda *_: self.on_back(),
         )
         self.title_lbl = Label(text=self.title, font_size=theme.FONT_TITLE, bold=True,
@@ -101,6 +110,9 @@ class BaseScreen(Screen):
         self._rect_top.size = (self.width, h / 2)
         self._rect_bottom.pos = self.pos
         self._rect_bottom.size = (self.width, h / 2)
+        if self._bg_source:
+            self._bg_rect.pos = self.pos
+            self._bg_rect.size = self.size
         for i, cloud in enumerate(self._clouds):
             cw = self.width * random.uniform(0.16, 0.26) if cloud.size[0] == 100 else cloud.size[0]
             cloud.size = (max(dp(120), self.width * 0.2), max(dp(50), self.height * 0.08))

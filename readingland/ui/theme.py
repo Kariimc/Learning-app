@@ -38,12 +38,22 @@ def register_fonts() -> bool:
     global _EMOJI_FONT_REGISTERED
     if _EMOJI_FONT_REGISTERED:
         return True
+    win = os.environ.get("WINDIR", r"C:\Windows")
     candidates = [
+        # Bundled with the app (most reliable across platforms) - drop a
+        # colour-emoji .ttf here to guarantee consistent rendering everywhere.
+        os.path.join(config.ASSETS_DIR, "fonts", "NotoColorEmoji.ttf"),
+        os.path.join(config.ASSETS_DIR, "fonts", "emoji.ttf"),
+        # Windows (Segoe UI Emoji) - fixes the "tofu box" glyphs on stock PCs.
+        os.path.join(win, "Fonts", "seguiemj.ttf"),
+        # macOS.
+        "/System/Library/Fonts/Apple Color Emoji.ttc",
+        # Linux.
         "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf",
         "/usr/share/fonts/truetype/noto/NotoEmoji-Regular.ttf",
-        "/System/Library/Fonts/Apple Color Emoji.ttc",
         "/usr/share/fonts/google-noto-emoji/NotoColorEmoji.ttf",
     ]
+    candidates += glob.glob(os.path.join(config.ASSETS_DIR, "fonts", "*Emoji*.ttf"))
     candidates += glob.glob("/usr/share/fonts/**/NotoColorEmoji.ttf", recursive=True)
     candidates += glob.glob("/usr/share/fonts/**/*Emoji*.ttf", recursive=True)
     for path in candidates:

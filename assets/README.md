@@ -4,18 +4,24 @@ ReadingLand runs with **programmatic placeholders** (emoji + drawn shapes + big
 type) so there are no missing-file crashes. Drop production art/audio here using
 the conventions below and it's picked up automatically — **no code changes**.
 
-## ⬇️ Fetch the generated character art
-The five mascot portraits (transparent PNGs) and the app icon were produced with
-an AI image model and are hosted on a CDN. Pull them in with one command:
+## ⬇️ Fetch the generated production assets
+Mascot portraits, the app icon, land backgrounds, storybook illustrations and
+the warm **Mabel "fairy godmother" voice pack** were produced with AI models and
+are hosted on a CDN. Pull them all in with one command:
 
 ```bash
-python scripts/fetch_assets.py
+python scripts/fetch_assets.py        # add --force to re-download everything
 ```
 
-This populates `images/characters/<id>/portrait.png` and `images/ui/app_icon.png`.
-The `Mascot` widget then renders the real characters instead of the drawn
-placeholders (`readingland/ui/assets.py` does the lookup). The app runs fine
-either way.
+This populates:
+- `images/characters/<id>/portrait.png` — mascots (`Mascot` widget)
+- `images/ui/app_icon.png` — app icon
+- `images/backgrounds/bg_<land>.png` — per-land painted backgrounds (`BaseScreen`)
+- `images/cards/story_<book>_p<n>.png` — storybook page illustrations (Stage 6)
+- `audio/voice/mabel/<key>.{mp3}` — recorded narrator lines (`core/audio.py`)
+
+Every file is optional: `readingland/ui/assets.py` / `core/audio.py` look them up
+and fall back to programmatic placeholders + warm TTS, so the app runs either way.
 
 Full bill of materials & specs: [`../docs/06_asset_list.md`](../docs/06_asset_list.md).
 Audio specifics: [`../docs/08_audio_requirements.md`](../docs/08_audio_requirements.md).

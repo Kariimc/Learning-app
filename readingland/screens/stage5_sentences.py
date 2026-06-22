@@ -17,6 +17,7 @@ from kivy.uix.label import Label
 
 from .. import config
 from ..core.content import ContentItem
+from ..core.voice_lines import NAV_LINES
 from ..ui import theme
 from ..ui.widgets import BigButton, ChunkyProgressBar, GlyphTile, Mascot
 from .base import BaseScreen, app
@@ -27,6 +28,7 @@ class Stage5Screen(BaseScreen):
     GUIDE = "penny_penguin"
     ACCENT = config.PALETTE["sky_deep"]
     title = "Sentence River"
+    bg_image_key = "sentences"
 
     def __init__(self, **kwargs):
         self._target: Optional[ContentItem] = None
@@ -48,7 +50,7 @@ class Stage5Screen(BaseScreen):
         self.content.add_widget(self.sentence_box)
 
         # Read-along button.
-        self.read_btn = BigButton(text="▶  Read it!", size=(dp(220), dp(72)),
+        self.read_btn = BigButton(text="Read it!", size=(dp(220), dp(72)),
                                   size_hint=(None, None),
                                   pos_hint={"center_x": 0.5, "y": 0.46},
                                   bg_color=list(config.PALETTE["sun"]),
@@ -149,5 +151,5 @@ class Stage5Screen(BaseScreen):
             tile.flash(config.PALETTE["coral"])
             app().audio.play_sfx("wrong")
             app().session.answer(self.STAGE, self._target, False)
-            self.mascot.say("Good try! Read it again.")
+            self.mascot.say(NAV_LINES["retry_read"], key="retry_read")
             Clock.schedule_once(lambda dt: self._read_along(), 0.5)

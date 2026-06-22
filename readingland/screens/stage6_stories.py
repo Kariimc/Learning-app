@@ -13,11 +13,14 @@ from kivy.clock import Clock
 from kivy.metrics import dp
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.image import Image as KivyImage
 from kivy.uix.label import Label
 
 from .. import config
 from ..core.content import ContentItem
+from ..core.voice_lines import NAV_LINES
 from ..ui import theme
+from ..ui.icons import IconButton
 from ..ui.widgets import BigButton, GlyphTile, Mascot, RoundedCard
 from .base import BaseScreen, app
 
@@ -26,6 +29,7 @@ class Stage6Screen(BaseScreen):
     STAGE = 6
     GUIDE = "ollie_owl"
     title = "Story Sky"
+    bg_image_key = "stories"
 
     def __init__(self, **kwargs):
         self._book: Optional[ContentItem] = None
@@ -55,22 +59,30 @@ class Stage6Screen(BaseScreen):
         self.scene_emoji = Label(text="", font_size=dp(120),
                                  font_name=theme.EMOJI_FONT_NAME if theme.register_fonts() else "Roboto")
         self.scene_card.add_widget(self.scene_emoji)
+        # Painted page illustration (shown when art exists, else the emoji scene).
+        self.scene_img = KivyImage(allow_stretch=True, keep_ratio=True, opacity=0,
+                                   mipmap=True)
+        self.scene_card.add_widget(self.scene_img)
         self.reader.add_widget(self.scene_card)
 
         self.text_box = BoxLayout(orientation="horizontal", spacing=dp(8),
                                   size_hint=(1, 0.18), padding=dp(8))
         self.reader.add_widget(self.text_box)
 
-        nav = BoxLayout(orientation="horizontal", size_hint=(1, 0.18), spacing=dp(12))
-        self.prev_btn = BigButton(text="◀", size_hint=(0.25, 1),
-                                  bg_color=list(config.PALETTE["cream"]),
-                                  on_tap=lambda *_: self._turn(-1))
-        self.read_btn = BigButton(text="🔊 Read", size_hint=(0.5, 1),
-                                  bg_color=list(config.PALETTE["sun"]),
-                                  on_tap=lambda *_: self._read_page())
-        self.next_btn = BigButton(text="▶", size_hint=(0.25, 1),
-                                  bg_color=list(config.PALETTE["mint"]),
-                                  on_tap=lambda *_: self._turn(1))
+        nav = BoxLayout(orientation="horizontal", size_hint=(1, 0.18), spacing=dp(12),
+                        padding=[dp(20), 0])
+        self.prev_btn = IconButton(icon="prev", size_hint=(None, 1), width=dp(96),
+                                   bg_color=list(config.PALETTE["cream"]),
+                                   icon_color=list(config.PALETTE["grape"]),
+                                   on_tap=lambda *_: self._turn(-1))
+        self.read_btn = IconButton(icon="play", size_hint=(1, 1),
+                                   bg_color=list(config.PALETTE["sun"]),
+                                   icon_color=list(config.PALETTE["ink"]),
+                                   on_tap=lambda *_: self._read_page())
+        self.next_btn = IconButton(icon="next", size_hint=(None, 1), width=dp(96),
+                                   bg_color=list(config.PALETTE["mint"]),
+                                   icon_color=list(config.PALETTE["ink"]),
+                                   on_tap=lambda *_: self._turn(1))
         nav.add_widget(self.prev_btn)
         nav.add_widget(self.read_btn)
         nav.add_widget(self.next_btn)
@@ -96,7 +108,7 @@ class Stage6Screen(BaseScreen):
                              on_tap=self._make_open(book))
             tile.bg_color = list(config.hex_rgba(book.color) if book.color else config.PALETTE["cream"])
             self.library.add_widget(tile)
-        Clock.schedule_once(lambda dt: self.mascot.say("Whoo's ready for a story? Pick a book!"), 0.3)
+        Clock.schedule_once(lambda dt: self.mascot.say(NAV_LINES["greet_story"], key="greet_story"), 0.3)
 
     def _make_open(self, book):
         def handler(tile):
@@ -125,7 +137,17 @@ class Stage6Screen(BaseScreen):
             return
         self._page = max(0, min(self._page, len(pages) - 1))
         page = pages[self._page]
-        self.scene_emoji.text = page.get("interactive", {}).get("emoji", self._book.emoji)
+        # Prefer a painted illustration for this page; else the emoji scene.
+        from ..ui.assets import card_image
+        art = card_image(f"{self._book.id}_p{self._page}")
+        if art:
+            self.scene_img.source = art
+            self.scene_img.opacity = 1
+            self.scene_emoji.opacity = 0
+        else:
+            self.scene_img.opacity = 0
+            self.scene_emoji.opacity = 1
+            self.scene_emoji.text = page.get("interactive", {}).get("emoji", self._book.emoji)
         self.text_box.clear_widgets()
         self._word_lbls = []
         for w in page.get("words", page.get("text", "").split()):
@@ -168,7 +190,7 @@ class Stage6Screen(BaseScreen):
         self._render_page()
 
     def _finish_book(self):
-        self.mascot.say("The end! What a wonderful reader you are!")
+        self.mascot.say(NAV_LINES["finish_book"], key="finish_book")
         outcome = app().session.answer(self.STAGE, self._book, True)
         self.star_counter.bump(outcome.result.stars_awarded)
         self.celebrate(big=True)

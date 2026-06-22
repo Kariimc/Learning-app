@@ -13,7 +13,9 @@ from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 
 from .. import config
+from ..core.voice_lines import NAV_LINES
 from ..ui import theme
+from ..ui.icons import Icon, IconButton
 from ..ui.widgets import BigButton, ChunkyProgressBar, GlyphTile, Mascot, RoundedCard
 from .base import BaseScreen, app
 
@@ -22,17 +24,19 @@ STAGE_ICONS = {1: "👀", 2: "🔤", 3: "🔊", 4: "📕", 5: "📑", 6: "📖"}
 
 class HomeMapScreen(BaseScreen):
     title = "ReadingLand"
+    bg_image_key = "map"
 
     def build(self):
-        # Replace plain back button with a 'switch child' action.
-        self.back_btn.text = "🔄"
+        # Top-bar button switches child profile (a 'swap' icon, not the home one).
+        self.back_btn.icon = "switch"
 
         # Daily goal + rewards buttons live in the top bar area.
-        self.rewards_btn = BigButton(text="🎁", size=(theme.touch_size(), theme.touch_size()),
-                                     size_hint=(None, None),
-                                     pos_hint={"x": 0.02, "y": 0.02},
-                                     bg_color=list(config.PALETTE["sun"]),
-                                     on_tap=lambda *_: app().go("rewards"))
+        self.rewards_btn = IconButton(icon="gift", size=(theme.touch_size(), theme.touch_size()),
+                                      size_hint=(None, None),
+                                      pos_hint={"x": 0.02, "y": 0.02},
+                                      bg_color=list(config.PALETTE["sun"]),
+                                      icon_color=list(config.PALETTE["coral"]),
+                                      on_tap=lambda *_: app().go("rewards"))
         self.content.add_widget(self.rewards_btn)
 
         self.daily_lbl = Label(text="", font_size=theme.FONT_LABEL, bold=True,
@@ -65,9 +69,9 @@ class HomeMapScreen(BaseScreen):
         self.mascot.idle()
         self._build_path()
         goal = app().session.daily_goal()
-        self.daily_lbl.text = f"⭐ Daily goal: {goal['done']}/{goal['goal']}"
+        self.daily_lbl.text = f"Daily goal: {goal['done']}/{goal['goal']}"
         Clock.schedule_once(lambda dt: self.mascot.say(
-            "Hop along, let's learn! Pick a land!"), 0.4)
+            NAV_LINES["greet_home"], key="greet_home"), 0.4)
 
     def _build_path(self):
         self.path.clear_widgets()
@@ -81,10 +85,8 @@ class HomeMapScreen(BaseScreen):
                                height=dp(120), padding=dp(12), spacing=dp(12))
             card.bg_color = list(config.STAGE_COLORS[sid]) if unlocked else list(config.PALETTE["shadow"])
 
-            icon = GlyphTile(glyph=STAGE_ICONS.get(sid, "⭐") if unlocked else "🔒",
-                             emoji="", size_hint=(None, 1), width=dp(96),
-                             on_tap=self._make_open(sid, unlocked))
-            icon.bg_color = list(config.PALETTE["cream"])
+            icon = self._land_icon(STAGE_ICONS.get(sid, "⭐"), unlocked,
+                                   self._make_open(sid, unlocked))
             card.add_widget(icon)
 
             info = BoxLayout(orientation="vertical", spacing=dp(4))
@@ -112,10 +114,8 @@ class HomeMapScreen(BaseScreen):
         card = RoundedCard(orientation="horizontal", size_hint=(1, None),
                            height=dp(120), padding=dp(12), spacing=dp(12))
         card.bg_color = list(config.PALETTE["tangerine"]) if unlocked else list(config.PALETTE["shadow"])
-        icon = GlyphTile(glyph="✏️" if unlocked else "🔒", emoji="",
-                         size_hint=(None, 1), width=dp(96),
-                         on_tap=self._make_open_tracing(unlocked))
-        icon.bg_color = list(config.PALETTE["cream"])
+        icon = self._land_icon("✏️", unlocked, self._make_open_tracing(unlocked),
+                               vector="pencil")
         card.add_widget(icon)
         info = BoxLayout(orientation="vertical", spacing=dp(4))
         info.add_widget(Label(text="Trace Letters", font_size=theme.FONT_HEADING, bold=True,
@@ -127,13 +127,32 @@ class HomeMapScreen(BaseScreen):
         card.add_widget(info)
         self.path.add_widget(card)
 
+    def _land_icon(self, emoji, unlocked, on_tap, vector=None):
+        """Crisp land icon: a vector glyph (lock when locked) on a cream tile."""
+        if not unlocked:
+            btn = IconButton(icon="lock", size_hint=(None, 1), width=dp(96),
+                             bg_color=list(config.PALETTE["cream"]),
+                             icon_color=list(config.PALETTE["shadow"][:3]) + [0.6],
+                             on_tap=on_tap)
+            return btn
+        if vector:
+            btn = IconButton(icon=vector, size_hint=(None, 1), width=dp(96),
+                             bg_color=list(config.PALETTE["cream"]),
+                             icon_color=list(config.PALETTE["tangerine"]),
+                             on_tap=on_tap)
+            return btn
+        tile = GlyphTile(glyph=emoji, emoji="", size_hint=(None, 1), width=dp(96),
+                         on_tap=on_tap)
+        tile.bg_color = list(config.PALETTE["cream"])
+        return tile
+
     def _make_open_tracing(self, unlocked):
         def handler(tile):
             if unlocked:
                 app().go("tracing")
             else:
                 app().audio.play_sfx("locked")
-                self.mascot.say("Learn some letters first, then we can trace them!")
+                self.mascot.say(NAV_LINES["locked_tracing"], key="locked_tracing")
         return handler
 
     def _make_open(self, stage_id, unlocked):
@@ -142,5 +161,5 @@ class HomeMapScreen(BaseScreen):
                 app().open_stage(stage_id)
             else:
                 app().audio.play_sfx("locked")
-                self.mascot.say("Let's finish the land before this one first!")
+                self.mascot.say(NAV_LINES["locked_stage"], key="locked_stage")
         return handler

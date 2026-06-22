@@ -28,7 +28,8 @@ android.allow_backup = 1
 # No internet permission requested - the app is fully offline by design.
 android.permissions =
 
-# Splash / icon (replace placeholders with final art - see docs/06_asset_list.md)
+# Splash / icon. Run `python scripts/fetch_assets.py` first to download
+# app_icon.png, then uncomment to bake the icon into the APK.
 # icon.filename = assets/images/ui/app_icon.png
 # presplash.filename = assets/images/ui/presplash.png
 

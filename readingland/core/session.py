@@ -30,16 +30,10 @@ class TurnOutcome:
     difficulty: float = 0.0
     celebrate: bool = False           # big celebration vs gentle nudge
     encouragement: str = ""           # narrator line to speak
+    encouragement_key: str = ""       # recorded-voice key for that line
 
 
-ENCOURAGE_CORRECT = [
-    "Great job!", "Fantastic reading!", "You did it!", "Wonderful!",
-    "Super star!", "You found it!", "Brilliant!",
-]
-ENCOURAGE_RETRY = [
-    "Good try! Let's try again.", "Almost! Try once more.",
-    "Nice try! Listen again.", "Let's find it together.",
-]
+from .voice_lines import ENCOURAGE_CORRECT, ENCOURAGE_RETRY, key_for  # noqa: E402
 
 
 class LearningSession:
@@ -118,6 +112,7 @@ class LearningSession:
             difficulty=st.difficulty,
             celebrate=correct and (result.mastered_now or result.stage_unlocked is not None),
             encouragement=encouragement,
+            encouragement_key=key_for(encouragement),
         )
 
     def _sticker_for_item(self, item: ContentItem) -> str:

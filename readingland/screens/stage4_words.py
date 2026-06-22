@@ -12,6 +12,7 @@ class Stage4Screen(MatchingStageScreen):
     STAGE = 4
     GUIDE = "penny_penguin"
     ACCENT = config.PALETTE["coral"]
+    bg_image_key = "words"
 
     def prompt_text(self, item: ContentItem) -> str:
         if item.data.get("kind") == "sight":

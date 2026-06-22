@@ -17,6 +17,7 @@ from kivy.uix.label import Label
 
 from .. import config
 from ..core.content import ContentItem
+from ..core.voice_lines import NAV_LINES
 from ..ui import particles, theme
 from ..ui.widgets import ChunkyProgressBar, GlyphTile, Mascot
 from .base import BaseScreen, app
@@ -27,6 +28,7 @@ class Stage3Screen(BaseScreen):
     GUIDE = "benny_bear"
     ACCENT = config.PALETTE["grape"]
     title = "Sound Forest"
+    bg_image_key = "phonics"
 
     def __init__(self, **kwargs):
         self._target: Optional[ContentItem] = None
@@ -154,4 +156,4 @@ class Stage3Screen(BaseScreen):
             tile.flash(config.PALETTE["coral"])
             app().audio.play_sfx("wrong")
             app().session.answer(self.STAGE, self._target, False)
-            self.mascot.say("Good try! Sound it out again.")
+            self.mascot.say(NAV_LINES["retry_sound"], key="retry_sound")
