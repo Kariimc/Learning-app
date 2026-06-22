@@ -34,6 +34,7 @@ Mistakes are **never** punished — a wrong tap just gently asks them to try aga
 
 ```bash
 pip install -r requirements.txt
+python scripts/fetch_assets.py   # optional: pull the AI-generated character art
 python main.py
 ```
 
@@ -69,7 +70,8 @@ readingland/
 │   ├── audio.py       Recorded narration + TTS fallback
 │   └── session.py     LearningSession facade (UI talks to this)
 ├── ui/          Reusable Kivy widgets, particles, placeholder assets
-├── screens/     One Screen per view (splash, map, 6 stages, rewards, parent)
+├── screens/     One Screen per view (splash, map, 6 stages, letter-tracing,
+│                rewards, parent)
 └── content/     JSON curriculum packs — add content without touching code
 ```
 

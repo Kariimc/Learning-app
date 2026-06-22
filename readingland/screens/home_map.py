@@ -104,6 +104,38 @@ class HomeMapScreen(BaseScreen):
             card.add_widget(info)
             self.path.add_widget(card)
 
+        # Bonus activity: letter tracing (available once Letter Land is unlocked).
+        self._add_tracing_card(session)
+
+    def _add_tracing_card(self, session):
+        unlocked = session.progress.is_unlocked(session.pid, 2)
+        card = RoundedCard(orientation="horizontal", size_hint=(1, None),
+                           height=dp(120), padding=dp(12), spacing=dp(12))
+        card.bg_color = list(config.PALETTE["tangerine"]) if unlocked else list(config.PALETTE["shadow"])
+        icon = GlyphTile(glyph="✏️" if unlocked else "🔒", emoji="",
+                         size_hint=(None, 1), width=dp(96),
+                         on_tap=self._make_open_tracing(unlocked))
+        icon.bg_color = list(config.PALETTE["cream"])
+        card.add_widget(icon)
+        info = BoxLayout(orientation="vertical", spacing=dp(4))
+        info.add_widget(Label(text="Trace Letters", font_size=theme.FONT_HEADING, bold=True,
+                              color=config.PALETTE["cream"], size_hint=(1, 0.5)))
+        sub = "Practice writing letters with your finger!" if unlocked \
+            else "Opens with Letter Land!"
+        info.add_widget(Label(text=sub, font_size=theme.FONT_LABEL,
+                              color=config.PALETTE["cream"], size_hint=(1, 0.5)))
+        card.add_widget(info)
+        self.path.add_widget(card)
+
+    def _make_open_tracing(self, unlocked):
+        def handler(tile):
+            if unlocked:
+                app().go("tracing")
+            else:
+                app().audio.play_sfx("locked")
+                self.mascot.say("Learn some letters first, then we can trace them!")
+        return handler
+
     def _make_open(self, stage_id, unlocked):
         def handler(tile):
             if unlocked:

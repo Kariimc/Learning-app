@@ -40,7 +40,7 @@ class SmokeApp(ReadingLandApp):
 
         self._steps = [
             "splash", "profiles", "home", "stage1", "stage2", "stage3",
-            "stage4", "stage5", "stage6", "rewards", "parent", "home",
+            "stage4", "stage5", "stage6", "tracing", "rewards", "parent", "home",
         ]
         self._i = 0
         Clock.schedule_interval(self._tick, 0.6)

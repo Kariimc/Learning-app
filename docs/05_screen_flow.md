@@ -39,8 +39,14 @@ All screens are registered in `app.py` and switched via `App.go(name)`. Names:
 | **profiles** | from splash / "switch child" / parent | tap child / "New" / "Parents" | → home / → parent (gated) |
 | **home** | after profile chosen | tap unlocked land · 🎁 · 🔄 | → stageN / rewards / profiles |
 | **stage1–6** | tap a land | answer activities | ← back → home |
+| **tracing** | ✏️ Trace Letters card on map | finger-trace letter strokes | ← back → home |
 | **rewards** | 🎁 from home | view collection · open daily chest | ← back → home |
 | **parent** | 👪 + correct math gate | read analytics · settings | ← back → home |
+
+The **tracing** activity reinforces Stage 2: completing a letter's strokes records
+a correct answer for that letter, so it feeds the same mastery / stars / rewards
+loop. Stroke geometry is defined in `core/tracing.py`; the trace box, dotted
+guide, green start dot and animated demo live in `screens/tracing.py`.
 
 ## Activity loop (inside any stage)
 
