@@ -14,6 +14,9 @@ class Stage2Screen(MatchingStageScreen):
     ACCENT = config.PALETTE["tangerine"]
     bg_image_key = "alphabet"
 
+    def narration_key(self, item: ContentItem) -> str:
+        return f"letter_{item.id.lower()}"
+
     def prompt_text(self, item: ContentItem) -> str:
         sound = item.data.get("sound", "")
         word = item.data.get("word", "")
