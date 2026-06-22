@@ -1,0 +1,47 @@
+{
+  "id": "stories",
+  "title": "Story Sky",
+  "stage": 6,
+  "description": "Very short read-along storybooks. Each page narrates, highlights words, and has one interactive object to tap.",
+  "items": [
+    {
+      "id": "story_cat_nap",
+      "label": "The Cat Nap",
+      "emoji": "🐱",
+      "color": "#FF9F1C",
+      "narration": "Let's read The Cat Nap.",
+      "pages": [
+        {"text": "The cat sat.", "words": ["The", "cat", "sat", "."], "scene": "rug", "interactive": {"emoji": "🐱", "tap_says": "meow"}},
+        {"text": "The cat is on a mat.", "words": ["The", "cat", "is", "on", "a", "mat", "."], "scene": "mat", "interactive": {"emoji": "🧶", "tap_says": "The cat loves the soft mat."}},
+        {"text": "The cat had a nap.", "words": ["The", "cat", "had", "a", "nap", "."], "scene": "nap", "interactive": {"emoji": "💤", "tap_says": "Shhh, the cat is sleeping."}},
+        {"text": "Good night, cat!", "words": ["Good", "night", ",", "cat", "!"], "scene": "moon", "interactive": {"emoji": "🌙", "tap_says": "Good night!"}}
+      ]
+    },
+    {
+      "id": "story_big_dog",
+      "label": "The Big Dog",
+      "emoji": "🐶",
+      "color": "#C8763C",
+      "narration": "Let's read The Big Dog.",
+      "pages": [
+        {"text": "I see a big dog.", "words": ["I", "see", "a", "big", "dog", "."], "scene": "park", "interactive": {"emoji": "🐶", "tap_says": "woof"}},
+        {"text": "The dog can run.", "words": ["The", "dog", "can", "run", "."], "scene": "run", "interactive": {"emoji": "🦴", "tap_says": "The dog runs fast!"}},
+        {"text": "The dog can jump.", "words": ["The", "dog", "can", "jump", "."], "scene": "jump", "interactive": {"emoji": "⚽", "tap_says": "Up, up, jump!"}},
+        {"text": "I love the dog!", "words": ["I", "love", "the", "dog", "!"], "scene": "hug", "interactive": {"emoji": "❤️", "tap_says": "What a good dog!"}}
+      ]
+    },
+    {
+      "id": "story_sun_and_bird",
+      "label": "Sun and Bird",
+      "emoji": "🐦",
+      "color": "#5DC1F0",
+      "narration": "Let's read Sun and Bird.",
+      "pages": [
+        {"text": "The sun is up.", "words": ["The", "sun", "is", "up", "."], "scene": "sunrise", "interactive": {"emoji": "☀️", "tap_says": "Good morning, sun!"}},
+        {"text": "A bird can fly.", "words": ["A", "bird", "can", "fly", "."], "scene": "sky", "interactive": {"emoji": "🐦", "tap_says": "tweet tweet"}},
+        {"text": "The bird sings.", "words": ["The", "bird", "sings", "."], "scene": "tree", "interactive": {"emoji": "🎵", "tap_says": "la la la!"}},
+        {"text": "What a happy day!", "words": ["What", "a", "happy", "day", "!"], "scene": "meadow", "interactive": {"emoji": "🌈", "tap_says": "Hooray!"}}
+      ]
+    }
+  ]
+}

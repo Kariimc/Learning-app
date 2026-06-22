@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Kivy / Buildozer
+.buildozer/
+bin/
+*.apk
+*.aab
+*.ipa
+
+# App data / runtime
+*.db
+screenshots/*.png
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.log

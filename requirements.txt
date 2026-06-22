@@ -1,0 +1,11 @@
+# --- Runtime ---------------------------------------------------------------
+kivy[base]==2.3.1          # touchscreen UI framework
+
+# --- Optional: offline text-to-speech fallback ----------------------------
+# Recorded voice packs are preferred; pyttsx3 narrates any content that does
+# not yet have a recording (e.g. a freshly authored word). Safe to omit - the
+# app degrades to on-screen captions if no TTS backend is present.
+pyttsx3==2.90 ; platform_system != "Android"
+
+# --- Dev / test only -------------------------------------------------------
+pytest>=8.0

@@ -1,0 +1,30 @@
+{
+  "id": "words",
+  "title": "Word Town",
+  "stage": 4,
+  "description": "First words: picture nouns, action words and high-frequency sight words.",
+  "items": [
+    {"id": "cat", "label": "cat", "kind": "noun", "emoji": "🐱", "color": "#FF9F1C", "narration": "cat"},
+    {"id": "dog", "label": "dog", "kind": "noun", "emoji": "🐶", "color": "#C8763C", "narration": "dog"},
+    {"id": "sun", "label": "sun", "kind": "noun", "emoji": "☀️", "color": "#FFD23F", "narration": "sun"},
+    {"id": "ball", "label": "ball", "kind": "noun", "emoji": "⚽", "color": "#FF6B6B", "narration": "ball"},
+    {"id": "fish", "label": "fish", "kind": "noun", "emoji": "🐟", "color": "#2E9BD6", "narration": "fish"},
+    {"id": "tree", "label": "tree", "kind": "noun", "emoji": "🌳", "color": "#3DDC97", "narration": "tree"},
+    {"id": "star", "label": "star", "kind": "noun", "emoji": "⭐", "color": "#FFD23F", "narration": "star"},
+    {"id": "bird", "label": "bird", "kind": "noun", "emoji": "🐦", "color": "#5DC1F0", "narration": "bird"},
+
+    {"id": "run", "label": "run", "kind": "verb", "emoji": "🏃", "color": "#FF6B6B", "narration": "run"},
+    {"id": "jump", "label": "jump", "kind": "verb", "emoji": "🤸", "color": "#9B5DE5", "narration": "jump"},
+    {"id": "fly", "label": "fly", "kind": "verb", "emoji": "🕊️", "color": "#5DC1F0", "narration": "fly"},
+    {"id": "look", "label": "look", "kind": "verb", "emoji": "👀", "color": "#FF9F1C", "narration": "look"},
+    {"id": "play", "label": "play", "kind": "verb", "emoji": "🎉", "color": "#3DDC97", "narration": "play"},
+
+    {"id": "the", "label": "the", "kind": "sight", "emoji": "👉", "color": "#9B5DE5", "narration": "the"},
+    {"id": "is", "label": "is", "kind": "sight", "emoji": "🟰", "color": "#FF8FB1", "narration": "is"},
+    {"id": "a", "label": "a", "kind": "sight", "emoji": "🔤", "color": "#2E9BD6", "narration": "a"},
+    {"id": "can", "label": "can", "kind": "sight", "emoji": "💪", "color": "#FF6B6B", "narration": "can"},
+    {"id": "see", "label": "see", "kind": "sight", "emoji": "👁️", "color": "#FFD23F", "narration": "see"},
+    {"id": "go", "label": "go", "kind": "sight", "emoji": "🟢", "color": "#3DDC97", "narration": "go"},
+    {"id": "happy", "label": "happy", "kind": "sight", "emoji": "😊", "color": "#FF9F1C", "narration": "happy"}
+  ]
+}

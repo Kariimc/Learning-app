@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "characters": [
+    {
+      "id": "reading_rabbit",
+      "name": "Reading Rabbit",
+      "role": "Primary teacher - letters & words",
+      "color": "#FF8FB1",
+      "emoji": "🐰",
+      "personality": "Warm, patient, endlessly encouraging. The friendly face of the whole app and the child's first guide.",
+      "catchphrase": "Hop along, let's learn!",
+      "voice": {"pitch": "high", "pace": "gentle", "warmth": "high"},
+      "stages": [1, 2],
+      "voice_lines": {
+        "greet": "Hi friend! I'm Reading Rabbit. Let's learn together!",
+        "intro_letter": "This is the letter {label}. Can you find it?",
+        "correct": "Hooray! You found {label}!",
+        "retry": "Good try! Let's listen again.",
+        "goodbye": "Great hopping today. See you soon!"
+      }
+    },
+    {
+      "id": "benny_bear",
+      "name": "Benny Bear",
+      "role": "Phonics coach - sounds & blending",
+      "color": "#FF9F1C",
+      "emoji": "🐻",
+      "personality": "Big, gentle and steady. Loves making sounds and clapping out syllables. Makes blending feel like a drum game.",
+      "catchphrase": "Let's sound it out!",
+      "voice": {"pitch": "low", "pace": "steady", "warmth": "high"},
+      "stages": [3],
+      "voice_lines": {
+        "greet": "Hello! Benny Bear here. Ready to make some sounds?",
+        "blend": "Listen... {p1}... {p2}... {p3}... {label}!",
+        "correct": "You blended it! {label}!",
+        "retry": "Almost! Let's sound it out together.",
+        "goodbye": "Great sounding! Bye for now."
+      }
+    },
+    {
+      "id": "penny_penguin",
+      "name": "Penny Penguin",
+      "role": "Reading buddy - words & sentences",
+      "color": "#2E9BD6",
+      "emoji": "🐧",
+      "personality": "Bubbly, sporty and quick. Slides in to cheer on every word the child reads. Turns reading into a race the child always wins.",
+      "catchphrase": "Slide into reading!",
+      "voice": {"pitch": "mid", "pace": "lively", "warmth": "high"},
+      "stages": [4, 5],
+      "voice_lines": {
+        "greet": "Hi! I'm Penny Penguin. Let's read some words!",
+        "read_word": "This word says {label}.",
+        "correct": "Yes! You read {label}!",
+        "retry": "Good try! Look again.",
+        "goodbye": "You're reading so well! See you!"
+      }
+    },
+    {
+      "id": "ollie_owl",
+      "name": "Ollie Owl",
+      "role": "Storyteller - read-along books",
+      "color": "#9B5DE5",
+      "emoji": "🦉",
+      "personality": "Wise, cozy and theatrical. Reads stories with character voices by lamplight. The bedtime-story friend.",
+      "catchphrase": "Once upon a time...",
+      "voice": {"pitch": "mid", "pace": "expressive", "warmth": "high"},
+      "stages": [6],
+      "voice_lines": {
+        "greet": "Whoo's ready for a story? I'm Ollie Owl.",
+        "read_line": "{label}",
+        "page_turn": "Let's turn the page...",
+        "the_end": "The end! What a wonderful reader you are.",
+        "goodbye": "Sweet reading dreams, friend."
+      }
+    },
+    {
+      "id": "milo_monkey",
+      "name": "Milo Monkey",
+      "role": "Celebration & rewards host",
+      "color": "#3DDC97",
+      "emoji": "🐵",
+      "personality": "Silly, bouncy and full of confetti. Shows up for every win with balloons, jokes and treasure chests. Pure joy.",
+      "catchphrase": "Party time! You earned it!",
+      "voice": {"pitch": "high", "pace": "excited", "warmth": "high"},
+      "stages": [],
+      "voice_lines": {
+        "celebrate": "Woohoo! Amazing! You earned a reward!",
+        "sticker": "A new sticker for your book! It's a {label}!",
+        "chest": "You filled the treasure chest! Let's open it!",
+        "badge": "A shiny new badge! You're a {label}!"
+      }
+    }
+  ]
+}
