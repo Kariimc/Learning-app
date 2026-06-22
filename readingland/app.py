@@ -66,6 +66,7 @@ class ReadingLandApp(App):
         from .screens.stage4_words import Stage4Screen
         from .screens.stage5_sentences import Stage5Screen
         from .screens.stage6_stories import Stage6Screen
+        from .screens.tracing import TracingScreen
         from .screens.rewards_room import RewardsRoomScreen
         from .screens.parent_dashboard import ParentDashboardScreen
 
@@ -79,6 +80,7 @@ class ReadingLandApp(App):
             (Stage4Screen, "stage4"),
             (Stage5Screen, "stage5"),
             (Stage6Screen, "stage6"),
+            (TracingScreen, "tracing"),
             (RewardsRoomScreen, "rewards"),
             (ParentDashboardScreen, "parent"),
         ]:

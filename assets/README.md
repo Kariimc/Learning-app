@@ -4,6 +4,19 @@ ReadingLand runs with **programmatic placeholders** (emoji + drawn shapes + big
 type) so there are no missing-file crashes. Drop production art/audio here using
 the conventions below and it's picked up automatically — **no code changes**.
 
+## ⬇️ Fetch the generated character art
+The five mascot portraits (transparent PNGs) and the app icon were produced with
+an AI image model and are hosted on a CDN. Pull them in with one command:
+
+```bash
+python scripts/fetch_assets.py
+```
+
+This populates `images/characters/<id>/portrait.png` and `images/ui/app_icon.png`.
+The `Mascot` widget then renders the real characters instead of the drawn
+placeholders (`readingland/ui/assets.py` does the lookup). The app runs fine
+either way.
+
 Full bill of materials & specs: [`../docs/06_asset_list.md`](../docs/06_asset_list.md).
 Audio specifics: [`../docs/08_audio_requirements.md`](../docs/08_audio_requirements.md).
 

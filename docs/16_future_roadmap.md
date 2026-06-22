@@ -7,11 +7,16 @@ an existing extensibility seam (see [`docs/15`](15_technical_design.md)).
 - **More content packs:** vowel teams, consonant digraphs (sh/ch/th), blends
   (st/cr), word families, more sight-word levels, more storybooks. *(JSON only.)*
 - **Production art & voice packs** replacing placeholders (`docs/06`, `docs/08`).
+  *(In progress: AI-generated mascot portraits + app icon ship via
+  `scripts/fetch_assets.py`; the `Mascot` widget already renders them.)*
 - **Reduce-motion & high-contrast** accessibility toggles in the parent
   dashboard.
-- **Letter tracing activities** — guided finger-trace of letter strokes with
-  visual guides (new screen; stroke-path data added to `alphabet.json`).
+- ✅ **Letter tracing activities** — guided finger-trace of letter strokes with
+  visual guides. *Done:* `core/tracing.py` + `screens/tracing.py`, reachable from
+  the world map; feeds Stage 2 mastery.
 - **Word-building mini-game** — drag letters to spell a pictured word.
+- **Lowercase + cursive tracing** — extend `core/tracing.py` with lowercase and
+  joined stroke sets.
 
 ## Mid-term (features)
 - **More mini-games** that reinforce skills: sound-matching, rhyme-sort,

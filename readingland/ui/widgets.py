@@ -193,6 +193,17 @@ class Mascot(FloatLayout):
             col = char.get("color")
             if col:
                 self.body_color = list(config.hex_rgba(col))
+
+        # Prefer real portrait art when present; else draw a placeholder.
+        from .assets import character_image
+        from kivy.uix.image import Image as KivyImage
+        self._image_path = character_image(self.char_id)
+        if self._image_path:
+            self._img = KivyImage(source=self._image_path, allow_stretch=True,
+                                  keep_ratio=True, mipmap=True)
+            self.add_widget(self._img)
+            return
+
         with self.canvas.before:
             self._c = Color(*self.body_color)
             self._body = Ellipse()
