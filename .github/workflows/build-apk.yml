@@ -46,6 +46,17 @@ jobs:
       - name: Install Python packages
         run: pip install buildozer cython
 
+      - name: Pre-accept Android SDK licenses
+        # Buildozer downloads its own SDK into ~/.buildozer and then runs
+        # sdkmanager, which prompts "Accept? (y/N)" for new packages (e.g.
+        # build-tools) and aborts in non-interactive CI. Seeding the license
+        # hash files makes sdkmanager treat every license as already accepted.
+        run: |
+          SDK_DIR="$HOME/.buildozer/android/platform/android-sdk"
+          mkdir -p "$SDK_DIR/licenses"
+          printf '\n8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n' > "$SDK_DIR/licenses/android-sdk-license"
+          printf '84831b9409646a918e30573bab4c9c91346d8abd\n' > "$SDK_DIR/licenses/android-sdk-preview-license"
+
       - name: Fetch AI-generated assets (art, font, Mabel voice)
         run: |
           python scripts/fetch_assets.py && echo "Assets fetched." \
