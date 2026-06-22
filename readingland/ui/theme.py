@@ -1,9 +1,4 @@
-"""Theme helpers: fonts, sizing in dp, and emoji support detection.
-
-Real shipping art replaces the programmatic placeholders, but the *theme* (the
-palette in ``config.PALETTE``, the type scale here) stays constant so swapping
-art never changes layout.
-"""
+"""Theme helpers: fonts, sizing in dp, and emoji support detection."""
 from __future__ import annotations
 
 import glob
@@ -14,41 +9,62 @@ from kivy.metrics import dp
 
 from .. import config
 
-# Re-export palette for convenience.
 PALETTE = config.PALETTE
 
-# Rounded, friendly type scale (in sp via dp helper at call sites).
-FONT_DISPLAY = 96     # giant letters / words
-FONT_TITLE = 40
-FONT_HEADING = 30
-FONT_BODY = 22
-FONT_LABEL = 18
+# Bigger, bolder type scale — rounded display font feels friendly at these sizes.
+FONT_DISPLAY = 108
+FONT_TITLE   = 48
+FONT_HEADING  = 36
+FONT_BODY     = 28
+FONT_LABEL    = 22
+
+FONT_MAIN = "Fredoka"   # fun round kids font; falls back to Roboto if absent
 
 _EMOJI_FONT_REGISTERED = False
+_MAIN_FONT_REGISTERED  = False
 EMOJI_FONT_NAME = "Emoji"
 
 
-def register_fonts() -> bool:
-    """Try to register a colour-emoji font. Returns True if one was found.
+def register_main_font() -> bool:
+    """Register a rounded, toddler-friendly display font and set it as default.
 
-    Children's content leans on emoji as quick placeholder art. If the platform
-    ships an emoji font we register it; otherwise the UI falls back to coloured
-    shapes + big text, which still teaches the concept.
+    Looks for Fredoka-Bold.ttf in assets/fonts (downloaded by fetch_assets.py).
+    If missing, Kivy's built-in Roboto stays in place — the app still runs fine.
     """
+    global _MAIN_FONT_REGISTERED
+    if _MAIN_FONT_REGISTERED:
+        return True
+    candidates = [
+        os.path.join(config.ASSETS_DIR, "fonts", "Fredoka-Bold.ttf"),
+        os.path.join(config.ASSETS_DIR, "fonts", "Nunito-ExtraBold.ttf"),
+        os.path.join(config.ASSETS_DIR, "fonts", "Nunito-Bold.ttf"),
+    ]
+    candidates += glob.glob(os.path.join(config.ASSETS_DIR, "fonts", "Fredoka*.ttf"))
+    candidates += glob.glob(os.path.join(config.ASSETS_DIR, "fonts", "Nunito*.ttf"))
+    for path in candidates:
+        if os.path.exists(path):
+            try:
+                LabelBase.register(name=FONT_MAIN, fn_regular=path)
+                # Also register as default so un-named Labels pick it up.
+                LabelBase.register(name="Roboto", fn_regular=path)
+                _MAIN_FONT_REGISTERED = True
+                return True
+            except Exception:
+                continue
+    return False
+
+
+def register_fonts() -> bool:
+    """Try to register a colour-emoji font. Returns True if one was found."""
     global _EMOJI_FONT_REGISTERED
     if _EMOJI_FONT_REGISTERED:
         return True
     win = os.environ.get("WINDIR", r"C:\Windows")
     candidates = [
-        # Bundled with the app (most reliable across platforms) - drop a
-        # colour-emoji .ttf here to guarantee consistent rendering everywhere.
         os.path.join(config.ASSETS_DIR, "fonts", "NotoColorEmoji.ttf"),
         os.path.join(config.ASSETS_DIR, "fonts", "emoji.ttf"),
-        # Windows (Segoe UI Emoji) - fixes the "tofu box" glyphs on stock PCs.
         os.path.join(win, "Fonts", "seguiemj.ttf"),
-        # macOS.
         "/System/Library/Fonts/Apple Color Emoji.ttc",
-        # Linux.
         "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf",
         "/usr/share/fonts/truetype/noto/NotoEmoji-Regular.ttf",
         "/usr/share/fonts/google-noto-emoji/NotoColorEmoji.ttf",
@@ -68,5 +84,4 @@ def register_fonts() -> bool:
 
 
 def touch_size() -> float:
-    """Minimum comfortable touch target for small hands."""
     return dp(config.MIN_TOUCH_TARGET_DP)

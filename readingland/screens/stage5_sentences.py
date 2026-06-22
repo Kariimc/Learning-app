@@ -112,7 +112,7 @@ class Stage5Screen(BaseScreen):
                 Animation(font_size=theme.FONT_TITLE * 1.25, d=0.12).start(lbl)
                 Animation(font_size=theme.FONT_TITLE, d=0.25).start(lbl)
                 if w not in (".", "!", ","):
-                    app().audio.narrate(w)
+                    app().audio.narrate(w, key=w.lower())
                 Clock.schedule_once(
                     lambda dt2, lbl=lbl: setattr(lbl, "color", config.PALETTE["ink"]), 0.5)
             Clock.schedule_once(step, delay)

@@ -128,9 +128,14 @@ class MatchingStageScreen(BaseScreen):
             self._on_choice(item, tile)
         return handler
 
+    def narration_key(self, item: ContentItem) -> str:
+        """Override per stage to route to the right voice file."""
+        return item.id
+
     def _speak_target(self):
         if self._target:
-            self.mascot.say(self.prompt_text(self._target), key=self._target.id)
+            self.mascot.say(self.prompt_text(self._target),
+                            key=self.narration_key(self._target))
 
     # ------------------------------------------------------------------ #
     def _on_choice(self, item: ContentItem, tile: GlyphTile):
