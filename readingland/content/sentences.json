@@ -1,0 +1,16 @@
+{
+  "id": "sentences",
+  "title": "Sentence River",
+  "stage": 5,
+  "description": "Simple sentences built from known words. Each word is highlighted in time with narration.",
+  "items": [
+    {"id": "s_cat_runs", "label": "The cat runs.", "words": ["The", "cat", "runs", "."], "emoji": "🐱", "color": "#FF9F1C", "narration": "The cat runs."},
+    {"id": "s_dog_happy", "label": "The dog is happy.", "words": ["The", "dog", "is", "happy", "."], "emoji": "🐶", "color": "#C8763C", "narration": "The dog is happy."},
+    {"id": "s_bird_fly", "label": "The bird can fly.", "words": ["The", "bird", "can", "fly", "."], "emoji": "🐦", "color": "#5DC1F0", "narration": "The bird can fly."},
+    {"id": "s_sun_hot", "label": "The sun is hot.", "words": ["The", "sun", "is", "hot", "."], "emoji": "☀️", "color": "#FFD23F", "narration": "The sun is hot."},
+    {"id": "s_i_see_fish", "label": "I see a fish.", "words": ["I", "see", "a", "fish", "."], "emoji": "🐟", "color": "#2E9BD6", "narration": "I see a fish."},
+    {"id": "s_we_play", "label": "We play and run.", "words": ["We", "play", "and", "run", "."], "emoji": "🎉", "color": "#3DDC97", "narration": "We play and run."},
+    {"id": "s_frog_jump", "label": "The frog can jump.", "words": ["The", "frog", "can", "jump", "."], "emoji": "🐸", "color": "#7AC74F", "narration": "The frog can jump."},
+    {"id": "s_look_star", "label": "Look at the star.", "words": ["Look", "at", "the", "star", "."], "emoji": "⭐", "color": "#9B5DE5", "narration": "Look at the star."}
+  ]
+}

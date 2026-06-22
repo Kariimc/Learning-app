@@ -1,0 +1,31 @@
+{
+  "id": "visual",
+  "title": "Look & Learn",
+  "stage": 1,
+  "description": "Pre-reading visual recognition: shapes, colors, animals and objects. Fully narrated, no reading required.",
+  "items": [
+    {"id": "shape_circle", "label": "Circle", "narration": "This is a circle. Round like the sun!", "category": "shape", "shape": "circle", "color": "#FF6B6B", "emoji": "🔴"},
+    {"id": "shape_square", "label": "Square", "narration": "This is a square. It has four sides.", "category": "shape", "shape": "square", "color": "#5DC1F0", "emoji": "🟦"},
+    {"id": "shape_triangle", "label": "Triangle", "narration": "This is a triangle. Three pointy corners!", "category": "shape", "shape": "triangle", "color": "#3DDC97", "emoji": "🔺"},
+    {"id": "shape_star", "label": "Star", "narration": "This is a star. Twinkle twinkle!", "category": "shape", "shape": "star", "color": "#FFD23F", "emoji": "⭐"},
+    {"id": "shape_heart", "label": "Heart", "narration": "This is a heart. I love hearts!", "category": "shape", "shape": "heart", "color": "#FF8FB1", "emoji": "❤️"},
+
+    {"id": "color_red", "label": "Red", "narration": "This color is red. Like a juicy apple!", "category": "color", "color": "#FF3B30", "emoji": "🍎"},
+    {"id": "color_blue", "label": "Blue", "narration": "This color is blue. Like the big sky!", "category": "color", "color": "#2E9BD6", "emoji": "💙"},
+    {"id": "color_yellow", "label": "Yellow", "narration": "This color is yellow. Like the bright sun!", "category": "color", "color": "#FFD23F", "emoji": "🌞"},
+    {"id": "color_green", "label": "Green", "narration": "This color is green. Like the grass!", "category": "color", "color": "#3DDC97", "emoji": "🌿"},
+    {"id": "color_purple", "label": "Purple", "narration": "This color is purple. Like a grape!", "category": "color", "color": "#9B5DE5", "emoji": "🍇"},
+
+    {"id": "animal_cat", "label": "Cat", "narration": "This is a cat. The cat says meow!", "category": "animal", "color": "#FF9F1C", "emoji": "🐱", "sound": "meow"},
+    {"id": "animal_dog", "label": "Dog", "narration": "This is a dog. The dog says woof!", "category": "animal", "color": "#C8763C", "emoji": "🐶", "sound": "woof"},
+    {"id": "animal_cow", "label": "Cow", "narration": "This is a cow. The cow says moo!", "category": "animal", "color": "#FFB4A2", "emoji": "🐮", "sound": "moo"},
+    {"id": "animal_duck", "label": "Duck", "narration": "This is a duck. The duck says quack!", "category": "animal", "color": "#FFD23F", "emoji": "🦆", "sound": "quack"},
+    {"id": "animal_frog", "label": "Frog", "narration": "This is a frog. The frog says ribbit!", "category": "animal", "color": "#7AC74F", "emoji": "🐸", "sound": "ribbit"},
+
+    {"id": "object_ball", "label": "Ball", "narration": "This is a ball. Let's bounce it!", "category": "object", "color": "#FF6B6B", "emoji": "⚽"},
+    {"id": "object_car", "label": "Car", "narration": "This is a car. Vroom vroom!", "category": "object", "color": "#5DC1F0", "emoji": "🚗"},
+    {"id": "object_cup", "label": "Cup", "narration": "This is a cup. For a yummy drink!", "category": "object", "color": "#FF8FB1", "emoji": "🥤"},
+    {"id": "object_hat", "label": "Hat", "narration": "This is a hat. Pop it on your head!", "category": "object", "color": "#9B5DE5", "emoji": "🎩"},
+    {"id": "object_sun", "label": "Sun", "narration": "This is the sun. Warm and bright!", "category": "object", "color": "#FFD23F", "emoji": "☀️"}
+  ]
+}

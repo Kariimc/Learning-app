@@ -1,0 +1,20 @@
+{
+  "id": "phonics",
+  "title": "Sound Forest",
+  "stage": 3,
+  "description": "CVC (consonant-vowel-consonant) blending. Each word breaks into phonemes the child taps to blend.",
+  "items": [
+    {"id": "cat", "label": "cat", "phonemes": ["c", "a", "t"], "sounds": ["kuh", "ah", "tuh"], "emoji": "🐱", "color": "#FF9F1C", "rhymes": ["hat", "bat", "mat"], "narration": "kuh, ah, tuh. cat!"},
+    {"id": "dog", "label": "dog", "phonemes": ["d", "o", "g"], "sounds": ["duh", "oh", "guh"], "emoji": "🐶", "color": "#C8763C", "rhymes": ["log", "fog"], "narration": "duh, oh, guh. dog!"},
+    {"id": "hat", "label": "hat", "phonemes": ["h", "a", "t"], "sounds": ["huh", "ah", "tuh"], "emoji": "🎩", "color": "#9B5DE5", "rhymes": ["cat", "bat", "mat"], "narration": "huh, ah, tuh. hat!"},
+    {"id": "sun", "label": "sun", "phonemes": ["s", "u", "n"], "sounds": ["sss", "uh", "nnn"], "emoji": "☀️", "color": "#FFD23F", "rhymes": ["run", "bun", "fun"], "narration": "sss, uh, nnn. sun!"},
+    {"id": "pig", "label": "pig", "phonemes": ["p", "i", "g"], "sounds": ["puh", "ih", "guh"], "emoji": "🐷", "color": "#FF8FB1", "rhymes": ["wig", "dig", "big"], "narration": "puh, ih, guh. pig!"},
+    {"id": "bus", "label": "bus", "phonemes": ["b", "u", "s"], "sounds": ["buh", "uh", "sss"], "emoji": "🚌", "color": "#5DC1F0", "rhymes": ["plus"], "narration": "buh, uh, sss. bus!"},
+    {"id": "bed", "label": "bed", "phonemes": ["b", "e", "d"], "sounds": ["buh", "eh", "duh"], "emoji": "🛏️", "color": "#3DDC97", "rhymes": ["red", "fed"], "narration": "buh, eh, duh. bed!"},
+    {"id": "fox", "label": "fox", "phonemes": ["f", "o", "x"], "sounds": ["fff", "oh", "ks"], "emoji": "🦊", "color": "#FF6B6B", "rhymes": ["box"], "narration": "fff, oh, ks. fox!"},
+    {"id": "map", "label": "map", "phonemes": ["m", "a", "p"], "sounds": ["mmm", "ah", "puh"], "emoji": "🗺️", "color": "#2E9BD6", "rhymes": ["cap", "nap", "tap"], "narration": "mmm, ah, puh. map!"},
+    {"id": "net", "label": "net", "phonemes": ["n", "e", "t"], "sounds": ["nnn", "eh", "tuh"], "emoji": "🥅", "color": "#7AC74F", "rhymes": ["jet", "wet", "pet"], "narration": "nnn, eh, tuh. net!"},
+    {"id": "cup", "label": "cup", "phonemes": ["c", "u", "p"], "sounds": ["kuh", "uh", "puh"], "emoji": "🥤", "color": "#FF8FB1", "rhymes": ["pup"], "narration": "kuh, uh, puh. cup!"},
+    {"id": "log", "label": "log", "phonemes": ["l", "o", "g"], "sounds": ["lll", "oh", "guh"], "emoji": "🪵", "color": "#C8763C", "rhymes": ["dog", "fog"], "narration": "lll, oh, guh. log!"}
+  ]
+}
