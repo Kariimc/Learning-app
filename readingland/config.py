@@ -155,5 +155,5 @@ MIN_TOUCH_TARGET_DP = 88    # generous tap targets for tiny hands
 NARRATION_REPEAT_DELAY = 0.4
 
 # Audio
-TTS_RATE = 150              # words per minute for fallback TTS
+TTS_RATE = 132              # gentle words-per-minute for fallback TTS (slower = calmer)
 PREFER_RECORDED_AUDIO = True

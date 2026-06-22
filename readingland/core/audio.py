@@ -27,7 +27,9 @@ class AudioManager:
     def __init__(self, assets_dir: str = config.ASSETS_DIR, enabled: bool = True):
         self.assets_dir = assets_dir
         self.enabled = enabled
-        self.voice_pack = "reading_rabbit"
+        # Narrator voice pack: warm "fairy godmother" (Mabel) recordings keyed by
+        # line. Falls back to TTS for any line without a recording.
+        self.voice_pack = "mabel"
         self.spoken_log: List[str] = []   # what was narrated (for tests/captions)
         self._tts = None
         self._sound_cache = {}
@@ -41,8 +43,26 @@ class AudioManager:
             import pyttsx3  # type: ignore
             self._tts = pyttsx3.init()
             self._tts.setProperty("rate", config.TTS_RATE)
+            self._select_warm_voice()
         except Exception:
             self._tts = None  # fall back to recordings / captions only
+
+    def _select_warm_voice(self) -> None:
+        """Prefer a gentle female voice so the TTS fallback feels less robotic."""
+        try:
+            voices = self._tts.getProperty("voices") or []
+        except Exception:
+            return
+        preferred = ("zira", "hazel", "susan", "samantha", "female", "eva", "fiona")
+        for v in voices:
+            blob = f"{getattr(v, 'name', '')} {getattr(v, 'id', '')} " \
+                   f"{getattr(v, 'gender', '')}".lower()
+            if any(p in blob for p in preferred):
+                try:
+                    self._tts.setProperty("voice", v.id)
+                except Exception:
+                    pass
+                return
 
     # ------------------------------------------------------------------ #
     # Public API

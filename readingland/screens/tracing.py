@@ -23,6 +23,7 @@ from .. import config
 from ..core import tracing
 from ..core.content import ContentItem
 from ..ui import particles, theme
+from ..ui.icons import IconButton
 from ..ui.widgets import ChunkyProgressBar, GlyphTile, Mascot
 from .base import BaseScreen, app
 
@@ -199,6 +200,7 @@ class TracingScreen(BaseScreen):
     STAGE = 2
     GUIDE = "reading_rabbit"
     title = "Trace Letters"
+    bg_image_key = "alphabet"
 
     def __init__(self, **kwargs):
         self._target: Optional[ContentItem] = None
@@ -227,10 +229,11 @@ class TracingScreen(BaseScreen):
                                            pos_hint={"center_x": 0.5, "y": 0.16})
         self.content.add_widget(self.canvas_widget)
 
-        self.replay = GlyphTile(glyph="🔊", on_tap=lambda *_: self._speak(),
-                                size_hint=(None, None), size=(dp(80), dp(80)),
-                                pos_hint={"x": 0.02, "top": 0.9})
-        self.replay.bg_color = list(config.PALETTE["sun"])
+        self.replay = IconButton(icon="speaker", on_tap=lambda *_: self._speak(),
+                                 size_hint=(None, None), size=(dp(80), dp(80)),
+                                 pos_hint={"x": 0.02, "top": 0.9},
+                                 bg_color=list(config.PALETTE["sun"]),
+                                 icon_color=list(config.PALETTE["ink"]))
         self.content.add_widget(self.replay)
 
         self.progress = ChunkyProgressBar(size_hint=(0.9, None), height=dp(22),

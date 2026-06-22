@@ -30,7 +30,7 @@ class RewardsRoomScreen(BaseScreen):
                              pos_hint={"right": 0.99, "y": 0.0})
         self.content.add_widget(self.mascot)
 
-        self.chest_btn = BigButton(text="🎁 Open daily chest", size=(dp(280), dp(64)),
+        self.chest_btn = BigButton(text="Open Daily Chest", size=(dp(280), dp(64)),
                                    size_hint=(None, None),
                                    pos_hint={"center_x": 0.5, "top": 0.86},
                                    bg_color=list(config.PALETTE["coral"]),

@@ -22,7 +22,9 @@ from kivy.uix.label import Label
 
 from .. import config
 from ..core.content import ContentItem
+from ..core.voice_lines import NAV_LINES
 from ..ui import particles, theme
+from ..ui.icons import IconButton
 from ..ui.widgets import ChunkyProgressBar, GlyphTile, Mascot
 from .base import BaseScreen, app
 
@@ -61,10 +63,11 @@ class MatchingStageScreen(BaseScreen):
         self.content.add_widget(self.prompt_lbl)
 
         # Replay button (hear it again).
-        self.replay = GlyphTile(glyph="🔊", on_tap=lambda *_: self._speak_target(),
-                                size_hint=(None, None), size=(dp(80), dp(80)),
-                                pos_hint={"right": 0.97, "top": 0.92})
-        self.replay.bg_color = list(config.PALETTE["sun"])
+        self.replay = IconButton(icon="speaker", on_tap=lambda *_: self._speak_target(),
+                                 size_hint=(None, None), size=(dp(80), dp(80)),
+                                 pos_hint={"right": 0.97, "top": 0.92},
+                                 bg_color=list(config.PALETTE["sun"]),
+                                 icon_color=list(config.PALETTE["ink"]))
         self.content.add_widget(self.replay)
 
         # Choice row.
@@ -140,7 +143,7 @@ class MatchingStageScreen(BaseScreen):
             outcome = app().session.answer(self.STAGE, self._target, True)
             app().audio.play_sfx("correct")
             self.mascot.react()
-            self.mascot.say(outcome.encouragement)
+            self.mascot.say(outcome.encouragement, key=outcome.encouragement_key)
             self.star_counter.bump(outcome.result.stars_awarded)
             self._update_progress()
             if outcome.celebrate:
@@ -153,7 +156,7 @@ class MatchingStageScreen(BaseScreen):
             tile.flash(config.PALETTE["coral"])
             app().audio.play_sfx("wrong")
             app().session.answer(self.STAGE, self._target, False)
-            self.mascot.say("Good try! Listen again.")
+            self.mascot.say(NAV_LINES["retry_listen"], key="retry_listen")
             Clock.schedule_once(lambda dt: self._speak_target(), 0.6)
 
     def _announce_rewards(self, rewards):

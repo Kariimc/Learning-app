@@ -12,6 +12,7 @@ class Stage2Screen(MatchingStageScreen):
     STAGE = 2
     GUIDE = "reading_rabbit"
     ACCENT = config.PALETTE["tangerine"]
+    bg_image_key = "alphabet"
 
     def prompt_text(self, item: ContentItem) -> str:
         sound = item.data.get("sound", "")

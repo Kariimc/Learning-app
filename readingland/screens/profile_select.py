@@ -35,10 +35,11 @@ class ProfileSelectScreen(BaseScreen):
         self.content.add_widget(self.grid)
 
         # Parent corner.
-        self.parent_btn = BigButton(text="👪 Parents", size=(dp(170), dp(64)),
-                                    size_hint=(None, None),
+        self.parent_btn = BigButton(text="Parents", size=(dp(170), dp(64)),
+                                    size_hint=(None, None), font_size=theme.FONT_BODY,
                                     pos_hint={"right": 0.98, "y": 0.03},
                                     bg_color=list(config.PALETTE["cream"]),
+                                    color=config.PALETTE["grape"],
                                     on_tap=lambda *_: self._open_parent_gate())
         self.content.add_widget(self.parent_btn)
 
