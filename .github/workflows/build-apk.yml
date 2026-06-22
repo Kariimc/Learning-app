@@ -21,54 +21,29 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Set up Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Cache Buildozer global directory
-        uses: actions/cache@v4
-        with:
-          path: ~/.buildozer
-          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec', 'requirements.txt') }}
-          restore-keys: |
-            buildozer-${{ runner.os }}-
-
-      - name: Install system packages
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends \
-            git zip unzip autoconf libtool \
-            pkg-config zlib1g-dev libncurses5-dev libffi-dev libssl-dev \
-            cmake libltdl-dev
-
-      - name: Install Python packages
-        run: pip install buildozer cython
-
-      - name: Pre-accept Android SDK licenses
-        # Buildozer downloads its own SDK into ~/.buildozer and then runs
-        # sdkmanager, which prompts "Accept? (y/N)" for new packages (e.g.
-        # build-tools) and aborts in non-interactive CI. Seeding the license
-        # hash files makes sdkmanager treat every license as already accepted.
-        run: |
-          SDK_DIR="$HOME/.buildozer/android/platform/android-sdk"
-          mkdir -p "$SDK_DIR/licenses"
-          printf '\n8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n' > "$SDK_DIR/licenses/android-sdk-license"
-          printf '84831b9409646a918e30573bab4c9c91346d8abd\n' > "$SDK_DIR/licenses/android-sdk-preview-license"
-
       - name: Fetch AI-generated assets (art, font, Mabel voice)
+        # Pull the AI art, Fredoka font and Mabel voice pack into assets/ so
+        # they get bundled into the APK. Runs on the host before the build;
+        # the buildozer action mounts this workspace, so the files carry over.
         run: |
           python scripts/fetch_assets.py && echo "Assets fetched." \
             || echo "::warning::Some assets failed to download — app will use built-in placeholders."
 
       - name: Build debug APK
-        run: buildozer -v android debug
+        # Runs buildozer inside the official kivy/buildozer Docker image, which
+        # ships a pre-configured Android SDK + NDK with licenses already
+        # accepted — avoiding the SDK bootstrap / license-prompt failures that
+        # hit a bare runner.
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
+          command: buildozer android debug
+          buildozer_version: stable
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: ReadingLand-debug
-          path: bin/*.apk
+          path: ${{ steps.buildozer.outputs.filename }}
           retention-days: 30
           if-no-files-found: error
