@@ -25,6 +25,10 @@ android.minapi = 24
 android.archs = arm64-v8a, armeabi-v7a
 android.allow_backup = 1
 
+# Auto-accept the Android SDK licenses so non-interactive CI builds don't
+# stall on the "Accept? (y/N)" prompt. Intended for automation only.
+android.accept_sdk_license = True
+
 # No internet permission requested - the app is fully offline by design.
 android.permissions =
 

@@ -21,29 +21,46 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Cache Buildozer global directory
+        uses: actions/cache@v4
+        with:
+          path: ~/.buildozer
+          key: buildozer-${{ runner.os }}-${{ hashFiles('buildozer.spec', 'requirements.txt') }}
+          restore-keys: |
+            buildozer-${{ runner.os }}-
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            git zip unzip autoconf libtool \
+            pkg-config zlib1g-dev libncurses5-dev libffi-dev libssl-dev \
+            cmake libltdl-dev
+
+      - name: Install Python packages
+        run: pip install buildozer cython
+
       - name: Fetch AI-generated assets (art, font, Mabel voice)
-        # Pull the AI art, Fredoka font and Mabel voice pack into assets/ so
-        # they get bundled into the APK. Runs on the host before the build;
-        # the buildozer action mounts this workspace, so the files carry over.
         run: |
           python scripts/fetch_assets.py && echo "Assets fetched." \
             || echo "::warning::Some assets failed to download — app will use built-in placeholders."
 
       - name: Build debug APK
-        # Runs buildozer inside the official kivy/buildozer Docker image, which
-        # ships a pre-configured Android SDK + NDK with licenses already
-        # accepted — avoiding the SDK bootstrap / license-prompt failures that
-        # hit a bare runner.
-        uses: ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
-        with:
-          command: buildozer android debug
-          buildozer_version: stable
+        # buildozer downloads + manages its own SDK/NDK. android.accept_sdk_license
+        # in buildozer.spec auto-accepts the license prompts so the build runs
+        # unattended.
+        run: buildozer -v android debug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: ReadingLand-debug
-          path: ${{ steps.buildozer.outputs.filename }}
+          path: bin/*.apk
           retention-days: 30
           if-no-files-found: error
