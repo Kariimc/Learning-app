@@ -79,8 +79,13 @@ ASSETS = {
         f"{CDN}/hf_20260622_062425_ef0f300c-7749-47ca-ad58-07a113685d70.png",
 
     # --- Fonts ------------------------------------------------------------ #
+    # Google now ships Fredoka only as a variable font (the old static/
+    # Fredoka-Bold.ttf 404s). Kivy/SDL2_ttf can't apply variation axes, so this
+    # renders at the default weight, but it's still the rounded Fredoka shape and
+    # is a TTF (fontsource only ships woff2, which SDL2_ttf can't load). Saved
+    # under the name theme.register_main_font() looks for first.
     "assets/fonts/Fredoka-Bold.ttf":
-        "https://github.com/google/fonts/raw/main/ofl/fredoka/static/Fredoka-Bold.ttf",
+        "https://github.com/google/fonts/raw/main/ofl/fredoka/Fredoka%5Bwdth%2Cwght%5D.ttf",
 
     # --- Mabel voice pack (audio/voice/mabel/<key>.mp3) ------------------- #
     "assets/audio/voice/mabel/greet_home.mp3":
