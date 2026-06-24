@@ -63,8 +63,9 @@ class Stage6Screen(BaseScreen):
         self.scene_img = KivyImage(opacity=0, mipmap=True, fit_mode="cover",
                                    size_hint=(1, 1),
                                    pos_hint={"center_x": 0.5, "center_y": 0.5})
-        self.scene_emoji = Label(text="", font_size=dp(120), size_hint=(1, 1),
+        self.scene_emoji = Label(text="", font_size=dp(150), size_hint=(1, 1),
                                  pos_hint={"center_x": 0.5, "center_y": 0.5},
+                                 outline_width=dp(2.5), outline_color=config.PALETTE["cream"],
                                  font_name=theme.EMOJI_FONT_NAME if theme.register_fonts() else "Roboto")
         scene_layer.add_widget(self.scene_img)
         scene_layer.add_widget(self.scene_emoji)

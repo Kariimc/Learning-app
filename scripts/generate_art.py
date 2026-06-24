@@ -553,13 +553,26 @@ def make_story_scene(path, scene):
 
     # ground
     if indoor:
+        # a window on the wall (night view for the nap page), the floor, and a rug
+        # whose colour differs per page so the four indoor pages read distinctly.
+        band(int(W * 0.59) * S, int(H * 0.11) * S, int(W * 0.89) * S, int(H * 0.43) * S,
+             16 * S, mix((255, 255, 255), (0, 0, 0), 0.12))
+        win = hex_rgb("#34386A") if scene == "nap" else mix(hex_rgb("#9BD9F4"), (255, 255, 255), 0.2)
+        band(int(W * 0.605) * S, int(H * 0.125) * S, int(W * 0.875) * S, int(H * 0.415) * S, 11 * S, win)
+        if scene == "nap":
+            blob(int(W * 0.8) * S, int(H * 0.22) * S, 17 * S, 17 * S, (255, 250, 225), 240)
         band(-40, int(H * 0.6) * S, (W + 40) * S, (H + 40) * S, 0, hex_rgb("#E7B585"))
-        rug = mix(hex_rgb("#FF6B6B"), (255, 255, 255), 0.12)
-        band(int(W * 0.18) * S, int(H * 0.68) * S, int(W * 0.82) * S, int(H * 0.96) * S, 46 * S, rug)
+        rug_hex = {"rug": "#FF6B6B", "mat": "#3DDC97", "nap": "#9B5DE5",
+                   "hug": "#FF8FB1"}.get(scene, "#FF6B6B")
+        rug = mix(hex_rgb(rug_hex), (255, 255, 255), 0.12)
+        band(int(W * 0.16) * S, int(H * 0.66) * S, int(W * 0.84) * S, int(H * 0.96) * S, 46 * S, rug)
         for k in range(4):
-            yy = int((0.73 + k * 0.055) * H) * S
-            ImageDraw.Draw(big).line([(int(W * 0.21) * S, yy), (int(W * 0.79) * S, yy)],
+            yy = int((0.71 + k * 0.06) * H) * S
+            ImageDraw.Draw(big).line([(int(W * 0.19) * S, yy), (int(W * 0.81) * S, yy)],
                                      fill=mix(rug, (255, 255, 255), 0.45) + (255,), width=6 * S)
+        if scene == "hug":
+            for hx, hy, hr in [(0.28, 0.32, 24), (0.42, 0.2, 18), (0.18, 0.46, 16)]:
+                blob(int(W * hx) * S, int(H * hy) * S, hr * S, hr * S, hex_rgb("#FF6B6B"), 215)
     elif not night:
         grass = mix(hex_rgb("#7AC74F"), (255, 255, 255), 0.14)
         blob(int(W * 0.5) * S, int(H * 1.52) * S, int(W * 0.95) * S, int(H * 0.82) * S, grass)
@@ -605,6 +618,8 @@ def make_story_scene(path, scene):
 
     arr = np.asarray(base.convert("RGB"), np.float32)
     g = felt_grain(W, H, rng, fine=0.03, soft=0.04)[..., None]
+    if scene == "nap":
+        arr = arr * 0.88                       # cozy, dimmed nap-time light
     out = Image.fromarray(np.clip(arr * g, 0, 255).astype("uint8"), "RGB")
     os.makedirs(os.path.dirname(path), exist_ok=True)
     # The cream RoundedCard frames the scene, so a flat JPEG (no alpha) is plenty
