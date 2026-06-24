@@ -30,12 +30,6 @@ class ReadingLandApp(App):
         theme.register_fonts()
         Window.clearcolor = config.PALETTE["sky"]
 
-        # --- TEMP on-device asset diagnostics ----------------------------- #
-        # Shows, right on the tablet, exactly what the running APK sees for
-        # fonts/art. Lets us tell an old APK (no banner) from a new one, and
-        # whether emoji/art files actually shipped. Remove once verified.
-        self._show_asset_diagnostics(Window)
-
         # --- services -------------------------------------------------- #
         db_path = os.path.join(self.user_data_dir, config.DEFAULT_DB_NAME)
         self.db = Database(db_path)
@@ -50,57 +44,6 @@ class ReadingLandApp(App):
         # Start at profile select if any profiles exist, else splash->create.
         self.sm.current = "splash"
         return self.sm
-
-    # ------------------------------------------------------------------ #
-    # TEMP diagnostics — remove once assets are confirmed on-device.
-    # ------------------------------------------------------------------ #
-    BUILD_TAG = "DIAG-1"
-
-    def _show_asset_diagnostics(self, Window):
-        import glob
-        from kivy.uix.label import Label
-        from kivy.graphics import Color, Rectangle
-
-        adir = config.ASSETS_DIR
-        font_path = os.path.join(adir, "fonts", "NotoEmoji-Regular.ttf")
-        try:
-            emoji_ok = theme.register_fonts()
-        except Exception as e:  # pragma: no cover - defensive
-            emoji_ok = "ERR:%s" % e
-        imgs = glob.glob(os.path.join(adir, "images", "**", "*.png"), recursive=True)
-        audio = glob.glob(os.path.join(adir, "audio", "**", "*.mp3"), recursive=True)
-        # A glyph the emoji font must cover; with markup it renders in the emoji
-        # font while the rest stays readable. If it shows as a box the font
-        # isn't rendering even though it registered.
-        cat = "\U0001F431"
-        cat_markup = ("[font=%s]%s[/font]" % (theme.EMOJI_FONT_NAME, cat)
-                      if emoji_ok is True else cat)
-        msg = (
-            "[{tag}] test-glyph={cat}  fontfile={ff}  registered={reg}  "
-            "imgs={ni}  audio={na}\nassets_dir exists={ex}".format(
-                tag=self.BUILD_TAG,
-                cat=cat_markup,
-                ff=os.path.exists(font_path),
-                reg=emoji_ok,
-                ni=len(imgs),
-                na=len(audio),
-                ex=os.path.isdir(adir),
-            )
-        )
-        lbl = Label(
-            text=msg, font_size="14sp", color=(1, 1, 1, 1), markup=True,
-            size_hint=(1, None), height="60dp", halign="center", valign="middle",
-            pos_hint={"x": 0, "top": 1},
-        )
-        lbl.bind(size=lambda *_: setattr(lbl, "text_size", lbl.size))
-        with lbl.canvas.before:
-            Color(0, 0, 0, 0.66)
-            self._diag_rect = Rectangle(pos=lbl.pos, size=lbl.size)
-        lbl.bind(
-            pos=lambda *_: setattr(self._diag_rect, "pos", lbl.pos),
-            size=lambda *_: setattr(self._diag_rect, "size", lbl.size),
-        )
-        Window.add_widget(lbl)
 
     def on_start(self):
         self.audio.play_music("theme", loop=True, volume=0.25)

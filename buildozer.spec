@@ -32,9 +32,9 @@ android.accept_sdk_license = True
 # No internet permission requested - the app is fully offline by design.
 android.permissions =
 
-# Splash / icon. Run `python scripts/fetch_assets.py` first to download
-# app_icon.png, then uncomment to bake the icon into the APK.
-# icon.filename = assets/images/ui/app_icon.png
+# Splash / icon. app_icon.png is generated offline (scripts/generate_art.py) and
+# committed, so the felt rabbit icon is baked straight into the APK.
+icon.filename = assets/images/ui/app_icon.png
 # presplash.filename = assets/images/ui/presplash.png
 
 [buildozer]

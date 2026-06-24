@@ -1,23 +1,17 @@
-"""The recorded voice manifest and the fetch script must stay in lock-step.
+"""The recorded voice manifest and the bundled audio must stay in lock-step.
 
-If these drift, the app silently falls back to TTS for a line that was supposed
-to have a warm recording - so we assert every manifest key has a matching
-download entry and vice-versa.
+The narrator pack is generated offline (scripts/generate_voice.py) and committed.
+If it drifts from the manifest the app silently falls back to captions for a line
+that was supposed to have a warm recording - so we assert every manifest key has a
+rendered audio file on disk and there are no orphan files.
 """
-import importlib.util
 import os
 
 from readingland.core import voice_lines
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-def _load_fetch_assets():
-    path = os.path.join(ROOT, "scripts", "fetch_assets.py")
-    spec = importlib.util.spec_from_file_location("fetch_assets", path)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return mod
+VOICE_DIR = os.path.join(ROOT, "assets", "audio", "voice", "mabel")
+AUDIO_EXTS = (".ogg", ".mp3", ".wav")
 
 
 def test_keys_are_filesystem_safe():
@@ -27,21 +21,21 @@ def test_keys_are_filesystem_safe():
         assert "/" not in key and " " not in key
 
 
-def test_every_manifest_line_has_a_download():
-    fa = _load_fetch_assets()
-    voiced = {p for p in fa.ASSETS if p.startswith("assets/audio/voice/mabel/")}
+def test_every_manifest_line_is_rendered():
     for key in voice_lines.all_lines():
-        rel = f"assets/audio/voice/mabel/{key}.mp3"
-        assert rel in voiced, f"missing download for voice key {key!r}"
+        paths = [os.path.join(VOICE_DIR, key + ext) for ext in AUDIO_EXTS]
+        assert any(os.path.exists(p) for p in paths), (
+            f"no rendered audio for voice key {key!r} - run scripts/generate_voice.py")
 
 
-def test_no_orphan_voice_downloads():
-    fa = _load_fetch_assets()
+def test_no_orphan_voice_files():
     keys = set(voice_lines.all_lines())
-    for p in fa.ASSETS:
-        if p.startswith("assets/audio/voice/mabel/"):
-            key = os.path.splitext(os.path.basename(p))[0]
-            assert key in keys, f"download {key!r} has no manifest line"
+    if not os.path.isdir(VOICE_DIR):
+        return
+    for fn in os.listdir(VOICE_DIR):
+        if fn.endswith(AUDIO_EXTS):
+            key = os.path.splitext(fn)[0]
+            assert key in keys, f"rendered file {fn!r} has no manifest line"
 
 
 def test_encouragement_keys_resolve():

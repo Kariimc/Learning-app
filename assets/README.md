@@ -4,24 +4,31 @@ ReadingLand runs with **programmatic placeholders** (emoji + drawn shapes + big
 type) so there are no missing-file crashes. Drop production art/audio here using
 the conventions below and it's picked up automatically — **no code changes**.
 
-## ⬇️ Fetch the generated production assets
-Mascot portraits, the app icon, land backgrounds, storybook illustrations and
-the warm **Mabel "fairy godmother" voice pack** were produced with AI models and
-are hosted on a CDN. Pull them all in with one command:
+## 🧶 Generate the felt art + voice (offline, no API)
+Mascot portraits, the app icon, button/panel textures, land backgrounds and the
+warm narrator voice pack are **generated on-device** — felt/plush art with Pillow
+and narration with an offline neural TTS — and committed to the repo. A fresh
+clone already has them. To re-generate (no API, no CDN, no network):
 
 ```bash
-python scripts/fetch_assets.py        # add --force to re-download everything
+pip install pillow numpy piper-tts
+python scripts/generate_art.py        # --only buttons|characters|backgrounds
+python scripts/generate_voice.py      # --engine piper|pico|espeak  --force
+# (scripts/fetch_assets.py runs both, for backward-compatible muscle memory)
 ```
 
 This populates:
-- `images/characters/<id>/portrait.png` — mascots (`Mascot` widget)
-- `images/ui/app_icon.png` — app icon
-- `images/backgrounds/bg_<land>.png` — per-land painted backgrounds (`BaseScreen`)
-- `images/cards/story_<book>_p<n>.png` — storybook page illustrations (Stage 6)
-- `audio/voice/mabel/<key>.{mp3}` — recorded narrator lines (`core/audio.py`)
+- `images/ui/felt_button.png`, `felt_panel.png` — tintable plush-felt textures
+  (buttons/cards multiply their colour by these; see `ui/assets.felt_texture`)
+- `images/characters/<id>/portrait.png` — felt mascots (`Mascot` widget)
+- `images/ui/app_icon.png` — felt app icon
+- `images/backgrounds/bg_<land>.jpg` — per-land felt backgrounds (`BaseScreen`)
+- `audio/voice/mabel/<key>.ogg` — narrator lines (`core/audio.py`)
 
 Every file is optional: `readingland/ui/assets.py` / `core/audio.py` look them up
-and fall back to programmatic placeholders + warm TTS, so the app runs either way.
+and fall back to programmatic placeholders + captions, so the app runs either way.
+Storybook page illustrations (`images/cards/story_<book>_p<n>.png`) aren't
+generated — Stage 6 falls back to big emoji scenes.
 
 Full bill of materials & specs: [`../docs/06_asset_list.md`](../docs/06_asset_list.md).
 Audio specifics: [`../docs/08_audio_requirements.md`](../docs/08_audio_requirements.md).

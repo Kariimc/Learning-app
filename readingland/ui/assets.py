@@ -43,3 +43,21 @@ def card_image(item_id: str) -> Optional[str]:
 def ui_image(name: str) -> Optional[str]:
     base = os.path.join(config.ASSETS_DIR, "images", "ui")
     return _first_existing(*[os.path.join(base, name + ext) for ext in _IMAGE_EXTS])
+
+
+_FELT_CACHE: dict = {}
+
+
+def felt_texture(kind: str = "button") -> str:
+    """Path to the tintable plush-felt texture for a rounded surface, or "".
+
+    ``kind="button"`` -> wide pillow texture; anything else -> square panel.
+    Buttons draw this on their ``RoundedRectangle`` so Kivy multiplies the felt
+    shading by the widget's ``bg_color``, turning any colour into stuffed felt.
+    Returns "" (falsy) when the art hasn't been generated, so callers keep their
+    flat-colour fallback. Cached: the lookup runs once per kind.
+    """
+    if kind not in _FELT_CACHE:
+        name = "felt_button" if kind == "button" else "felt_panel"
+        _FELT_CACHE[kind] = ui_image(name) or ""
+    return _FELT_CACHE[kind]

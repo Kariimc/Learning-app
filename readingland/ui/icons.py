@@ -48,9 +48,23 @@ class Icon(Widget):
         cx, cy = self.center
         return cx, cy, s
 
+    # Optical-centering nudges (fractions of icon size). A few glyphs read as
+    # off-centre when drawn around the geometric centre because their visual
+    # mass is lopsided (speaker cone, etc.); these shift them back to centre.
+    _NUDGE = {
+        "speaker": (0.05, 0.0),
+        "gift": (0.0, -0.02),
+        "home": (0.0, -0.02),
+        "check": (-0.02, -0.02),
+        "switch": (0.015, 0.0),
+    }
+
     def _draw(self, *_):
         self.canvas.clear()
         cx, cy, s = self._box()
+        nx, ny = self._NUDGE.get(self.name, (0.0, 0.0))
+        cx += s * nx
+        cy += s * ny
         w = max(dp(3), min(self.line_w, s * 0.16))
         with self.canvas:
             Color(*self.color)
@@ -87,9 +101,11 @@ class Icon(Widget):
                  width=w * 0.8, cap="round")
 
     def _icon_play(self, cx, cy, s, w):
-        Triangle(points=[cx - s * 0.28, cy + s * 0.36,
-                         cx - s * 0.28, cy - s * 0.36,
-                         cx + s * 0.4,  cy])
+        # Vertices chosen so the triangle's centroid lands exactly on (cx, cy)
+        # (base at -0.24, tip at +0.48 -> mean x = 0): an optically centred play.
+        Triangle(points=[cx - s * 0.24, cy + s * 0.34,
+                         cx - s * 0.24, cy - s * 0.34,
+                         cx + s * 0.48, cy])
 
     def _icon_gift(self, cx, cy, s, w):
         Line(rounded_rectangle=(cx - s * 0.36, cy - s * 0.4, s * 0.72, s * 0.6, dp(4)),
@@ -101,10 +117,24 @@ class Icon(Widget):
         Line(circle=(cx + s * 0.12, cy + s * 0.34, s * 0.12), width=w * 0.8)
 
     def _icon_lock(self, cx, cy, s, w):
-        Line(rounded_rectangle=(cx - s * 0.3, cy - s * 0.4, s * 0.6, s * 0.5, dp(6)),
+        # A closed padlock, vertically centred (body bottom -0.39s, shackle top
+        # +0.39s). The shackle is a proper top arch (∩); the old version drew the
+        # circle's right half (angles 0..180), which looked like an open lock.
+        body_w, body_h = s * 0.64, s * 0.52
+        body_x, body_y = cx - body_w / 2, cy - s * 0.39
+        body_top = body_y + body_h
+        r = s * 0.22                                   # shackle radius
+        arch_cy = body_top + s * 0.04
+        Line(circle=(cx, arch_cy, r, -90, 90), width=w, cap="round")      # ∩ arch
+        Line(points=[cx - r, arch_cy, cx - r, body_top - w * 0.3], width=w, cap="round")
+        Line(points=[cx + r, arch_cy, cx + r, body_top - w * 0.3], width=w, cap="round")
+        Line(rounded_rectangle=(body_x, body_y, body_w, body_h, s * 0.12),
              width=w, cap="round", joint="round")
-        Line(circle=(cx, cy + s * 0.12, s * 0.22, 0, 180), width=w, cap="round")
-        Ellipse(pos=(cx - s * 0.06, cy - s * 0.2), size=(s * 0.12, s * 0.12))
+        # keyhole: round hole + stem, centred in the body
+        kh = s * 0.13
+        Ellipse(pos=(cx - kh / 2, cy - s * 0.14), size=(kh, kh))
+        Line(points=[cx, cy - s * 0.12, cx, cy - s * 0.26], width=max(w * 0.9, dp(2)),
+             cap="round")
 
     def _icon_pencil(self, cx, cy, s, w):
         Line(points=[cx - s * 0.35, cy - s * 0.35, cx + s * 0.3, cy + s * 0.3],
@@ -166,6 +196,10 @@ class IconButton(ButtonBehavior, Widget):
             self._shadow = RoundedRectangle(radius=[self.radius])
             self._bg_c = Color(*self.bg_color)
             self._bg = RoundedRectangle(radius=[self.radius])
+            from .assets import felt_texture       # tintable plush-felt surface
+            tex = felt_texture("panel")
+            if tex:
+                self._bg.source = tex
         with self.canvas.after:
             PopMatrix()
         # Child Icon draws its own canvas co-located with this button.
