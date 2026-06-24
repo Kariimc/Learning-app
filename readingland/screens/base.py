@@ -74,7 +74,7 @@ class BaseScreen(Screen):
             on_tap=lambda *_: self.on_back(),
         )
         self.title_lbl = Label(text=self.title, font_size=theme.FONT_TITLE, bold=True,
-                               color=config.PALETTE["cream"])
+                               color=config.PALETTE["cream"], **theme.outline(2))
         self.star_counter = StarCounter(size_hint=(None, 1), width=dp(120))
         if self.show_topbar:
             self.topbar.add_widget(self.back_btn)

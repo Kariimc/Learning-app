@@ -12,6 +12,7 @@ from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.metrics import dp
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image as KivyImage
 from kivy.uix.label import Label
@@ -54,15 +55,20 @@ class Stage6Screen(BaseScreen):
         self.reader = BoxLayout(orientation="vertical", size_hint=(0.94, 0.82),
                                 pos_hint={"center_x": 0.5, "center_y": 0.5},
                                 padding=dp(12), spacing=dp(10))
-        self.scene_card = RoundedCard(size_hint=(1, 0.55))
+        self.scene_card = RoundedCard(size_hint=(1, 0.55), padding=dp(10))
         self.scene_card.bg_color = list(config.PALETTE["cream"])
-        self.scene_emoji = Label(text="", font_size=dp(120),
+        scene_layer = FloatLayout()
+        # Felt page scene fills the card (cover = keep aspect, crop overflow); the
+        # page's emoji subject sits on top of it.
+        self.scene_img = KivyImage(opacity=0, mipmap=True, fit_mode="cover",
+                                   size_hint=(1, 1),
+                                   pos_hint={"center_x": 0.5, "center_y": 0.5})
+        self.scene_emoji = Label(text="", font_size=dp(120), size_hint=(1, 1),
+                                 pos_hint={"center_x": 0.5, "center_y": 0.5},
                                  font_name=theme.EMOJI_FONT_NAME if theme.register_fonts() else "Roboto")
-        self.scene_card.add_widget(self.scene_emoji)
-        # Painted page illustration (shown when art exists, else the emoji scene).
-        self.scene_img = KivyImage(allow_stretch=True, keep_ratio=True, opacity=0,
-                                   mipmap=True)
-        self.scene_card.add_widget(self.scene_img)
+        scene_layer.add_widget(self.scene_img)
+        scene_layer.add_widget(self.scene_emoji)
+        self.scene_card.add_widget(scene_layer)
         self.reader.add_widget(self.scene_card)
 
         self.text_box = BoxLayout(orientation="horizontal", spacing=dp(8),
@@ -140,14 +146,13 @@ class Stage6Screen(BaseScreen):
         # Prefer a painted illustration for this page; else the emoji scene.
         from ..ui.assets import card_image
         art = card_image(f"{self._book.id}_p{self._page}")
+        # The emoji subject always sits on top; the felt scene fills behind it
+        # (falling back to the plain cream card when a page has no scene art).
+        self.scene_emoji.text = page.get("interactive", {}).get("emoji", self._book.emoji)
+        self.scene_emoji.opacity = 1
+        self.scene_img.opacity = 1 if art else 0
         if art:
             self.scene_img.source = art
-            self.scene_img.opacity = 1
-            self.scene_emoji.opacity = 0
-        else:
-            self.scene_img.opacity = 0
-            self.scene_emoji.opacity = 1
-            self.scene_emoji.text = page.get("interactive", {}).get("emoji", self._book.emoji)
         self.text_box.clear_widgets()
         self._word_lbls = []
         for w in page.get("words", page.get("text", "").split()):

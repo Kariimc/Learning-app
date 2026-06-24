@@ -40,7 +40,7 @@ class HomeMapScreen(BaseScreen):
         self.content.add_widget(self.rewards_btn)
 
         self.daily_lbl = Label(text="", font_size=theme.FONT_LABEL, bold=True,
-                               color=config.PALETTE["cream"],
+                               color=config.PALETTE["cream"], **theme.outline(1.5),
                                pos_hint={"center_x": 0.5, "y": 0.02}, size_hint=(0.5, None),
                                height=dp(40))
         self.content.add_widget(self.daily_lbl)
@@ -92,7 +92,7 @@ class HomeMapScreen(BaseScreen):
             info = BoxLayout(orientation="vertical", spacing=dp(4))
             info.add_widget(Label(text=stage["title"], font_size=theme.FONT_HEADING,
                                   bold=True, color=config.PALETTE["cream"],
-                                  halign="left", size_hint=(1, 0.4)))
+                                  **theme.outline(1.5), halign="left", size_hint=(1, 0.4)))
             sub = "Locked - keep learning to open!" if not unlocked else stage["subtitle"]
             info.add_widget(Label(text=sub, font_size=theme.FONT_LABEL,
                                   color=config.PALETTE["cream"], size_hint=(1, 0.3)))
@@ -119,7 +119,8 @@ class HomeMapScreen(BaseScreen):
         card.add_widget(icon)
         info = BoxLayout(orientation="vertical", spacing=dp(4))
         info.add_widget(Label(text="Trace Letters", font_size=theme.FONT_HEADING, bold=True,
-                              color=config.PALETTE["cream"], size_hint=(1, 0.5)))
+                              color=config.PALETTE["cream"], **theme.outline(1.5),
+                              size_hint=(1, 0.5)))
         sub = "Practice writing letters with your finger!" if unlocked \
             else "Opens with Letter Land!"
         info.add_widget(Label(text=sub, font_size=theme.FONT_LABEL,

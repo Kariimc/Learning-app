@@ -25,7 +25,7 @@ class ProfileSelectScreen(BaseScreen):
     def build(self):
         self.bg_top = config.PALETTE["sky"]
         self.heading = Label(text="Who's reading today?", font_size=dp(44), bold=True,
-                             color=config.PALETTE["cream"],
+                             color=config.PALETTE["cream"], **theme.outline(2),
                              pos_hint={"center_x": 0.5, "top": 0.96}, size_hint=(1, None),
                              height=dp(80))
         self.content.add_widget(self.heading)

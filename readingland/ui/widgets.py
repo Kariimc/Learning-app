@@ -321,7 +321,7 @@ class GlyphTile(ButtonBehavior, RoundedCard):
         self._glyph_lbl = Label(
             text=self.glyph, font_size=theme.FONT_DISPLAY, bold=True,
             color=self.glyph_color, size_hint_y=0.55, font_name=_font_for(self.glyph),
-            halign="center", valign="middle",
+            halign="center", valign="middle", **theme.outline(2.5),
         )
         self._emoji_lbl.bind(size=lambda w, s: setattr(w, "text_size", s))
         self._glyph_lbl.bind(size=lambda w, s: setattr(w, "text_size", s))
