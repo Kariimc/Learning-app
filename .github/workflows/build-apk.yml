@@ -51,6 +51,37 @@ jobs:
           python scripts/fetch_assets.py && echo "Assets fetched." \
             || echo "::warning::Some assets failed to download — app will use built-in placeholders."
 
+      - name: Report bundled assets
+        # Visibility into what actually ends up inside the APK. The emoji font is
+        # committed to the repo (guaranteed); the AI art/audio is downloaded and
+        # may be missing if the CDN is unreachable. This writes a short manifest
+        # we can read from the run summary / artifact without scrolling 20k build
+        # log lines.
+        if: always()
+        run: |
+          {
+            echo "## Bundled assets report"
+            echo ""
+            echo "| type | count |"
+            echo "|------|-------|"
+            echo "| fonts (.ttf) | $(find assets -name '*.ttf' 2>/dev/null | wc -l) |"
+            echo "| images (.png/.jpg) | $(find assets -type f \( -name '*.png' -o -name '*.jpg' \) 2>/dev/null | wc -l) |"
+            echo "| audio (.mp3) | $(find assets -name '*.mp3' 2>/dev/null | wc -l) |"
+            echo ""
+            echo "Total assets size: $(du -sh assets 2>/dev/null | cut -f1)"
+          } | tee asset-manifest.txt >> "$GITHUB_STEP_SUMMARY"
+          echo "--- full file list ---" >> asset-manifest.txt
+          find assets -type f 2>/dev/null | sort >> asset-manifest.txt
+
+      - name: Upload asset manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: asset-manifest
+          path: asset-manifest.txt
+          retention-days: 30
+          if-no-files-found: warn
+
       - name: Build debug APK
         # buildozer downloads + manages its own SDK/NDK. android.accept_sdk_license
         # in buildozer.spec auto-accepts the license prompts so the build runs

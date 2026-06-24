@@ -61,6 +61,12 @@ def register_fonts() -> bool:
         return True
     win = os.environ.get("WINDIR", r"C:\Windows")
     candidates = [
+        # Monochrome Noto Emoji ships in the repo (assets/fonts/) so emoji glyphs
+        # render on every platform — including Android, where there is no system
+        # emoji font Kivy can reach. Monochrome outlines render through SDL_ttf's
+        # FreeType backend everywhere; colour-emoji fonts (CBDT/SBIX) do not, so
+        # this is the reliable choice. Listed first to win over any system font.
+        os.path.join(config.ASSETS_DIR, "fonts", "NotoEmoji-Regular.ttf"),
         os.path.join(config.ASSETS_DIR, "fonts", "NotoColorEmoji.ttf"),
         os.path.join(config.ASSETS_DIR, "fonts", "emoji.ttf"),
         os.path.join(win, "Fonts", "seguiemj.ttf"),
