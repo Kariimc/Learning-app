@@ -35,7 +35,7 @@ android.permissions =
 # Splash / icon. app_icon.png is generated offline (scripts/generate_art.py) and
 # committed, so the felt rabbit icon is baked straight into the APK.
 icon.filename = assets/images/ui/app_icon.png
-# presplash.filename = assets/images/ui/presplash.png
+presplash.filename = assets/images/ui/presplash.jpg
 
 [buildozer]
 log_level = 2

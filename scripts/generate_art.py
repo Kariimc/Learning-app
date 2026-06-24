@@ -24,7 +24,7 @@ import os
 import sys
 
 import numpy as np
-from PIL import Image, ImageChops, ImageDraw, ImageFilter
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 IMG = os.path.join(ROOT, "assets", "images")
@@ -652,6 +652,53 @@ def make_app_icon(path, size=512):
     print(f"  OK  {os.path.relpath(path, ROOT)}")
 
 
+def make_presplash(path, size=(1024, 640)):
+    """Mobile loading screen: felt sky + clouds, the rabbit, and the title."""
+    W, H = size
+    rng = np.random.default_rng(5)
+    top = np.array(mix(hex_rgb("#5DC1F0"), (255, 255, 255), 0.28), np.float32)
+    bot = np.array(hex_rgb("#5DC1F0"), np.float32)
+    ty = np.linspace(0, 1, H, dtype=np.float32)[:, None, None]
+    grad = top[None, None, :] * (1 - ty) + bot[None, None, :] * ty
+    grain = felt_grain(W, H, rng, fine=0.025, soft=0.04)[..., None]
+    img = Image.fromarray(np.clip(grad * grain, 0, 255).astype("uint8"), "RGB").convert("RGBA")
+
+    clouds = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    for _ in range(4):
+        cx, cy = int(rng.uniform(0.1, 0.9) * W), int(rng.uniform(0.08, 0.4) * H)
+        r = int(rng.uniform(54, 96))
+        layer = ImageDraw.Draw(clouds)
+        for ox in (-r, 0, r, r // 2):
+            layer.ellipse([cx + ox - int(r * 0.7), cy - int(r * 0.5),
+                           cx + ox + int(r * 0.7), cy + int(r * 0.5)], fill=(255, 252, 246, 215))
+    img.alpha_composite(clouds.filter(ImageFilter.GaussianBlur(3)))
+
+    rabbit = os.path.join(IMG, "characters", "reading_rabbit", "portrait.png")
+    if not os.path.exists(rabbit):
+        char_reading_rabbit(rabbit)
+    r = Image.open(rabbit).convert("RGBA")
+    scale = H * 0.60 / r.height
+    r = r.resize((int(r.width * scale), int(r.height * scale)), Image.LANCZOS)
+    img.alpha_composite(r, ((W - r.width) // 2, int(H * 0.33)))
+
+    d = ImageDraw.Draw(img)
+    try:
+        fnt = ImageFont.truetype(os.path.join(ROOT, "assets", "fonts", "TitanOne-Regular.ttf"), 104)
+    except Exception:
+        fnt = ImageFont.load_default()
+    text = "ReadingLand"
+    bb = d.textbbox((0, 0), text, font=fnt, stroke_width=8)
+    d.text(((W - (bb[2] - bb[0])) // 2 - bb[0], int(H * 0.07)), text, font=fnt,
+           fill=(255, 246, 233), stroke_width=8, stroke_fill=(43, 45, 66))
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    img = img.convert("RGB")
+    if path.lower().endswith((".jpg", ".jpeg")):
+        img.save(path, quality=88, optimize=True)   # ~80 KB vs ~900 KB as PNG
+    else:
+        img.save(path, optimize=True)
+    print(f"  OK  {os.path.relpath(path, ROOT)}")
+
+
 # --------------------------------------------------------------------------- #
 def gen_buttons():
     print("Plush button / panel textures + app icon:")
@@ -660,6 +707,7 @@ def gen_buttons():
     make_panel(os.path.join(IMG, "ui", "felt_panel.png"), (512, 512), seed=8,
                rim=0.17, dip=0.26, round_bias=0.5)
     make_app_icon(os.path.join(IMG, "ui", "app_icon.png"))
+    make_presplash(os.path.join(IMG, "ui", "presplash.jpg"))
 
 
 def gen_characters():
