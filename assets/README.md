@@ -12,9 +12,10 @@ clone already has them. To re-generate (no API, no CDN, no network):
 
 ```bash
 pip install pillow numpy piper-tts
-python scripts/generate_art.py        # --only buttons|characters|backgrounds
+python scripts/generate_art.py        # --only buttons|characters|backgrounds|stories
 python scripts/generate_voice.py      # --engine piper|pico|espeak  --force
-# (scripts/fetch_assets.py runs both, for backward-compatible muscle memory)
+python scripts/generate_sfx.py        # taps/chimes/page-turns + theme (numpy synth)
+# (scripts/fetch_assets.py runs all three, for backward-compatible muscle memory)
 ```
 
 This populates:
@@ -26,6 +27,8 @@ This populates:
 - `images/cards/story_<book>_p<n>.jpg` — felt story-page scenes; the page's emoji
   subject is layered on top in Stage 6 (`scene` keyword in `stories.json`)
 - `audio/voice/mabel/<key>.ogg` — narrator lines (`core/audio.py`)
+- `audio/sfx/<name>.ogg` — tap, pop, correct, wrong, locked, page, chest
+- `audio/music/theme.ogg` — gentle seamless background loop
 
 Every file is optional: `readingland/ui/assets.py` / `core/audio.py` look them up
 and fall back to programmatic placeholders + captions, so the app runs either way.

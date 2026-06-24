@@ -6,6 +6,7 @@ content-delivery network. It now **generates everything on-device** instead:
 
   * felt / plush-toy art  -> ``scripts/generate_art.py``   (Pillow)
   * narrator voice pack   -> ``scripts/generate_voice.py`` (offline neural TTS)
+  * sound effects + theme -> ``scripts/generate_sfx.py``   (numpy synthesis)
 
 Both sets of assets are committed to the repo, so a fresh clone already has them
 and the app runs with **zero network**. This script is kept under its old name so
@@ -25,7 +26,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 def main() -> int:
     rc = 0
-    for script in ("generate_art.py", "generate_voice.py"):
+    for script in ("generate_art.py", "generate_voice.py", "generate_sfx.py"):
         print(f"\n=== {script} ===")
         rc |= subprocess.call([sys.executable, os.path.join(HERE, script)])
     if rc:

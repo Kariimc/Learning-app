@@ -44,6 +44,7 @@ to the repo, so the app runs with zero network. To re-generate them yourself:
 pip install pillow numpy piper-tts        # build-time only
 python scripts/generate_art.py            # felt buttons, mascots, backgrounds, icon
 python scripts/generate_voice.py          # narrator voice pack (offline neural TTS)
+python scripts/generate_sfx.py            # taps, chimes, page-turns + theme music
 ```
 
 Run the headless self-test (builds the real app, visits every screen, captures
