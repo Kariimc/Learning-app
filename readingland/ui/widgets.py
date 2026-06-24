@@ -22,6 +22,7 @@ from kivy.uix.widget import Widget
 
 from .. import config
 from . import theme
+from .assets import felt_texture
 
 
 def app():
@@ -57,6 +58,9 @@ class RoundedCard(BoxLayout):
             self._shadow = RoundedRectangle(radius=[self.radius])
             self._bg_color_inst = Color(*self.bg_color)
             self._bg = RoundedRectangle(radius=[self.radius])
+            tex = felt_texture("panel")          # tintable plush-felt surface
+            if tex:
+                self._bg.source = tex
         with self.canvas.after:
             PopMatrix()
         self.bind(pos=self._sync, size=self._sync, bg_color=self._sync_color,
@@ -107,6 +111,9 @@ class BigButton(ButtonBehavior, Label):
             self._shadow = RoundedRectangle(radius=[self.radius])
             self._bg_c = Color(*self.bg_color)
             self._bg = RoundedRectangle(radius=[self.radius])
+            tex = felt_texture("button")         # tintable plush-felt pillow
+            if tex:
+                self._bg.source = tex
         with self.canvas.after:
             PopMatrix()
         self.bind(pos=self._sync, size=self._sync, bg_color=self._sync_color,
@@ -301,7 +308,11 @@ class GlyphTile(ButtonBehavior, RoundedCard):
         self.orientation = "vertical"
         self.padding = dp(8)
         self._on_tap = on_tap
-        fn = theme.FONT_MAIN if theme.register_main_font() else "Roboto"
+        # Pick the font per-label from the actual text: a glyph that is itself an
+        # emoji (Stage-1 picture tiles, profile avatars) must use the emoji font,
+        # not the display font, or it renders as a "tofu" box. (_on_glyph/_on_emoji
+        # only fire when the property *changes* after construction, so the initial
+        # value has to be routed here too.)
         self._emoji_lbl = Label(
             text=self.emoji, font_size=dp(40), size_hint_y=0.45,
             color=config.PALETTE["ink"], font_name=_font_for(self.emoji),
@@ -309,7 +320,7 @@ class GlyphTile(ButtonBehavior, RoundedCard):
         )
         self._glyph_lbl = Label(
             text=self.glyph, font_size=theme.FONT_DISPLAY, bold=True,
-            color=self.glyph_color, size_hint_y=0.55, font_name=fn,
+            color=self.glyph_color, size_hint_y=0.55, font_name=_font_for(self.glyph),
             halign="center", valign="middle",
         )
         self._emoji_lbl.bind(size=lambda w, s: setattr(w, "text_size", s))

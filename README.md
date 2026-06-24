@@ -34,8 +34,16 @@ Mistakes are **never** punished — a wrong tap just gently asks them to try aga
 
 ```bash
 pip install -r requirements.txt
-python scripts/fetch_assets.py   # optional: pull the AI-generated character art
-python main.py
+python main.py                   # runs with the committed felt art + voice pack
+```
+
+All art and narration are **generated offline** (no API, no cloud) and committed
+to the repo, so the app runs with zero network. To re-generate them yourself:
+
+```bash
+pip install pillow numpy piper-tts        # build-time only
+python scripts/generate_art.py            # felt buttons, mascots, backgrounds, icon
+python scripts/generate_voice.py          # narrator voice pack (offline neural TTS)
 ```
 
 Run the headless self-test (builds the real app, visits every screen, captures
@@ -83,13 +91,22 @@ code**. New letters/words/stories/characters are added by editing JSON.
 
 ---
 
-## Placeholder art vs. production art
+## Art & audio — a cohesive felt / plush look, generated offline
 
-This repository runs **today** using *programmatic placeholder assets*: emoji +
-drawn shapes + big type, generated at runtime so there are no missing-file
-crashes. Production replaces these with the cohesive cartoon art and recorded
-voice-overs specified in the asset docs — **without layout changes**, because the
-theme (palette + type scale) is fixed.
+ReadingLand's art set is a hand-crafted **felt toy** world: buttons that look
+like stuffed felt pillows, mascots built from stitched felt cut-outs, and soft
+felt-craft land backgrounds. Every piece is **generated procedurally with
+Pillow** (`scripts/generate_art.py`) — multiplicative felt-shading so a single
+tintable texture turns any palette colour into plush felt, fibre-grain noise, and
+cream stitch outlines. No image-gen API, no CDN, fully reproducible.
+
+The narrator voice is likewise rendered **fully offline** by a small neural TTS
+(`scripts/generate_voice.py`, Piper — with `pico2wave`/`espeak-ng` fallbacks):
+every line in the manifest is baked to a small `.ogg` and bundled, so there is
+**no API key, no per-call cost, and no runtime TTS dependency** on any platform.
+
+Anything not yet generated still degrades gracefully to programmatic placeholders
++ on-screen captions, so the app never crashes on a missing file.
 
 > Asset specs: [`docs/06_asset_list.md`](docs/06_asset_list.md) ·
 > [`assets/README.md`](assets/README.md)

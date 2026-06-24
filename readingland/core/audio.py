@@ -4,8 +4,9 @@ Supports two narration sources, chosen per-line at runtime:
 
 1. **Recorded narration** - pre-rendered ``.ogg``/``.mp3`` voice-over files in
    ``assets/audio/voice/<voice_pack>/<key>.ogg``. Highest quality; used when the
-   file exists. This is how shipping voice packs (Reading Rabbit, Ollie Owl...)
-   are delivered.
+   file exists. These are baked **offline, no API** by ``scripts/generate_voice.py``
+   (Piper neural TTS, with ``pico2wave``/``espeak-ng`` fallbacks) and bundled, so
+   narration needs no network or runtime TTS on any platform.
 2. **Text-to-speech fallback** - if no recording exists (e.g. a brand-new word a
    content author just added), the manager speaks via an available TTS backend
    (``pyttsx3`` offline, or platform TTS on Android/iOS). This guarantees *every*
