@@ -23,12 +23,12 @@ This populates:
 - `images/characters/<id>/portrait.png` — felt mascots (`Mascot` widget)
 - `images/ui/app_icon.png` — felt app icon
 - `images/backgrounds/bg_<land>.jpg` — per-land felt backgrounds (`BaseScreen`)
+- `images/cards/story_<book>_p<n>.jpg` — felt story-page scenes; the page's emoji
+  subject is layered on top in Stage 6 (`scene` keyword in `stories.json`)
 - `audio/voice/mabel/<key>.ogg` — narrator lines (`core/audio.py`)
 
 Every file is optional: `readingland/ui/assets.py` / `core/audio.py` look them up
 and fall back to programmatic placeholders + captions, so the app runs either way.
-Storybook page illustrations (`images/cards/story_<book>_p<n>.png`) aren't
-generated — Stage 6 falls back to big emoji scenes.
 
 Full bill of materials & specs: [`../docs/06_asset_list.md`](../docs/06_asset_list.md).
 Audio specifics: [`../docs/08_audio_requirements.md`](../docs/08_audio_requirements.md).

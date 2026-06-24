@@ -18,11 +18,20 @@ FONT_HEADING  = 36
 FONT_BODY     = 28
 FONT_LABEL    = 22
 
-FONT_MAIN = "Fredoka"   # fun round kids font; falls back to Roboto if absent
+FONT_MAIN = "Display"   # heavy, playful rounded display font (Titan One)
 
 _EMOJI_FONT_REGISTERED = False
 _MAIN_FONT_REGISTERED  = False
 EMOJI_FONT_NAME = "Emoji"
+
+# A dark "sticker" outline makes light display text pop on the soft felt
+# backgrounds — high contrast at any size. Use via ``**theme.outline()``.
+OUTLINE_COLOR = PALETTE["ink"]
+
+
+def outline(width_dp: float = 2.0):
+    """Label kwargs that add a dark contrast outline to display text."""
+    return {"outline_width": dp(width_dp), "outline_color": OUTLINE_COLOR}
 
 
 def register_main_font() -> bool:
@@ -34,11 +43,17 @@ def register_main_font() -> bool:
     global _MAIN_FONT_REGISTERED
     if _MAIN_FONT_REGISTERED:
         return True
+    # Heavy, playful static weights first. Titan One / Sniglet render at full
+    # weight through SDL2_ttf; the Fredoka file is a *variable* font (SDL2 can't
+    # apply its weight axis, so it renders thin) and is kept only as a fallback.
     candidates = [
-        os.path.join(config.ASSETS_DIR, "fonts", "Fredoka-Bold.ttf"),
+        os.path.join(config.ASSETS_DIR, "fonts", "TitanOne-Regular.ttf"),
+        os.path.join(config.ASSETS_DIR, "fonts", "Sniglet-ExtraBold.ttf"),
         os.path.join(config.ASSETS_DIR, "fonts", "Nunito-ExtraBold.ttf"),
-        os.path.join(config.ASSETS_DIR, "fonts", "Nunito-Bold.ttf"),
+        os.path.join(config.ASSETS_DIR, "fonts", "Fredoka-Bold.ttf"),
     ]
+    candidates += glob.glob(os.path.join(config.ASSETS_DIR, "fonts", "TitanOne*.ttf"))
+    candidates += glob.glob(os.path.join(config.ASSETS_DIR, "fonts", "Sniglet*.ttf"))
     candidates += glob.glob(os.path.join(config.ASSETS_DIR, "fonts", "Fredoka*.ttf"))
     candidates += glob.glob(os.path.join(config.ASSETS_DIR, "fonts", "Nunito*.ttf"))
     for path in candidates:

@@ -516,6 +516,107 @@ STAGE_BG = {
 
 
 # --------------------------------------------------------------------------- #
+# Story-page scenes — soft felt settings; the page's emoji subject sits on top
+# --------------------------------------------------------------------------- #
+def make_story_scene(path, scene):
+    W, H, S = 1000, 420, 2
+    rng = np.random.default_rng(abs(hash(scene)) % 9999)
+    night = scene == "moon"
+    indoor = scene in ("rug", "mat", "nap", "hug")
+    sunrise = scene == "sunrise"
+
+    if night:
+        top, bot = hex_rgb("#3C3F72"), hex_rgb("#605FA6")
+    elif sunrise:
+        top, bot = hex_rgb("#FFB877"), hex_rgb("#FFE7B6")
+    elif indoor:
+        top, bot = hex_rgb("#FBE3C2"), hex_rgb("#F6D3A6")
+    else:
+        top, bot = hex_rgb("#97D7F4"), hex_rgb("#D7F2FC")
+    ty = np.linspace(0, 1, H, dtype=np.float32)[:, None, None]
+    grad = np.array(top, np.float32) * (1 - ty) + np.array(bot, np.float32) * ty
+    base = Image.fromarray(np.clip(grad, 0, 255).astype("uint8"), "RGB").convert("RGBA")
+
+    big = Image.new("RGBA", (W * S, H * S), (0, 0, 0, 0))
+
+    def blob(cx, cy, rx, ry, col, a=255):
+        layer = Image.new("RGBA", (W * S, H * S), (0, 0, 0, 0))
+        ImageDraw.Draw(layer).ellipse([cx - rx, cy - ry, cx + rx, cy + ry],
+                                      fill=tuple(int(c) for c in col) + (a,))
+        big.alpha_composite(layer)
+
+    def band(x0, y0, x1, y1, r, col, a=255):
+        layer = Image.new("RGBA", (W * S, H * S), (0, 0, 0, 0))
+        ImageDraw.Draw(layer).rounded_rectangle([x0, y0, x1, y1], radius=r,
+                                                fill=tuple(int(c) for c in col) + (a,))
+        big.alpha_composite(layer)
+
+    # ground
+    if indoor:
+        band(-40, int(H * 0.6) * S, (W + 40) * S, (H + 40) * S, 0, hex_rgb("#E7B585"))
+        rug = mix(hex_rgb("#FF6B6B"), (255, 255, 255), 0.12)
+        band(int(W * 0.18) * S, int(H * 0.68) * S, int(W * 0.82) * S, int(H * 0.96) * S, 46 * S, rug)
+        for k in range(4):
+            yy = int((0.73 + k * 0.055) * H) * S
+            ImageDraw.Draw(big).line([(int(W * 0.21) * S, yy), (int(W * 0.79) * S, yy)],
+                                     fill=mix(rug, (255, 255, 255), 0.45) + (255,), width=6 * S)
+    elif not night:
+        grass = mix(hex_rgb("#7AC74F"), (255, 255, 255), 0.14)
+        blob(int(W * 0.5) * S, int(H * 1.52) * S, int(W * 0.95) * S, int(H * 0.82) * S, grass)
+
+    # sky props
+    if night:
+        for _ in range(16):
+            x = int(rng.uniform(0.05, 0.95) * W) * S
+            y = int(rng.uniform(0.05, 0.55) * H) * S
+            r = int(rng.uniform(3, 7)) * S
+            blob(x, y, r, r, (255, 250, 230), 235)
+    else:
+        if scene not in ("sky",):
+            sx, sy = int(W * 0.84) * S, int(H * 0.22) * S
+            blob(sx, sy, 96 * S, 96 * S, hex_rgb("#FFD23F"), 75)
+            blob(sx, sy, 70 * S, 70 * S, hex_rgb("#FFD23F"), 240)
+        for _ in range(0 if indoor else 3):
+            cx = int(rng.uniform(0.08, 0.7) * W) * S
+            cy = int(rng.uniform(0.08, 0.34) * H) * S
+            r = int(rng.uniform(52, 82)) * S
+            for ox in (-r, 0, r, r // 2):
+                blob(cx + ox, cy, int(r * 0.72), int(r * 0.5), (255, 252, 246), 230)
+
+    if scene == "tree":
+        tx = int(W * 0.28) * S
+        band(tx - 20 * S, int(H * 0.42) * S, tx + 20 * S, int(H * 0.82) * S, 12 * S, hex_rgb("#A6713E"))
+        blob(tx, int(H * 0.36) * S, 150 * S, 128 * S, hex_rgb("#5DBB63"))
+    if scene == "meadow":
+        palette = [hex_rgb(c) for c in ("#FF6B6B", "#FFD23F", "#FF8FB1", "#9B5DE5", "#5DC1F0")]
+        for _ in range(11):
+            x = int(rng.uniform(0.08, 0.92) * W) * S
+            y = int(rng.uniform(0.72, 0.92) * H) * S
+            blob(x, y, 13 * S, 13 * S, palette[int(rng.integers(len(palette)))])
+        rdraw = ImageDraw.Draw(big)
+        cx, cy = int(W * 0.5) * S, int(H * 0.95) * S
+        for i, c in enumerate(palette[:5]):
+            rr = int((0.46 - i * 0.05) * W) * S
+            rdraw.arc([cx - rr, cy - rr, cx + rr, cy + rr], 180, 360,
+                      fill=tuple(int(v) for v in c) + (170,), width=12 * S)
+
+    big = big.filter(ImageFilter.GaussianBlur(3)).resize((W, H), Image.LANCZOS)
+    base.alpha_composite(big)
+
+    arr = np.asarray(base.convert("RGB"), np.float32)
+    g = felt_grain(W, H, rng, fine=0.03, soft=0.04)[..., None]
+    out = Image.fromarray(np.clip(arr * g, 0, 255).astype("uint8"), "RGB")
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    # The cream RoundedCard frames the scene, so a flat JPEG (no alpha) is plenty
+    # and keeps each page light (~100 KB vs ~900 KB as RGBA PNG).
+    if path.lower().endswith((".jpg", ".jpeg")):
+        out.save(path, quality=86, optimize=True)
+    else:
+        out.save(path)
+    print(f"  OK  {os.path.relpath(path, ROOT)}")
+
+
+# --------------------------------------------------------------------------- #
 # App launcher icon — the felt rabbit on a stitched felt tile
 # --------------------------------------------------------------------------- #
 def make_app_icon(path, size=512):
@@ -559,14 +660,27 @@ def gen_backgrounds():
     make_background(os.path.join(IMG, "backgrounds", "bg_map.jpg"), hex_rgb("#5DC1F0"), seed=99)
 
 
+def gen_stories():
+    import json
+    print("Felt story-page scenes:")
+    with open(os.path.join(ROOT, "readingland", "content", "stories.json")) as fh:
+        data = json.load(fh)
+    for book in data.get("items", []):
+        for i, page in enumerate(book.get("pages", [])):
+            make_story_scene(os.path.join(IMG, "cards", f"{book['id']}_p{i}.jpg"),
+                             page.get("scene", "day"))
+
+
 def main():
     ap = argparse.ArgumentParser(description="Generate ReadingLand felt/plush art (offline).")
-    ap.add_argument("--only", choices=["buttons", "characters", "backgrounds"],
+    ap.add_argument("--only", choices=["buttons", "characters", "backgrounds", "stories"],
                     help="generate just one group (default: all)")
     args = ap.parse_args()
-    groups = [args.only] if args.only else ["buttons", "characters", "backgrounds"]
+    groups = [args.only] if args.only else ["buttons", "characters", "backgrounds", "stories"]
+    table = {"buttons": gen_buttons, "characters": gen_characters,
+             "backgrounds": gen_backgrounds, "stories": gen_stories}
     for g in groups:
-        {"buttons": gen_buttons, "characters": gen_characters, "backgrounds": gen_backgrounds}[g]()
+        table[g]()
     print("\nDone. The app loads these automatically (assets/images/...).")
     return 0
 
