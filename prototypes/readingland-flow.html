@@ -243,6 +243,12 @@
     .scene-bg::after{ content:""; position:absolute; inset:0;
       background:linear-gradient(180deg, rgba(8,12,24,.32) 0%, rgba(8,12,24,.04) 20%, rgba(8,12,24,.10) 66%, rgba(8,12,24,.42) 100%); }
     .land{ background-size:cover; background-position:center; }
+    /* legibility of card text over the real painted backgrounds */
+    .land .name, .land .sub, .land .mastered{ text-shadow:0 1px 4px rgba(0,0,0,.6), 0 0 1px rgba(0,0,0,.5); }
+    .land .info, .land .tile{ position:relative; z-index:1; }
+    .land:not(.locked)::before{ content:""; position:absolute; inset:0;
+      background:linear-gradient(90deg, rgba(0,0,0,.34), rgba(0,0,0,.10) 55%, rgba(0,0,0,.28));
+      border-radius:var(--radius); z-index:0; }
     .btn.plush{ background-size:100% 100%; background-repeat:no-repeat; color:#3a2600;
       text-shadow:0 1px 0 rgba(255,255,255,.45); box-shadow:var(--shadow-soft); }
   </style>
