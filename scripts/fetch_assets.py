@@ -24,7 +24,7 @@ CDN = "https://d8j0ntlcm91z4.cloudfront.net/user_3F1n9RqGZCJVrB84dvcvAMuNMRC"
 ASSETS = {
     # --- Character portraits (3-D plush style, transparent bg) ------------ #
     "assets/images/characters/reading_rabbit/portrait.png":
-        f"{CDN}/hf_20260624_124607_68b15c80-dd9b-4bcd-9acd-cf815a92dbee.png",
+        f"{CDN}/hf_20260625_093618_51bd7f31-f9ff-440a-aa8e-3e862dfd1ed3.jpeg",
     "assets/images/characters/benny_bear/portrait.png":
         f"{CDN}/hf_20260624_124639_07dbdb38-ff3f-4bd3-8f4f-41bbe75fff00.png",
     "assets/images/characters/penny_penguin/portrait.png":
@@ -80,11 +80,11 @@ ASSETS = {
 
     # --- 3-D plush button textures (ui/btn_<colour>.png) ------------------ #
     "assets/images/ui/btn_mint.png":
-        f"{CDN}/hf_20260624_124726_78ddae20-065c-4f9d-8013-3adca54766cd.png",
+        f"{CDN}/hf_20260625_093620_372c9308-b44b-4e94-9f27-a9b4918bf15c.png",
     "assets/images/ui/btn_coral.png":
-        f"{CDN}/hf_20260624_124727_cb13215e-83da-4430-91a6-68e5c7ed2a07.png",
+        f"{CDN}/hf_20260625_093621_ce2a048c-e538-4239-9c80-27073f79ff15.png",
     "assets/images/ui/btn_gold.png":
-        f"{CDN}/hf_20260624_124728_7e236b3f-f150-448e-bb39-1f5cd2ddef6d.png",
+        f"{CDN}/hf_20260625_093622_97c4dc10-d500-494b-82a8-78987401747c.png",
 
     # --- Fonts ------------------------------------------------------------ #
     # Google now ships Fredoka only as a variable font (the old static/
