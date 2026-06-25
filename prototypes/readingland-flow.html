@@ -295,6 +295,18 @@
     .reader-text{ text-align:center; font-size:clamp(20px,3.4vw,28px); color:var(--text); background:var(--surface);
       border:2px solid var(--border); border-radius:var(--radius); padding:14px 18px; margin:14px auto 0; max-width:540px; box-shadow:var(--shadow-soft); }
     .reader-nav{ display:flex; justify-content:space-between; align-items:center; max-width:540px; margin:14px auto 0; gap:12px; }
+
+    /* ── plush icons inside tiles (replace emoji glyphs) ── */
+    .land .tile{ position:relative; overflow:hidden; }
+    .land .tile .t-emoji{ position:absolute; inset:0; display:grid; place-items:center; }
+    .land .tile .tile-img{ position:absolute; inset:8%; width:84%; height:84%; object-fit:contain;
+      filter:drop-shadow(0 3px 4px rgba(0,0,0,.22)); }
+    .answer .ans-pic{ position:relative; display:grid; place-items:center; width:100%; height:100%; }
+    .answer .ans-pic .a-emoji{ position:absolute; inset:0; display:grid; place-items:center; }
+    .answer .ans-pic img{ position:absolute; inset:6%; width:88%; height:88%; object-fit:contain;
+      filter:drop-shadow(0 5px 7px rgba(0,0,0,.22)); }
+    .answer .ex{ position:absolute; right:6px; bottom:6px; font-size:22px; }
+    .answer .ex img{ position:absolute; right:-2px; bottom:-2px; width:48px; height:48px; object-fit:contain; }
   </style>
 </head>
 
@@ -369,7 +381,10 @@
                         : 'background-color:#9aa0ad'"
                       @click="openLand(i)">
                 <span class="badge-new" x-show="land.justUnlocked" x-transition>✨ NEW</span>
-                <span class="tile" x-text="isUnlocked(i) ? land.emoji : '🔒'"></span>
+                <span class="tile">
+                  <span class="t-emoji" x-text="isUnlocked(i) ? land.emoji : '🔒'"></span>
+                  <img class="tile-img" x-show="isUnlocked(i)" :src="land.icon" :alt="land.title" @error="$el.style.display='none'">
+                </span>
                 <span class="info">
                   <span class="name fred" x-text="land.title"></span>
                   <span class="sub" x-text="isUnlocked(i) ? land.subtitle : 'Locked — keep learning to open!'"></span>
@@ -390,7 +405,10 @@
             <button class="land" :class="{ locked: !traceUnlocked() }"
                     :style="`background:${ traceUnlocked() ? 'var(--tangerine)' : '#9aa0ad' }`"
                     @click="traceUnlocked() ? say('Trace letters with your finger! (Tracing screen — not in this prototype.)', true) : say('The tracing game opens with Letter Land!', true)">
-              <span class="tile" x-text="traceUnlocked() ? '✏️' : '🔒'"></span>
+              <span class="tile">
+                <span class="t-emoji" x-text="traceUnlocked() ? '✏️' : '🔒'"></span>
+                <img class="tile-img" x-show="traceUnlocked()" :src="traceIcon" alt="Trace Letters" @error="$el.style.display='none'">
+              </span>
               <span class="info">
                 <span class="name fred">Trace Letters</span>
                 <span class="sub" x-text="traceUnlocked() ? 'Practice writing letters with your finger!' : 'Opens with Letter Land!'"></span>
@@ -437,8 +455,15 @@
             <button class="answer fred" :class="c._state"
                     :style="c.color && activeLand.key==='alphabet' ? `color:${c.color}` : ''"
                     @click="choose(idx)">
-              <span x-text="activeLand.key==='alphabet' ? c.label : c.emoji"></span>
-              <span class="ex" x-show="activeLand.key==='alphabet'" x-text="c.emoji"></span>
+              <span x-show="activeLand.key==='alphabet'" x-text="c.label"></span>
+              <span class="ans-pic" x-show="activeLand.key!=='alphabet'">
+                <span class="a-emoji" x-text="c.emoji"></span>
+                <img :src="iconFor(c.emoji)" :alt="c.label" x-show="iconFor(c.emoji)" @error="$el.style.display='none'">
+              </span>
+              <span class="ex" x-show="activeLand.key==='alphabet'">
+                <span class="a-emoji-sm" x-text="c.emoji"></span>
+                <img :src="iconFor(c.emoji)" :alt="c.label" x-show="iconFor(c.emoji)" @error="$el.style.display='none'">
+              </span>
             </button>
           </template>
         </div>
@@ -667,6 +692,15 @@
       { id:'phonics', ico:'🅰️', name:'Phonics Plus',         desc:'Learning module · ages 4-6',      price:'$3.99' },
       { id:'bundle',  ico:'🎁', name:'Everything Bundle',     desc:'All books + every module',        price:'$14.99', bundle:true },
     ];
+    // Plush emoji-replacement icons (committed under assets/images/, fetched by CI).
+    const ICON = {  // content emoji -> icon slug
+      '🔴':'circle','🟦':'square','🔺':'triangle','⭐':'star','❤️':'heart',
+      '🐶':'dog','🐱':'cat','🐟':'fish','🐦':'bird','⚽':'ball','🍎':'apple','🚗':'car',
+      '🥚':'egg','🐐':'goat','🎩':'hat',
+    };
+    const LAND_ICON = { visual:'land_visual', alphabet:'land_alphabet', phonics:'land_phonics',
+      words:'land_words', sentences:'land_sentences', stories:'land_stories' };
+    const ICON_SRC = {};  // standalone preview injects data: URIs here, keyed by file stem
     const pick = (arr) => arr[Math.floor(Math.random()*arr.length)];
     const shuffle = (arr) => { const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
 
@@ -708,8 +742,16 @@
         ],
 
         // ── lifecycle ──
+        traceIcon: '',
+        iconFor(emoji){ const s = ICON[emoji]; if(!s) return '';
+          return ICON_SRC['icon_'+s] || ('../assets/images/cards/icon_' + s + '.png'); },
         init(){
-          this.lands.forEach(l => { l.bg = ASSET['bg_' + l.key]; });
+          this.traceIcon = ICON_SRC['icon_trace'] || '../assets/images/ui/icon_trace.png';
+          this.lands.forEach(l => {
+            l.bg = ASSET['bg_' + l.key];
+            const li = LAND_ICON[l.key];
+            l.icon = li ? (ICON_SRC[li] || ('../assets/images/ui/' + li + '.png')) : '';
+          });
           BOOKS.forEach(b => b.pages.forEach(pg => {
             ASSET['story_'+b.id+'_p'+pg.p] = '../assets/images/cards/story_'+b.id+'_p'+pg.p+'.png';
           }));
