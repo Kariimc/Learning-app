@@ -17,7 +17,7 @@
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Bubblegum+Sans&display=swap" rel="stylesheet" />
   <style>
     /* ───────────────────────── Design tokens ─────────────────────────
        --brand is the ONE accent the overlay's brand picker overrides live.
@@ -58,10 +58,10 @@
     html,body{ margin:0; padding:0; }
     body{
       background:var(--bg); color:var(--text);
-      font-family:"Nunito", ui-sans-serif, system-ui, sans-serif;
+      font-family:"Baloo 2", ui-rounded, system-ui, sans-serif; font-weight:600;
       -webkit-font-smoothing:antialiased; min-height:100vh;
     }
-    .fred{ font-family:"Fredoka", "Nunito", sans-serif; }
+    .fred{ font-family:"Bubblegum Sans", "Nunito", sans-serif; }
 
     /* ───────────────────────── App shell + sky ───────────────────────── */
     .app{ position:relative; min-height:100vh; width:100%; overflow:hidden;
@@ -145,16 +145,15 @@
       animation:pop calc(450ms*var(--motion-scale)) ease; }
 
     /* ───────────────────────── Mascot + speech bubble ───────────────────────── */
-    .mascot-wrap{ position:fixed; right:max(16px, calc(50vw - 380px)); bottom:18px; z-index:5; display:flex; align-items:flex-end; gap:10px; pointer-events:none; }
+    .mascot-wrap{ position:fixed; right:max(12px, calc(50vw - 380px)); bottom:14px; z-index:5; display:flex; flex-direction:column; align-items:center; gap:6px; pointer-events:none; }
     .bubble{ pointer-events:auto; max-width:min(64vw,300px); background:var(--surface); color:var(--text);
       border:2px solid var(--border); border-radius:20px; padding:12px 16px; font-weight:700; font-size:16px;
       box-shadow:var(--shadow-toy); position:relative; transform-origin:bottom right;
       animation:pop calc(280ms*var(--motion-scale)) ease; }
-    .bubble::after{ content:""; position:absolute; right:26px; bottom:-12px; border:12px solid transparent;
+    .bubble::after{ content:""; position:absolute; left:50%; transform:translateX(-50%); bottom:-12px; border:12px solid transparent;
       border-top-color:var(--surface); border-bottom:0; filter:drop-shadow(0 2px 0 var(--border)); }
-    .mascot{ pointer-events:auto; width:96px; height:96px; flex:0 0 auto; border-radius:50%;
-      background:radial-gradient(circle at 50% 35%, var(--surface-2), var(--surface));
-      display:grid; place-items:center; font-size:54px; box-shadow:var(--shadow-toy); border:3px solid var(--border);
+    .mascot{ pointer-events:auto; width:132px; height:132px; flex:0 0 auto;
+      display:grid; place-items:center; font-size:72px;
       animation:bob calc(3s*var(--motion-scale)) ease-in-out infinite; }
     .mascot.react{ animation:react calc(620ms*var(--motion-scale)) ease; }
     @keyframes bob{ 0%,100%{ transform:translateY(0) rotate(-1deg); } 50%{ transform:translateY(-7px) rotate(1deg); } }
@@ -178,7 +177,7 @@
       border:none; cursor:pointer; background:var(--cream); display:grid; place-items:center;
       font-size:clamp(56px,12vw,86px); box-shadow:var(--shadow-toy);
       transition:transform calc(140ms*var(--motion-scale)) ease, box-shadow calc(140ms*var(--motion-scale)) ease, background calc(200ms*var(--motion-scale)) ease;
-      font-family:"Fredoka", sans-serif; }
+      font-family:"Bubblegum Sans", sans-serif; }
     .answer:hover{ transform:translateY(-4px) scale(1.02); }
     .answer:active{ transform:translateY(2px) scale(.98); }
     .answer:focus-visible{ outline:4px solid var(--brand); outline-offset:4px; }
@@ -204,7 +203,7 @@
       border:2px solid var(--border); border-radius:18px; padding:14px 20px; font-weight:800; font-size:19px;
       box-shadow:var(--shadow-soft); }
     .reward-card .rico{ font-size:34px; animation:pop calc(500ms*var(--motion-scale)) ease; }
-    .btn{ font-family:"Fredoka",sans-serif; font-weight:600; border:none; cursor:pointer; border-radius:999px;
+    .btn{ font-family:"Bubblegum Sans",sans-serif; font-weight:600; border:none; cursor:pointer; border-radius:999px;
       padding:15px 30px; font-size:20px; color:var(--brand-fg); background:var(--brand); box-shadow:var(--shadow-toy);
       transition:transform calc(150ms*var(--motion-scale)) ease, filter calc(150ms*var(--motion-scale)) ease; }
     .btn:hover{ filter:brightness(1.07); transform:translateY(-2px); } .btn:active{ transform:translateY(2px) scale(.98); }
@@ -235,10 +234,9 @@
     /* ── real Higgsfield assets: character portraits, land backgrounds, plush buttons ── */
     .mascot{ overflow:visible; position:relative; }
     .mascot .m-emoji{ position:absolute; inset:0; display:grid; place-items:center; }
-    .mascot .m-img{ position:absolute; inset:3px; width:calc(100% - 6px); height:calc(100% - 6px);
-      object-fit:cover; border-radius:50%; background:var(--surface); }
-    .cel-mascot{ width:104px; height:104px; margin:0 auto; border:3px solid var(--border);
-      border-radius:50%; box-shadow:var(--shadow-toy); background:radial-gradient(circle at 50% 35%, var(--surface-2), var(--surface)); }
+    .mascot .m-img{ position:absolute; inset:0; width:100%; height:100%;
+      object-fit:contain; filter:drop-shadow(0 7px 9px rgba(0,0,0,.32)); }
+    .cel-mascot{ width:128px; height:128px; margin:0 auto; }
     .scene-bg{ position:absolute; inset:0; background-size:cover; background-position:center top; z-index:0; pointer-events:none; }
     .scene-bg::after{ content:""; position:absolute; inset:0;
       background:linear-gradient(180deg, rgba(8,12,24,.32) 0%, rgba(8,12,24,.04) 20%, rgba(8,12,24,.10) 66%, rgba(8,12,24,.42) 100%); }
@@ -251,6 +249,52 @@
       border-radius:var(--radius); z-index:0; }
     .btn.plush{ background-size:100% 100%; background-repeat:no-repeat; color:#3a2600;
       text-shadow:0 1px 0 rgba(255,255,255,.45); box-shadow:var(--shadow-soft); }
+
+    /* ── minimizable guide ── */
+    .mascot-min{ pointer-events:auto; align-self:flex-end; width:28px; height:28px; border-radius:50%;
+      border:none; cursor:pointer; background:var(--surface); color:var(--text); box-shadow:var(--shadow-soft);
+      font-size:20px; font-weight:800; line-height:1; display:grid; place-items:center; opacity:.85; }
+    .mascot-min:hover{ opacity:1; transform:scale(1.08); }
+    .mascot-tab{ pointer-events:auto; position:fixed; right:14px; bottom:14px; z-index:5; width:60px; height:60px;
+      border-radius:50%; border:3px solid var(--border); cursor:pointer; background:var(--surface);
+      box-shadow:var(--shadow-toy); display:grid; place-items:center; font-size:32px;
+      animation:pop calc(300ms*var(--motion-scale)) ease; }
+    .mascot-tab:hover{ transform:translateY(-2px); }
+
+    /* ── overlay screens: profile / progress / storybook ── */
+    .screen{ position:fixed; inset:0; z-index:32; overflow-y:auto;
+      background:linear-gradient(180deg, var(--bg), var(--bg-2)); }
+    .screen-inner{ max-width:720px; margin:0 auto; padding:calc(18px*var(--pd)) calc(18px*var(--pd)) 64px; }
+    .screen-head{ display:flex; align-items:center; gap:12px; padding:8px 0 16px; }
+    .screen-title{ font-size:clamp(23px,4vw,34px); color:var(--on-color); text-shadow:0 2px 0 rgba(0,0,0,.14); margin:0; }
+    .card2{ background:var(--surface); color:var(--text); border:2px solid var(--border); border-radius:var(--radius);
+      padding:16px 18px; box-shadow:var(--shadow-soft); margin-bottom:14px; }
+    .stat-row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .stat{ flex:1 1 120px; background:var(--surface); border:2px solid var(--border); border-radius:var(--radius-sm);
+      padding:14px; text-align:center; box-shadow:var(--shadow-soft); }
+    .stat .big{ font-size:28px; font-weight:800; } .stat .lbl{ color:var(--text-muted); font-weight:700; font-size:13px; }
+    .prog-row{ display:flex; align-items:center; gap:10px; margin:12px 0; }
+    .prog-emoji{ font-size:26px; width:36px; text-align:center; }
+    .store-item{ display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid var(--border); }
+    .store-item:last-child{ border-bottom:none; }
+    .store-ico{ font-size:34px; width:48px; text-align:center; }
+    .store-info{ flex:1 1 auto; min-width:0; } .store-info b{ font-size:17px; }
+    .store-info div{ color:var(--text-muted); font-size:13px; font-weight:600; }
+    .buy{ border:none; cursor:pointer; border-radius:999px; padding:10px 18px; font-weight:800; font-size:15px;
+      background:var(--mint); color:#0c3b27; box-shadow:var(--shadow-soft); white-space:nowrap; font-family:"Bubblegum Sans",sans-serif; }
+    .buy:hover{ filter:brightness(1.05); } .buy:active{ transform:scale(.97); }
+    .buy.gold{ background:var(--sun); color:var(--ink); }
+    .book-grid{ display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
+    .book-cover{ width:160px; cursor:pointer; border:none; background:transparent; padding:0; }
+    .book-cover img{ width:100%; aspect-ratio:1; object-fit:cover; border-radius:var(--radius-sm);
+      box-shadow:var(--shadow-toy); border:4px solid var(--surface); transition:transform calc(150ms*var(--motion-scale)) ease; }
+    .book-cover:hover img{ transform:translateY(-4px) rotate(-1deg); }
+    .book-cover .bt{ display:block; color:var(--on-color); font-weight:800; margin-top:8px; text-shadow:0 1px 3px rgba(0,0,0,.4); }
+    .reader-img{ width:100%; max-width:540px; aspect-ratio:1; object-fit:cover; border-radius:var(--radius);
+      box-shadow:var(--shadow-toy); margin:0 auto; display:block; border:5px solid var(--surface); }
+    .reader-text{ text-align:center; font-size:clamp(20px,3.4vw,28px); color:var(--text); background:var(--surface);
+      border:2px solid var(--border); border-radius:var(--radius); padding:14px 18px; margin:14px auto 0; max-width:540px; box-shadow:var(--shadow-soft); }
+    .reader-nav{ display:flex; justify-content:space-between; align-items:center; max-width:540px; margin:14px auto 0; gap:12px; }
   </style>
 </head>
 
@@ -302,12 +346,12 @@
       <div x-show="view==='map'" x-transition.opacity>
         <div class="scene-bg" :style="`background-image:url('${assets.map}')`"></div>
         <header class="topbar">
-          <button class="chip" @click="say(profile.name+' is reading today! Tap a land to play.', true)" title="Switch profile">
+          <button class="chip" @click="openProfile()" title="Profile, stories & store">
             <span class="avatar" x-text="profile.face"></span>
             <b x-text="profile.name"></b>
           </button>
           <span class="grow"></span>
-          <span class="pill"><span class="ico">⭐</span><span x-text="stars"></span></span>
+          <span class="pill" @click="openProgress()" style="cursor:pointer" title="See progress"><span class="ico">⭐</span><span x-text="stars"></span></span>
           <span class="pill"><span class="ico">🎯</span><span x-text="daily.done + '/' + daily.goal"></span></span>
           <button class="round-btn sun" @click="say('The Rewards Room is full of stickers you earned!', true)" title="Rewards">🎁</button>
         </header>
@@ -355,14 +399,16 @@
           </div>
         </div>
 
-        <!-- Reading Rabbit greeter -->
-        <div class="mascot-wrap">
+        <!-- Reading Rabbit greeter (minimizable; bubble sits above the head) -->
+        <div class="mascot-wrap" x-show="!mascotMin">
+          <button class="mascot-min" @click="mascotMin=true" title="Minimize guide">–</button>
           <div class="bubble" x-show="bubble" x-transition :key="bubbleKey" x-text="bubble"></div>
           <div class="mascot" :class="{ react: reacting }">
             <span class="m-emoji" x-text="guideFace"></span>
             <img class="m-img" :src="guidePortrait" :alt="guideName" @error="$el.style.display='none'" @load="$el.style.display=''">
           </div>
         </div>
+        <button class="mascot-tab" x-show="mascotMin" x-cloak x-text="guideFace" @click="mascotMin=false" title="Show guide"></button>
       </div>
 
       <!-- ───── ACTIVITY VIEW ───── -->
@@ -372,7 +418,7 @@
           <button class="round-btn" style="background:var(--surface); color:var(--text)" @click="backToMap()" title="Back to map">⌂</button>
           <span class="land-chip" x-text="activeLand.emoji + '  ' + activeLand.title"></span>
           <span class="grow"></span>
-          <span class="pill"><span class="ico">⭐</span><span x-text="stars"></span></span>
+          <span class="pill" @click="openProgress()" style="cursor:pointer" title="See progress"><span class="ico">⭐</span><span x-text="stars"></span></span>
           <button class="round-btn sun" @click="speakAgain()" title="Hear it again">
             🔊<span class="wave" x-show="speaking" style="position:absolute; bottom:-2px;"><i></i><i></i><i></i></span>
           </button>
@@ -435,9 +481,106 @@
         </div>
       </div>
 
+      <!-- ───── PROFILE / STORE ───── -->
+      <div class="screen" x-show="view==='profile'" x-transition.opacity x-cloak>
+        <div class="screen-inner">
+          <div class="screen-head">
+            <button class="round-btn" style="background:var(--surface);color:var(--text)" @click="backToMap()" title="Back to map">⌂</button>
+            <span class="avatar" style="width:46px;height:46px;font-size:26px" x-text="profile.face"></span>
+            <h2 class="screen-title fred" x-text="`${profile.name}'s Library`"></h2>
+          </div>
+          <div class="card2">
+            <b style="font-size:18px">📚 Your lands &amp; books</b>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+              <template x-for="l in lands" :key="l.id">
+                <span class="pill" style="cursor:default"><span x-text="l.emoji"></span><span x-text="l.title"></span></span>
+              </template>
+            </div>
+          </div>
+          <h3 class="screen-title fred" style="font-size:22px;margin:4px 0 10px">✨ Get more</h3>
+          <div class="card2">
+            <template x-for="s in store" :key="s.id">
+              <div class="store-item">
+                <span class="store-ico" x-text="s.ico"></span>
+                <span class="store-info"><b x-text="s.name"></b><div x-text="s.desc"></div></span>
+                <button class="buy" :class="s.bundle?'gold':''" @click="buy(s)" x-text="s.price"></button>
+              </div>
+            </template>
+          </div>
+          <p style="color:var(--on-color);text-align:center;font-weight:700;opacity:.9">Storybooks are unlocked from the start — buy packs to add more.</p>
+        </div>
+      </div>
+
+      <!-- ───── PROGRESS ───── -->
+      <div class="screen" x-show="view==='progress'" x-transition.opacity x-cloak>
+        <div class="screen-inner">
+          <div class="screen-head">
+            <button class="round-btn" style="background:var(--surface);color:var(--text)" @click="backToMap()" title="Back to map">⌂</button>
+            <h2 class="screen-title fred" x-text="`${profile.name}'s Progress`"></h2>
+          </div>
+          <div class="stat-row" style="margin-bottom:14px">
+            <div class="stat"><div class="big">⭐ <span x-text="stars"></span></div><div class="lbl">Stars earned</div></div>
+            <div class="stat"><div class="big">🔥 <span x-text="streak"></span></div><div class="lbl">Day streak</div></div>
+            <div class="stat"><div class="big">🎯 <span x-text="daily.done+'/'+daily.goal"></span></div><div class="lbl">Today's goal</div></div>
+            <div class="stat"><div class="big">⏱ <span x-text="minutesToday"></span>m</div><div class="lbl">Time today</div></div>
+          </div>
+          <div class="card2">
+            <b style="font-size:18px">🗺️ Lands</b>
+            <template x-for="(l, i) in lands" :key="l.id">
+              <div class="prog-row">
+                <span class="prog-emoji" x-text="isUnlocked(i) ? l.emoji : '🔒'"></span>
+                <span style="flex:1">
+                  <div style="display:flex;justify-content:space-between;font-weight:700;font-size:14px">
+                    <span x-text="l.title"></span><span x-text="l.mastered+'/'+l.total"></span>
+                  </div>
+                  <div class="bar" style="margin-top:5px"><span :style="`width:${Math.round(l.mastered/l.total*100)}%`"></span></div>
+                </span>
+              </div>
+            </template>
+          </div>
+          <p style="color:var(--on-color);text-align:center;font-weight:700;opacity:.9">Keep playing to fill every bar! 🌟</p>
+        </div>
+      </div>
+
+      <!-- ───── STORYBOOKS (unlocked from the start) ───── -->
+      <div class="screen" x-show="view==='story'" x-transition.opacity x-cloak>
+        <div class="screen-inner">
+          <div class="screen-head">
+            <button class="round-btn" style="background:var(--surface);color:var(--text)" @click="closeStory()" title="Back">⌂</button>
+            <h2 class="screen-title fred" x-text="storyBook ? storyBook.title : '📖 Story Sky'"></h2>
+          </div>
+          <template x-if="!storyBook">
+            <div>
+              <div class="book-grid">
+                <template x-for="b in books" :key="b.id">
+                  <button class="book-cover" @click="openBook(b)">
+                    <img :src="assets['story_'+b.id+'_p0']" :alt="b.title" @error="$el.style.visibility='hidden'">
+                    <span class="bt" x-text="b.emoji + ' ' + b.title"></span>
+                  </button>
+                </template>
+              </div>
+              <p style="color:var(--on-color);text-align:center;font-weight:700;opacity:.9;margin-top:16px">Tap a book to read along. Find more in the store!</p>
+            </div>
+          </template>
+          <template x-if="storyBook">
+            <div>
+              <img class="reader-img" :src="assets['story_'+storyBook.id+'_p'+storyBook.pages[storyPage].p]" :alt="storyBook.title">
+              <div class="reader-text fred" x-text="storyBook.pages[storyPage].t"></div>
+              <div class="reader-nav">
+                <button class="btn ghost" @click="storyPrev()" :style="storyPage===0?'visibility:hidden':''">← Back</button>
+                <span style="color:var(--on-color);font-weight:800" x-text="(storyPage+1)+' / '+storyBook.pages.length"></span>
+                <button class="btn" @click="storyNext()" x-text="storyPage===storyBook.pages.length-1 ? 'The End ✓' : 'Next →'"></button>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+
     </div><!-- /ready -->
 
     <div class="confetti-layer" id="confetti" aria-hidden="true"></div>
+    <div x-show="toast" x-transition x-cloak class="pill" x-text="toast"
+         style="position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:50;font-size:16px;font-weight:800"></div>
   </div>
 
   <!-- ───────────────────────── App logic ───────────────────────── -->
@@ -499,6 +642,31 @@
       { icon:'🎈', name:'Balloon sticker!' },
       { icon:'🦋', name:'Butterfly sticker!' },
     ];
+    // Storybooks (real illustrations in assets/images/cards/story_*_p*.png) — unlocked from the start.
+    const BOOKS = [
+      { id:'cat_nap', title:'The Cat Nap', emoji:'🐱', pages:[
+        { p:0, t:'The Cat Nap' },
+        { p:1, t:'A sleepy cat finds the perfect sunny spot.' },
+        { p:2, t:'It dreams of chasing fluttery butterflies.' },
+        { p:3, t:'It wakes up happy and gives a big stretch!' } ] },
+      { id:'big_dog', title:'The Big Dog', emoji:'🐶', pages:[
+        { p:0, t:'The Big Dog' },
+        { p:1, t:'A big, friendly dog bounds through the park.' },
+        { p:2, t:'Gently, he carries a tiny puppy to safety.' },
+        { p:3, t:'At day’s end, they snuggle up together.' } ] },
+      { id:'sun_and_bird', title:'The Sun and The Bird', emoji:'🌞', pages:[
+        { p:0, t:'The Sun and The Bird' },
+        { p:1, t:'A little bird sings up to the morning sun.' },
+        { p:2, t:'The bird flies high through the puffy clouds.' },
+        { p:3, t:'The sun and the bird become best friends.' } ] },
+    ];
+    const STORE = [
+      { id:'bedtime', ico:'🌙', name:'Bedtime Tales',       desc:'5 calming read-along storybooks', price:'$4.99' },
+      { id:'animals', ico:'🐾', name:'Animal Friends',       desc:'6 storybooks about animals',      price:'$4.99' },
+      { id:'numbers', ico:'🔢', name:'Numbers & Counting',   desc:'Learning module · ages 3-5',      price:'$3.99' },
+      { id:'phonics', ico:'🅰️', name:'Phonics Plus',         desc:'Learning module · ages 4-6',      price:'$3.99' },
+      { id:'bundle',  ico:'🎁', name:'Everything Bundle',     desc:'All books + every module',        price:'$14.99', bundle:true },
+    ];
     const pick = (arr) => arr[Math.floor(Math.random()*arr.length)];
     const shuffle = (arr) => { const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
 
@@ -522,18 +690,29 @@
         sessionRounds:0,
         celebrate:{ title:'', sub:'', reward:REWARDS[0], unlock:null },
         rewardIdx:0,
+        mascotMin:false,
+        toast:'',
+        streak:4,
+        minutesToday:14,
+        store:STORE,
+        books:BOOKS,
+        storyBook:null,
+        storyPage:0,
         lands:[
           { id:1, key:'visual',    title:'Look & Learn',   subtitle:'Shapes, colors, animals & objects', emoji:'👀', color:'#3DDC97', guide:'rabbit',  total:18, mastered:14, pool:VISUAL,   _seen:{}, justUnlocked:false },
           { id:2, key:'alphabet',  title:'Letter Land',    subtitle:'Letter names & sounds',              emoji:'🔤', color:'#FF9F1C', guide:'rabbit',  total:26, mastered:17, pool:ALPHABET, _seen:{}, justUnlocked:false },
           { id:3, key:'phonics',   title:'Sound Forest',   subtitle:'Blending sounds into words',         emoji:'🔊', color:'#9B5DE5', guide:'bear',    total:20, mastered:0,  pool:null,     _seen:{}, justUnlocked:false },
           { id:4, key:'words',     title:'Word Town',      subtitle:'Reading first words',                emoji:'📕', color:'#FF6B6B', guide:'penguin', total:24, mastered:0,  pool:null,     _seen:{}, justUnlocked:false },
           { id:5, key:'sentences', title:'Sentence River', subtitle:'Reading sentences',                  emoji:'📑', color:'#2E9BD6', guide:'penguin', total:16, mastered:0,  pool:null,     _seen:{}, justUnlocked:false },
-          { id:6, key:'stories',   title:'Story Sky',      subtitle:'Read-along storybooks',              emoji:'📖', color:'#FF8FB1', guide:'owl',     total:10, mastered:0,  pool:null,     _seen:{}, justUnlocked:false },
+          { id:6, key:'stories',   title:'Story Sky',      subtitle:'Read-along storybooks — open anytime!', emoji:'📖', color:'#FF8FB1', guide:'owl',  total:3,  mastered:0,  pool:null, alwaysOpen:true, _seen:{}, justUnlocked:false },
         ],
 
         // ── lifecycle ──
         init(){
           this.lands.forEach(l => { l.bg = ASSET['bg_' + l.key]; });
+          BOOKS.forEach(b => b.pages.forEach(pg => {
+            ASSET['story_'+b.id+'_p'+pg.p] = '../assets/images/cards/story_'+b.id+'_p'+pg.p+'.png';
+          }));
           if (window.__proto) window.__proto.onState(s => { this.ui = s; });
           this.greetHome();
         },
@@ -547,7 +726,7 @@
         get activeLand(){ return this.lands[this.activeIndex]; },
         get activeColor(){ return this.activeLand.color; },
         ratio(i){ return this.lands[i].mastered / this.lands[i].total; },
-        isUnlocked(i){ return i===0 ? true : this.ratio(i-1) >= 0.7; },
+        isUnlocked(i){ if (i===0 || this.lands[i].alwaysOpen) return true; return this.ratio(i-1) >= 0.7; },
         traceUnlocked(){ return this.isUnlocked(1); },
 
         // ── mascot speech ──
@@ -565,6 +744,7 @@
 
         // ── open a land ──
         openLand(i){
+          if (this.lands[i].key==='stories'){ this.openStory(); return; }
           if (!this.isUnlocked(i)){
             this.setGuide('rabbit');
             this.say("Keep learning and this land will open. You can do it!", true);
@@ -666,10 +846,20 @@
         },
         keepPlaying(){ this.view='activity'; this.newRound(); },
         backToMap(){
-          this.view='map'; this._locked=false;
+          this.view='map'; this._locked=false; this.storyBook=null;
           this.setGuide('rabbit');
           setTimeout(()=> this.say('You did great! Pick another land whenever you like.'), 250);
         },
+
+        // ── screens: profile / store / progress / storybooks ──
+        openProfile(){ this.view='profile'; },
+        openProgress(){ this.view='progress'; },
+        buy(s){ this.toast = '“' + s.name + '” — preview only ✨'; clearTimeout(this._t); this._t = setTimeout(() => this.toast='', 1900); },
+        openStory(){ this.setGuide('owl'); this.storyBook=null; this.storyPage=0; this.view='story'; },
+        openBook(b){ this.storyBook=b; this.storyPage=0; },
+        storyNext(){ if (this.storyPage < this.storyBook.pages.length-1){ this.storyPage++; } else { this.closeStory(); } },
+        storyPrev(){ if (this.storyPage > 0) this.storyPage--; },
+        closeStory(){ if (this.storyBook){ this.storyBook=null; } else { this.backToMap(); } },
 
         // ── effects ──
         starPop(idx){
