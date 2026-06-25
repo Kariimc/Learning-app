@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<!--
+  ReadingLand — Interactive Prototype (Full child flow)
+  Built with the visual-prototype skill.
+  Single self-contained file · Tailwind + Alpine via CDN · memory-only state.
+  Flow:  Home Map (world hub)  ▸  tap a land  ▸  matching activity
+         ▸  correct / wrong-but-gentle / celebration  ▸  back to map (progress grows, lands unlock)
+  The "Tweak & Comment" review overlay is pasted verbatim before </body>.
+-->
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ReadingLand · Interactive Prototype</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: 'class' };</script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ───────────────────────── Design tokens ─────────────────────────
+       --brand is the ONE accent the overlay's brand picker overrides live.
+       Every duration is multiplied by --motion-scale; major spacing by
+       --proto-density so the overlay's motion + density controls work. */
+    :root{
+      --brand:#2E9BD6; --brand-fg:#ffffff;
+
+      /* ReadingLand palette (from readingland/config.py) */
+      --sky:#5DC1F0; --sky-deep:#2E9BD6; --sun:#FFD23F; --coral:#FF6B6B;
+      --mint:#3DDC97; --grape:#9B5DE5; --bubblegum:#FF8FB1; --tangerine:#FF9F1C;
+      --leaf:#7AC74F; --cream:#FFF6E9; --ink:#2B2D42;
+
+      /* surfaces (re-themed in dark) */
+      --bg:#62C4F1; --bg-2:#A7E0FA; --hill:#7AC74F; --hill-2:#5CB23A;
+      --surface:#FFF6E9; --surface-2:#FFFFFF;
+      --text:#2B2D42; --text-muted:#6b7280; --on-color:#FFF6E9;
+      --border:rgba(43,45,66,.10);
+
+      --radius:26px; --radius-sm:18px; --radius-xs:12px;
+      --shadow-toy:0 6px 0 rgba(0,0,0,.10), 0 16px 30px rgba(0,0,0,.14);
+      --shadow-soft:0 8px 24px rgba(0,0,0,.10);
+      --motion-scale:1;
+      --pd:var(--proto-density, 1);   /* 1 comfortable · .85 compact */
+    }
+    html.dark{
+      --bg:#0c1530; --bg-2:#142244; --hill:#1c3a2a; --hill-2:#142c20;
+      --surface:#1a2748; --surface-2:#22315a;
+      --text:#eaf2ff; --text-muted:#9fb0cf; --on-color:#0c1530;
+      --cream:#1a2748; --ink:#eaf2ff;
+      --border:rgba(255,255,255,.12);
+      --shadow-toy:0 6px 0 rgba(0,0,0,.35), 0 18px 36px rgba(0,0,0,.55);
+      --shadow-soft:0 10px 30px rgba(0,0,0,.5);
+    }
+    [x-cloak]{ display:none !important; }
+
+    *{ box-sizing:border-box; }
+    html,body{ margin:0; padding:0; }
+    body{
+      background:var(--bg); color:var(--text);
+      font-family:"Nunito", ui-sans-serif, system-ui, sans-serif;
+      -webkit-font-smoothing:antialiased; min-height:100vh;
+    }
+    .fred{ font-family:"Fredoka", "Nunito", sans-serif; }
+
+    /* ───────────────────────── App shell + sky ───────────────────────── */
+    .app{ position:relative; min-height:100vh; width:100%; overflow:hidden;
+      background:linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 70%, var(--bg-2) 100%); }
+    .sky{ position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0; }
+    .sun{ position:absolute; top:-46px; left:-46px; width:200px; height:200px; border-radius:50%;
+      background:radial-gradient(circle at 50% 50%, var(--sun) 0%, #ffe27a 55%, rgba(255,210,63,0) 72%);
+      filter:saturate(1.1); animation:sunPulse calc(7s*var(--motion-scale)) ease-in-out infinite; }
+    html.dark .sun{ background:radial-gradient(circle at 50% 50%, #f7f3d6 0%, #cfd6ff 45%, rgba(207,214,255,0) 70%); opacity:.8; }
+    @keyframes sunPulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.06); } }
+    .cloud{ position:absolute; background:rgba(255,255,255,.92); border-radius:100px; filter:blur(.3px);
+      box-shadow:32px 8px 0 6px rgba(255,255,255,.92), -34px 10px 0 0 rgba(255,255,255,.92);
+      opacity:.95; animation:drift linear infinite; }
+    html.dark .cloud{ background:rgba(180,196,235,.16); box-shadow:32px 8px 0 6px rgba(180,196,235,.16), -34px 10px 0 0 rgba(180,196,235,.16); }
+    @keyframes drift{ from{ transform:translateX(-22vw); } to{ transform:translateX(120vw); } }
+    .hills{ position:absolute; left:0; right:0; bottom:0; height:160px; z-index:0; }
+    .hills::before,.hills::after{ content:""; position:absolute; bottom:0; height:220px; width:60%; border-radius:50%; }
+    .hills::before{ left:-6%; background:var(--hill-2); }
+    .hills::after{ right:-6%; background:var(--hill); }
+    .stars-bg{ position:absolute; inset:0 0 40% 0; opacity:0; transition:opacity calc(600ms*var(--motion-scale)) ease; }
+    html.dark .stars-bg{ opacity:.8;
+      background-image:radial-gradient(2px 2px at 20% 30%, #fff, transparent),
+        radial-gradient(2px 2px at 70% 20%, #fff, transparent),
+        radial-gradient(1.6px 1.6px at 45% 12%, #cfe0ff, transparent),
+        radial-gradient(2px 2px at 85% 40%, #fff, transparent),
+        radial-gradient(1.4px 1.4px at 33% 48%, #fff, transparent); }
+
+    /* ───────────────────────── Top bar ───────────────────────── */
+    .topbar{ position:relative; z-index:3; display:flex; align-items:center; gap:calc(12px*var(--pd));
+      flex-wrap:wrap; padding:calc(16px*var(--pd)) calc(20px*var(--pd)); }
+    .chip{ display:inline-flex; align-items:center; gap:8px; background:var(--surface);
+      border:2px solid var(--border); border-radius:999px; padding:6px 14px 6px 6px;
+      box-shadow:var(--shadow-soft); cursor:pointer; color:var(--text);
+      transition:transform calc(150ms*var(--motion-scale)) ease; }
+    .chip:hover{ transform:translateY(-1px); } .chip:active{ transform:translateY(1px) scale(.99); }
+    .avatar{ width:38px; height:38px; border-radius:50%; display:grid; place-items:center; font-size:22px;
+      background:linear-gradient(135deg, var(--bubblegum), var(--coral)); box-shadow:inset 0 -3px 0 rgba(0,0,0,.12); }
+    .pill{ display:inline-flex; align-items:center; gap:7px; background:var(--surface); color:var(--text);
+      border:2px solid var(--border); border-radius:999px; padding:8px 15px; font-weight:800; font-size:15px;
+      box-shadow:var(--shadow-soft); white-space:nowrap; }
+    .pill .ico{ font-size:18px; }
+    .grow{ flex:1 1 auto; }
+    .round-btn{ width:54px; height:54px; border-radius:50%; border:none; cursor:pointer; display:grid; place-items:center;
+      font-size:24px; color:var(--brand-fg); background:var(--brand); box-shadow:var(--shadow-toy);
+      transition:transform calc(150ms*var(--motion-scale)) ease, filter calc(150ms*var(--motion-scale)) ease; }
+    .round-btn:hover{ filter:brightness(1.07); transform:translateY(-2px); }
+    .round-btn:active{ transform:translateY(2px) scale(.96); }
+    .round-btn.sun{ background:var(--sun); color:var(--coral); }
+    .greet{ font-size:clamp(20px,3.4vw,30px); font-weight:700; color:var(--on-color);
+      text-shadow:0 2px 0 rgba(0,0,0,.12); margin:0; }
+
+    /* ───────────────────────── Map: land path ───────────────────────── */
+    .stage{ position:relative; z-index:2; padding:calc(8px*var(--pd)) calc(18px*var(--pd)) 130px; }
+    .path{ max-width:760px; margin:0 auto; display:flex; flex-direction:column; gap:calc(18px*var(--pd)); }
+    .section-eyebrow{ display:flex; align-items:center; gap:10px; color:var(--on-color); font-weight:800;
+      letter-spacing:.3px; text-shadow:0 1px 0 rgba(0,0,0,.12); margin:4px 4px 2px; opacity:.95; }
+    .land{ display:flex; align-items:center; gap:calc(16px*var(--pd)); width:100%; text-align:left;
+      border:none; cursor:pointer; color:var(--on-color); border-radius:var(--radius);
+      padding:calc(16px*var(--pd)); box-shadow:var(--shadow-toy);
+      transition:transform calc(160ms*var(--motion-scale)) ease, box-shadow calc(160ms*var(--motion-scale)) ease;
+      position:relative; overflow:hidden; }
+    .land::after{ content:""; position:absolute; inset:0; background:linear-gradient(120deg, rgba(255,255,255,.18), transparent 40%); pointer-events:none; }
+    .land:hover{ transform:translateY(-3px) rotate(-.3deg); box-shadow:0 10px 0 rgba(0,0,0,.10), 0 24px 40px rgba(0,0,0,.20); }
+    .land:active{ transform:translateY(2px) scale(.995); }
+    .land.locked{ cursor:default; filter:saturate(.5); }
+    .land.locked:hover{ transform:none; box-shadow:var(--shadow-toy); }
+    .land:focus-visible{ outline:4px solid var(--brand); outline-offset:3px; }
+    .land .tile{ width:clamp(74px,16vw,96px); height:clamp(74px,16vw,96px); flex:0 0 auto; border-radius:20px;
+      background:var(--cream); display:grid; place-items:center; font-size:clamp(34px,7vw,46px);
+      box-shadow:inset 0 -4px 0 rgba(0,0,0,.10), 0 4px 10px rgba(0,0,0,.14); }
+    .land.locked .tile{ color:rgba(43,45,66,.45); font-size:38px; }
+    .land .info{ flex:1 1 auto; min-width:0; }
+    .land .name{ font-size:clamp(20px,3.5vw,27px); font-weight:700; line-height:1.1; }
+    .land .sub{ font-size:14px; opacity:.95; margin-top:2px; }
+    .bar{ height:18px; border-radius:999px; background:rgba(0,0,0,.18); margin-top:10px; overflow:hidden; box-shadow:inset 0 2px 4px rgba(0,0,0,.2); }
+    .bar > span{ display:block; height:100%; border-radius:999px; background:linear-gradient(90deg, var(--sun), #ffe27a);
+      box-shadow:0 0 10px rgba(255,210,63,.6); transition:width calc(700ms*var(--motion-scale)) cubic-bezier(.2,.8,.2,1); }
+    .mastered{ font-size:12.5px; font-weight:700; opacity:.92; margin-top:6px; }
+    .badge-new{ position:absolute; top:10px; right:12px; background:var(--cream); color:var(--coral);
+      font-weight:800; font-size:11px; padding:3px 9px; border-radius:999px; box-shadow:0 3px 8px rgba(0,0,0,.2);
+      animation:pop calc(450ms*var(--motion-scale)) ease; }
+
+    /* ───────────────────────── Mascot + speech bubble ───────────────────────── */
+    .mascot-wrap{ position:fixed; right:max(16px, calc(50vw - 380px)); bottom:18px; z-index:5; display:flex; align-items:flex-end; gap:10px; pointer-events:none; }
+    .bubble{ pointer-events:auto; max-width:min(64vw,300px); background:var(--surface); color:var(--text);
+      border:2px solid var(--border); border-radius:20px; padding:12px 16px; font-weight:700; font-size:16px;
+      box-shadow:var(--shadow-toy); position:relative; transform-origin:bottom right;
+      animation:pop calc(280ms*var(--motion-scale)) ease; }
+    .bubble::after{ content:""; position:absolute; right:26px; bottom:-12px; border:12px solid transparent;
+      border-top-color:var(--surface); border-bottom:0; filter:drop-shadow(0 2px 0 var(--border)); }
+    .mascot{ pointer-events:auto; width:96px; height:96px; flex:0 0 auto; border-radius:50%;
+      background:radial-gradient(circle at 50% 35%, var(--surface-2), var(--surface));
+      display:grid; place-items:center; font-size:54px; box-shadow:var(--shadow-toy); border:3px solid var(--border);
+      animation:bob calc(3s*var(--motion-scale)) ease-in-out infinite; }
+    .mascot.react{ animation:react calc(620ms*var(--motion-scale)) ease; }
+    @keyframes bob{ 0%,100%{ transform:translateY(0) rotate(-1deg); } 50%{ transform:translateY(-7px) rotate(1deg); } }
+    @keyframes react{ 0%{ transform:scale(1); } 30%{ transform:scale(1.18) rotate(-6deg); } 60%{ transform:scale(1.05) rotate(5deg);} 100%{ transform:scale(1);} }
+    .wave{ display:inline-flex; gap:3px; margin-left:6px; vertical-align:middle; }
+    .wave i{ width:4px; height:10px; background:var(--brand); border-radius:2px; animation:eq calc(700ms*var(--motion-scale)) ease-in-out infinite; }
+    .wave i:nth-child(2){ animation-delay:.12s; height:16px; } .wave i:nth-child(3){ animation-delay:.24s; height:12px; }
+    @keyframes eq{ 0%,100%{ transform:scaleY(.5); } 50%{ transform:scaleY(1.3); } }
+
+    /* ───────────────────────── Activity ───────────────────────── */
+    .act{ position:relative; z-index:2; min-height:100vh; display:flex; flex-direction:column; }
+    .act-top{ display:flex; align-items:center; gap:12px; padding:calc(16px*var(--pd)) calc(20px*var(--pd)); }
+    .land-chip{ display:inline-flex; align-items:center; gap:9px; font-weight:800; color:var(--on-color);
+      background:rgba(0,0,0,.16); border-radius:999px; padding:8px 16px; font-size:16px; }
+    .prompt{ text-align:center; font-size:clamp(26px,5vw,44px); font-weight:700; color:var(--ink);
+      background:var(--surface); border-radius:var(--radius); padding:14px 22px; margin:6px auto 0; max-width:620px;
+      box-shadow:var(--shadow-toy); border:2px solid var(--border); }
+    .choices{ flex:1 1 auto; display:flex; flex-wrap:wrap; align-content:center; justify-content:center;
+      gap:clamp(14px,3vw,28px); padding:calc(20px*var(--pd)); }
+    .answer{ position:relative; width:clamp(120px,26vw,168px); height:clamp(120px,26vw,168px); border-radius:28px;
+      border:none; cursor:pointer; background:var(--cream); display:grid; place-items:center;
+      font-size:clamp(56px,12vw,86px); box-shadow:var(--shadow-toy);
+      transition:transform calc(140ms*var(--motion-scale)) ease, box-shadow calc(140ms*var(--motion-scale)) ease, background calc(200ms*var(--motion-scale)) ease;
+      font-family:"Fredoka", sans-serif; }
+    .answer:hover{ transform:translateY(-4px) scale(1.02); }
+    .answer:active{ transform:translateY(2px) scale(.98); }
+    .answer:focus-visible{ outline:4px solid var(--brand); outline-offset:4px; }
+    .answer .ex{ position:absolute; right:8px; bottom:8px; font-size:22px; }
+    .answer.correct{ background:var(--mint); color:#0c3b27; animation:correctPop calc(560ms*var(--motion-scale)) ease; }
+    .answer.wrong{ background:var(--coral); color:#fff; animation:shake calc(440ms*var(--motion-scale)) ease; }
+    .answer.correct::before{ content:"✓"; position:absolute; top:6px; left:12px; font-size:30px; font-weight:800; }
+    @keyframes correctPop{ 0%{ transform:scale(1);} 40%{ transform:scale(1.16) rotate(3deg);} 100%{ transform:scale(1);} }
+    @keyframes shake{ 0%,100%{ transform:translateX(0);} 20%{ transform:translateX(-9px);} 40%{ transform:translateX(8px);} 60%{ transform:translateX(-6px);} 80%{ transform:translateX(5px);} }
+    .act-bottom{ padding:0 calc(22px*var(--pd)) calc(26px*var(--pd)); max-width:760px; margin:0 auto; width:100%; }
+    .act-bar{ height:24px; }
+
+    /* ───────────────────────── Celebrate ───────────────────────── */
+    .celebrate{ position:fixed; inset:0; z-index:30; display:grid; place-items:center; padding:24px;
+      background:rgba(12,21,48,.55); backdrop-filter:blur(3px); }
+    .cel-card{ position:relative; text-align:center; background:var(--surface); color:var(--text);
+      border-radius:32px; padding:36px 30px; max-width:440px; width:100%; box-shadow:var(--shadow-toy);
+      border:3px solid var(--border); animation:pop calc(420ms*var(--motion-scale)) ease; }
+    .cel-emoji{ font-size:84px; animation:bob calc(2.4s*var(--motion-scale)) ease-in-out infinite; }
+    .cel-title{ font-size:34px; font-weight:700; margin:6px 0 2px; }
+    .cel-sub{ color:var(--text-muted); font-weight:700; }
+    .reward-card{ margin:18px auto; display:inline-flex; align-items:center; gap:12px; background:var(--surface-2);
+      border:2px solid var(--border); border-radius:18px; padding:14px 20px; font-weight:800; font-size:19px;
+      box-shadow:var(--shadow-soft); }
+    .reward-card .rico{ font-size:34px; animation:pop calc(500ms*var(--motion-scale)) ease; }
+    .btn{ font-family:"Fredoka",sans-serif; font-weight:600; border:none; cursor:pointer; border-radius:999px;
+      padding:15px 30px; font-size:20px; color:var(--brand-fg); background:var(--brand); box-shadow:var(--shadow-toy);
+      transition:transform calc(150ms*var(--motion-scale)) ease, filter calc(150ms*var(--motion-scale)) ease; }
+    .btn:hover{ filter:brightness(1.07); transform:translateY(-2px); } .btn:active{ transform:translateY(2px) scale(.98); }
+    .btn.ghost{ background:var(--surface-2); color:var(--text); border:2px solid var(--border); }
+
+    /* ───────────────────────── System states ───────────────────────── */
+    .sys{ position:relative; z-index:4; min-height:100vh; display:grid; place-items:center; padding:24px; }
+    .sys-card{ text-align:center; background:var(--surface); color:var(--text); border-radius:28px;
+      padding:36px 30px; max-width:420px; width:100%; box-shadow:var(--shadow-toy); border:2px solid var(--border); }
+    .sys-emoji{ font-size:66px; }
+    .skel{ height:84px; border-radius:20px; margin:12px 0; background:linear-gradient(90deg, var(--surface-2) 25%, rgba(0,0,0,.06) 37%, var(--surface-2) 63%);
+      background-size:400% 100%; animation:shimmer calc(1.4s*var(--motion-scale)) linear infinite; }
+    @keyframes shimmer{ 0%{ background-position:100% 0; } 100%{ background-position:-100% 0; } }
+
+    /* ───────────────────────── Confetti ───────────────────────── */
+    .confetti-layer{ position:fixed; inset:0; pointer-events:none; z-index:40; overflow:hidden; }
+    .confetti-pc{ position:absolute; top:-16px; width:12px; height:16px; border-radius:3px; will-change:transform,opacity;
+      animation:fall var(--dur) cubic-bezier(.2,.6,.4,1) forwards; }
+    @keyframes fall{ to{ transform:translateY(110vh) rotate(720deg); opacity:.9; } }
+    .star-pop{ position:fixed; z-index:41; font-size:30px; pointer-events:none; animation:starUp calc(900ms*var(--motion-scale)) ease forwards; }
+    @keyframes starUp{ 0%{ transform:translate(-50%,-50%) scale(.4); opacity:0;} 30%{ opacity:1;} 100%{ transform:translate(-50%,-160%) scale(1.3); opacity:0;} }
+    @keyframes pop{ 0%{ transform:scale(.6); opacity:0;} 60%{ transform:scale(1.08);} 100%{ transform:scale(1); opacity:1;} }
+
+    /* compact tweaks beyond spacing */
+    body.proto-compact .greet{ font-size:22px; }
+    @media (max-width:540px){ .mascot-wrap{ right:12px; } .mascot{ width:78px; height:78px; font-size:42px; } }
+
+    /* ── real Higgsfield assets: character portraits, land backgrounds, plush buttons ── */
+    .mascot{ overflow:visible; position:relative; }
+    .mascot .m-emoji{ position:absolute; inset:0; display:grid; place-items:center; }
+    .mascot .m-img{ position:absolute; inset:3px; width:calc(100% - 6px); height:calc(100% - 6px);
+      object-fit:cover; border-radius:50%; background:var(--surface); }
+    .cel-mascot{ width:104px; height:104px; margin:0 auto; border:3px solid var(--border);
+      border-radius:50%; box-shadow:var(--shadow-toy); background:radial-gradient(circle at 50% 35%, var(--surface-2), var(--surface)); }
+    .scene-bg{ position:absolute; inset:0; background-size:cover; background-position:center top; z-index:0; pointer-events:none; }
+    .scene-bg::after{ content:""; position:absolute; inset:0;
+      background:linear-gradient(180deg, rgba(8,12,24,.32) 0%, rgba(8,12,24,.04) 20%, rgba(8,12,24,.10) 66%, rgba(8,12,24,.42) 100%); }
+    .land{ background-size:cover; background-position:center; }
+    /* legibility of card text over the real painted backgrounds */
+    .land .name, .land .sub, .land .mastered{ text-shadow:0 1px 4px rgba(0,0,0,.6), 0 0 1px rgba(0,0,0,.5); }
+    .land .info, .land .tile{ position:relative; z-index:1; }
+    .land:not(.locked)::before{ content:""; position:absolute; inset:0;
+      background:linear-gradient(90deg, rgba(0,0,0,.34), rgba(0,0,0,.10) 55%, rgba(0,0,0,.28));
+      border-radius:var(--radius); z-index:0; }
+    .btn.plush{ background-size:100% 100%; background-repeat:no-repeat; color:#3a2600;
+      text-shadow:0 1px 0 rgba(255,255,255,.45); box-shadow:var(--shadow-soft); }
+  </style>
+</head>
+
+<body x-data="app()">
+  <div class="app">
+    <!-- decorative sky -->
+    <div class="sky" aria-hidden="true">
+      <div class="stars-bg"></div>
+      <div class="sun"></div>
+      <div class="cloud" style="top:14%; width:80px; height:30px; animation-duration:calc(46s*var(--motion-scale));"></div>
+      <div class="cloud" style="top:30%; width:60px; height:24px; animation-duration:calc(62s*var(--motion-scale)); animation-delay:-20s;"></div>
+      <div class="cloud" style="top:8%;  width:50px; height:20px; animation-duration:calc(54s*var(--motion-scale)); animation-delay:-38s;"></div>
+      <div class="hills"></div>
+    </div>
+
+    <!-- ════════ SYSTEM STATE: loading (overlay simulator) ════════ -->
+    <div class="sys" x-show="ui==='loading'" x-cloak>
+      <div class="sys-card">
+        <div class="sys-emoji" style="animation:bob calc(2.2s*var(--motion-scale)) ease-in-out infinite;">🐰</div>
+        <h2 class="fred" style="font-size:26px; margin:.3rem 0 1rem;">Waking up ReadingLand…</h2>
+        <div class="skel"></div><div class="skel" style="width:90%; margin-inline:auto;"></div><div class="skel" style="width:80%; margin-inline:auto;"></div>
+      </div>
+    </div>
+
+    <!-- ════════ SYSTEM STATE: empty ════════ -->
+    <div class="sys" x-show="ui==='empty'" x-cloak>
+      <div class="sys-card">
+        <div class="sys-emoji">🌱</div>
+        <h2 class="fred" style="font-size:26px; margin:.4rem 0 .3rem;">No little reader yet</h2>
+        <p style="color:var(--text-muted); font-weight:700;">Add a child profile to begin the journey through ReadingLand.</p>
+        <button class="btn" style="margin-top:18px;" @click="addChild()">＋ Add a child</button>
+      </div>
+    </div>
+
+    <!-- ════════ SYSTEM STATE: error ════════ -->
+    <div class="sys" x-show="ui==='error'" x-cloak>
+      <div class="sys-card">
+        <div class="sys-emoji">🦉</div>
+        <h2 class="fred" style="font-size:26px; margin:.4rem 0 .3rem;">Oops — a grown-up is needed</h2>
+        <p style="color:var(--text-muted); font-weight:700;">ReadingLand had a little hiccup. Nothing was lost.</p>
+        <button class="btn" style="margin-top:18px;" @click="setReady()">↻ Try again</button>
+      </div>
+    </div>
+
+    <!-- ════════ READY APP ════════ -->
+    <div x-show="ui==='ready'" x-cloak>
+
+      <!-- ───── MAP VIEW ───── -->
+      <div x-show="view==='map'" x-transition.opacity>
+        <div class="scene-bg" :style="`background-image:url('${assets.map}')`"></div>
+        <header class="topbar">
+          <button class="chip" @click="say(profile.name+' is reading today! Tap a land to play.', true)" title="Switch profile">
+            <span class="avatar" x-text="profile.face"></span>
+            <b x-text="profile.name"></b>
+          </button>
+          <span class="grow"></span>
+          <span class="pill"><span class="ico">⭐</span><span x-text="stars"></span></span>
+          <span class="pill"><span class="ico">🎯</span><span x-text="daily.done + '/' + daily.goal"></span></span>
+          <button class="round-btn sun" @click="say('The Rewards Room is full of stickers you earned!', true)" title="Rewards">🎁</button>
+        </header>
+
+        <h1 class="greet fred" style="padding:0 22px; position:relative; z-index:2;" x-text="'Hi, ' + profile.name + '!'"></h1>
+
+        <div class="stage">
+          <div class="path">
+            <div class="section-eyebrow">🗺️ <span>Your ReadingLand journey</span></div>
+
+            <template x-for="(land, i) in lands" :key="land.id">
+              <button class="land" :class="{ locked: !isUnlocked(i) }"
+                      :style="isUnlocked(i)
+                        ? `background-color:${land.color}; background-image:linear-gradient(120deg, color-mix(in srgb,${land.color} 80%, transparent), color-mix(in srgb,${land.color} 52%, transparent)), url('${land.bg}')`
+                        : 'background-color:#9aa0ad'"
+                      @click="openLand(i)">
+                <span class="badge-new" x-show="land.justUnlocked" x-transition>✨ NEW</span>
+                <span class="tile" x-text="isUnlocked(i) ? land.emoji : '🔒'"></span>
+                <span class="info">
+                  <span class="name fred" x-text="land.title"></span>
+                  <span class="sub" x-text="isUnlocked(i) ? land.subtitle : 'Locked — keep learning to open!'"></span>
+                  <template x-if="isUnlocked(i)">
+                    <span>
+                      <span class="bar"><span :style="`width:${ Math.round(land.mastered/land.total*100) }%`"></span></span>
+                      <span class="mastered" x-text="land.mastered + ' / ' + land.total + ' mastered'"></span>
+                    </span>
+                  </template>
+                  <template x-if="!isUnlocked(i)">
+                    <span class="mastered" x-text="'Master 70% of ' + lands[i-1].title + ' to unlock'"></span>
+                  </template>
+                </span>
+              </button>
+            </template>
+
+            <!-- Bonus: letter tracing -->
+            <button class="land" :class="{ locked: !traceUnlocked() }"
+                    :style="`background:${ traceUnlocked() ? 'var(--tangerine)' : '#9aa0ad' }`"
+                    @click="traceUnlocked() ? say('Trace letters with your finger! (Tracing screen — not in this prototype.)', true) : say('The tracing game opens with Letter Land!', true)">
+              <span class="tile" x-text="traceUnlocked() ? '✏️' : '🔒'"></span>
+              <span class="info">
+                <span class="name fred">Trace Letters</span>
+                <span class="sub" x-text="traceUnlocked() ? 'Practice writing letters with your finger!' : 'Opens with Letter Land!'"></span>
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Reading Rabbit greeter -->
+        <div class="mascot-wrap">
+          <div class="bubble" x-show="bubble" x-transition :key="bubbleKey" x-text="bubble"></div>
+          <div class="mascot" :class="{ react: reacting }">
+            <span class="m-emoji" x-text="guideFace"></span>
+            <img class="m-img" :src="guidePortrait" :alt="guideName" @error="$el.style.display='none'" @load="$el.style.display=''">
+          </div>
+        </div>
+      </div>
+
+      <!-- ───── ACTIVITY VIEW ───── -->
+      <div class="act" x-show="view==='activity'" x-transition.opacity
+           :style="`background-image:linear-gradient(180deg, rgba(8,12,24,.30), rgba(8,12,24,.52)), url('${activeLand.bg}'); background-size:cover; background-position:center;`">
+        <div class="act-top">
+          <button class="round-btn" style="background:var(--surface); color:var(--text)" @click="backToMap()" title="Back to map">⌂</button>
+          <span class="land-chip" x-text="activeLand.emoji + '  ' + activeLand.title"></span>
+          <span class="grow"></span>
+          <span class="pill"><span class="ico">⭐</span><span x-text="stars"></span></span>
+          <button class="round-btn sun" @click="speakAgain()" title="Hear it again">
+            🔊<span class="wave" x-show="speaking" style="position:absolute; bottom:-2px;"><i></i><i></i><i></i></span>
+          </button>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:14px; padding:4px 22px 0; max-width:760px; margin:0 auto; width:100%;">
+          <div class="mascot" :class="{ react: reacting }" style="width:84px;height:84px;font-size:46px;">
+            <span class="m-emoji" x-text="guideFace"></span>
+            <img class="m-img" :src="guidePortrait" :alt="guideName" @error="$el.style.display='none'" @load="$el.style.display=''">
+          </div>
+          <div class="prompt fred" style="flex:1" x-text="round.prompt">&nbsp;</div>
+        </div>
+
+        <div class="choices">
+          <template x-for="(c, idx) in round.choices" :key="round.id + '-' + idx">
+            <button class="answer fred" :class="c._state"
+                    :style="c.color && activeLand.key==='alphabet' ? `color:${c.color}` : ''"
+                    @click="choose(idx)">
+              <span x-text="activeLand.key==='alphabet' ? c.label : c.emoji"></span>
+              <span class="ex" x-show="activeLand.key==='alphabet'" x-text="c.emoji"></span>
+            </button>
+          </template>
+        </div>
+
+        <div class="act-bottom">
+          <div class="bar act-bar"><span :style="`width:${ Math.round(activeLand.mastered/activeLand.total*100) }%; background:linear-gradient(90deg, ${activeColor}, #ffffff)`"></span></div>
+          <div class="mastered" style="color:var(--on-color); text-align:center; margin-top:8px;"
+               x-text="activeLand.mastered + ' / ' + activeLand.total + ' mastered  ·  Daily goal ' + daily.done + '/' + daily.goal"></div>
+        </div>
+      </div>
+
+      <!-- ───── CELEBRATION ───── -->
+      <div class="celebrate" x-show="view==='celebrate'" x-transition.opacity x-cloak>
+        <div class="cel-card">
+          <div class="cel-emoji" x-show="celebrate.unlock" x-text="'🎉'"></div>
+          <div class="mascot cel-mascot" x-show="!celebrate.unlock">
+            <span class="m-emoji" x-text="guideFace"></span>
+            <img class="m-img" :src="guidePortrait" :alt="guideName" @error="$el.style.display='none'" @load="$el.style.display=''">
+          </div>
+          <h2 class="cel-title fred" x-text="celebrate.title"></h2>
+          <p class="cel-sub" x-text="celebrate.sub"></p>
+
+          <template x-if="celebrate.unlock">
+            <div class="reward-card" style="border-color:var(--brand)">
+              <span class="rico" x-text="celebrate.unlock.emoji"></span>
+              <span>New land unlocked:<br><b x-text="celebrate.unlock.title"></b></span>
+            </div>
+          </template>
+          <template x-if="!celebrate.unlock">
+            <div class="reward-card">
+              <span class="rico" x-text="celebrate.reward.icon"></span>
+              <span x-text="celebrate.reward.name"></span>
+            </div>
+          </template>
+
+          <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:6px;">
+            <button class="btn ghost" @click="keepPlaying()">Keep playing</button>
+            <button class="btn plush" :style="`background-image:url('${assets.btn_gold}')`" @click="backToMap()">Back to the Map →</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /ready -->
+
+    <div class="confetti-layer" id="confetti" aria-hidden="true"></div>
+  </div>
+
+  <!-- ───────────────────────── App logic ───────────────────────── -->
+  <script>
+    // Content (faithful subset of readingland/content/*.json)
+    const VISUAL = [
+      { id:'circle',  label:'Circle',   emoji:'🔴', cat:'shape'  },
+      { id:'square',  label:'Square',   emoji:'🟦', cat:'shape'  },
+      { id:'triangle',label:'Triangle', emoji:'🔺', cat:'shape'  },
+      { id:'star',    label:'Star',     emoji:'⭐', cat:'shape'  },
+      { id:'heart',   label:'Heart',    emoji:'❤️', cat:'shape'  },
+      { id:'dog',     label:'dog',      emoji:'🐶', cat:'animal' },
+      { id:'cat',     label:'cat',      emoji:'🐱', cat:'animal' },
+      { id:'fish',    label:'fish',     emoji:'🐟', cat:'animal' },
+      { id:'bird',    label:'bird',     emoji:'🐦', cat:'animal' },
+      { id:'ball',    label:'ball',     emoji:'⚽', cat:'object' },
+      { id:'apple',   label:'apple',    emoji:'🍎', cat:'object' },
+      { id:'car',     label:'car',      emoji:'🚗', cat:'object' },
+    ];
+    const ALPHABET = [
+      { id:'A', label:'A', emoji:'🍎', color:'#FF6B6B' },
+      { id:'B', label:'B', emoji:'⚽', color:'#5DC1F0' },
+      { id:'C', label:'C', emoji:'🐱', color:'#FF9F1C' },
+      { id:'D', label:'D', emoji:'🐶', color:'#3DDC97' },
+      { id:'E', label:'E', emoji:'🥚', color:'#9B5DE5' },
+      { id:'F', label:'F', emoji:'🐟', color:'#2E9BD6' },
+      { id:'G', label:'G', emoji:'🐐', color:'#FF8FB1' },
+      { id:'H', label:'H', emoji:'🎩', color:'#FFD23F' },
+    ];
+    const GUIDES = {
+      rabbit:  { face:'🐰', name:'Reading Rabbit', key:'rabbit'  },
+      bear:    { face:'🐻', name:'Benny Bear',     key:'bear'    },
+      penguin: { face:'🐧', name:'Penny Penguin',  key:'penguin' },
+      owl:     { face:'🦉', name:'Ollie Owl',      key:'owl'     },
+    };
+    // Real production art, committed in the repo (scripts/fetch_assets.py / CI fetch-assets.yml).
+    // Paths are relative to this file in prototypes/. Works offline from a repo checkout;
+    // emoji/solid-color fallbacks remain via image onerror if a file is missing.
+    const ASSET = {
+      map:          '../assets/images/backgrounds/bg_map.png',
+      bg_visual:    '../assets/images/backgrounds/bg_visual.png',
+      bg_alphabet:  '../assets/images/backgrounds/bg_alphabet.png',
+      bg_phonics:   '../assets/images/backgrounds/bg_phonics.png',
+      bg_words:     '../assets/images/backgrounds/bg_words.png',
+      bg_sentences: '../assets/images/backgrounds/bg_sentences.png',
+      bg_stories:   '../assets/images/backgrounds/bg_stories.png',
+      por_rabbit:   '../assets/images/characters/reading_rabbit/portrait.png',
+      por_bear:     '../assets/images/characters/benny_bear/portrait.png',
+      por_penguin:  '../assets/images/characters/penny_penguin/portrait.png',
+      por_owl:      '../assets/images/characters/ollie_owl/portrait.png',
+      btn_gold:     '../assets/images/ui/btn_gold.png',
+      btn_mint:     '../assets/images/ui/btn_mint.png',
+      btn_coral:    '../assets/images/ui/btn_coral.png',
+    };
+    const REWARDS = [
+      { icon:'⭐', name:'Gold Star sticker!' },
+      { icon:'🌈', name:'Rainbow sticker!' },
+      { icon:'🏅', name:'Reading Medal!' },
+      { icon:'🎈', name:'Balloon sticker!' },
+      { icon:'🦋', name:'Butterfly sticker!' },
+    ];
+    const pick = (arr) => arr[Math.floor(Math.random()*arr.length)];
+    const shuffle = (arr) => { const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+
+    function app(){
+      return {
+        ui:'ready',
+        view:'map',
+        stars:128,
+        daily:{ done:2, goal:5 },
+        profile:{ name:'Maya', face:'🐥' },
+        reacting:false,
+        speaking:false,
+        bubble:'',
+        bubbleKey:0,
+        guideFace:'🐰',
+        _guideKey:'rabbit',
+        assets: ASSET,
+        activeIndex:0,
+        round:{ id:0, prompt:'', target:null, choices:[] },
+        firstTry:true,
+        sessionRounds:0,
+        celebrate:{ title:'', sub:'', reward:REWARDS[0], unlock:null },
+        rewardIdx:0,
+        lands:[
+          { id:1, key:'visual',    title:'Look & Learn',   subtitle:'Shapes, colors, animals & objects', emoji:'👀', color:'#3DDC97', guide:'rabbit',  total:18, mastered:14, pool:VISUAL,   _seen:{}, justUnlocked:false },
+          { id:2, key:'alphabet',  title:'Letter Land',    subtitle:'Letter names & sounds',              emoji:'🔤', color:'#FF9F1C', guide:'rabbit',  total:26, mastered:17, pool:ALPHABET, _seen:{}, justUnlocked:false },
+          { id:3, key:'phonics',   title:'Sound Forest',   subtitle:'Blending sounds into words',         emoji:'🔊', color:'#9B5DE5', guide:'bear',    total:20, mastered:0,  pool:null,     _seen:{}, justUnlocked:false },
+          { id:4, key:'words',     title:'Word Town',      subtitle:'Reading first words',                emoji:'📕', color:'#FF6B6B', guide:'penguin', total:24, mastered:0,  pool:null,     _seen:{}, justUnlocked:false },
+          { id:5, key:'sentences', title:'Sentence River', subtitle:'Reading sentences',                  emoji:'📑', color:'#2E9BD6', guide:'penguin', total:16, mastered:0,  pool:null,     _seen:{}, justUnlocked:false },
+          { id:6, key:'stories',   title:'Story Sky',      subtitle:'Read-along storybooks',              emoji:'📖', color:'#FF8FB1', guide:'owl',     total:10, mastered:0,  pool:null,     _seen:{}, justUnlocked:false },
+        ],
+
+        // ── lifecycle ──
+        init(){
+          this.lands.forEach(l => { l.bg = ASSET['bg_' + l.key]; });
+          if (window.__proto) window.__proto.onState(s => { this.ui = s; });
+          this.greetHome();
+        },
+        setGuide(k){ this._guideKey = k; this.guideFace = GUIDES[k].face; },
+        get guidePortrait(){ return ASSET['por_' + this._guideKey] || ''; },
+        get guideName(){ return GUIDES[this._guideKey].name; },
+        setReady(){ if(window.__proto){ window.__proto.setState('ready'); } else { this.ui='ready'; } },
+        addChild(){ this.setReady(); this.view='map'; this.greetHome(); },
+
+        // ── unlocking ──
+        get activeLand(){ return this.lands[this.activeIndex]; },
+        get activeColor(){ return this.activeLand.color; },
+        ratio(i){ return this.lands[i].mastered / this.lands[i].total; },
+        isUnlocked(i){ return i===0 ? true : this.ratio(i-1) >= 0.7; },
+        traceUnlocked(){ return this.isUnlocked(1); },
+
+        // ── mascot speech ──
+        say(text, big){
+          this.bubble = text; this.bubbleKey++;
+          this.speaking = true;
+          clearTimeout(this._spk); this._spk = setTimeout(()=> this.speaking=false, 1100);
+          if (big){ this.react(); }
+        },
+        react(){ this.reacting=false; this.$nextTick(()=>{ this.reacting=true; setTimeout(()=> this.reacting=false, 650); }); },
+        greetHome(){
+          this.setGuide('rabbit');
+          setTimeout(()=> this.say("Hi friend! I'm Reading Rabbit. Tap a land and let's learn!"), 350);
+        },
+
+        // ── open a land ──
+        openLand(i){
+          if (!this.isUnlocked(i)){
+            this.setGuide('rabbit');
+            this.say("Keep learning and this land will open. You can do it!", true);
+            return;
+          }
+          if (!this.lands[i].pool){
+            this.say(this.lands[i].title + " is coming soon in this prototype — try Look & Learn or Letter Land!", true);
+            return;
+          }
+          this.activeIndex = i;
+          this.lands[i].justUnlocked = false;
+          this.setGuide(this.lands[i].guide);
+          this.sessionRounds = 0;
+          this.view = 'activity';
+          this.newRound();
+        },
+
+        // ── a round of the matching game ──
+        promptFor(land, item){
+          if (land.key==='alphabet') return 'Find the letter ' + item.label + '!';
+          const verbs = { shape:'Find the '+item.label+'!', color:'Find '+item.label+'!',
+                          animal:'Where is the '+item.label+'?', object:'Tap the '+item.label+'!' };
+          return verbs[item.cat] || ('Find the '+item.label+'!');
+        },
+        newRound(){
+          const land = this.activeLand;
+          const prev = this.round.target;
+          let target = pick(land.pool);
+          let guard = 0; while (prev && target.id===prev.id && guard++ < 8) target = pick(land.pool);
+          const distractors = shuffle(land.pool.filter(x => x.id!==target.id)).slice(0,2);
+          const choices = shuffle([target, ...distractors]).map(c => ({ ...c, _state:'' }));
+          this.firstTry = true;
+          this.round = { id:this.round.id+1, prompt:this.promptFor(land, target), target, choices };
+          setTimeout(()=> this.say(this.round.prompt), 250);
+        },
+        speakAgain(){ if (this.round.prompt) this.say(this.round.prompt); },
+
+        // ── answering ──
+        choose(idx){
+          if (this._locked) return;
+          const land = this.activeLand;
+          const c = this.round.choices[idx];
+          if (c.id === this.round.target.id){
+            this._locked = true;
+            c._state = 'correct';
+            const gain = this.firstTry ? 3 : 1;
+            this.stars += gain;
+            this.starPop(idx);
+            this.confetti(18);
+            this.react();
+            this.say('Hooray! You found ' + this.round.target.label + '!');
+            // master a new item the first time it's answered correctly
+            let unlocked = null;
+            if (!land._seen[c.id]){
+              land._seen[c.id] = true;
+              if (land.mastered < land.total) land.mastered++;
+              unlocked = this.checkUnlock();
+            }
+            if (this.daily.done < this.daily.goal) this.daily.done++;
+            this.sessionRounds++;
+            setTimeout(()=>{
+              this._locked = false;
+              if (unlocked){ this.openCelebrate(unlocked); }
+              else if (this.sessionRounds > 0 && this.sessionRounds % 4 === 0){ this.openCelebrate(null); }
+              else { this.newRound(); }
+            }, 1300);
+          } else {
+            c._state = 'wrong';
+            this.firstTry = false;
+            this.say("Good try! Let's listen again.");
+            setTimeout(()=>{ c._state=''; this.speakAgain(); }, 900);
+          }
+        },
+
+        checkUnlock(){
+          for (let i=1;i<this.lands.length;i++){
+            const nowOpen = this.ratio(i-1) >= 0.7;
+            if (nowOpen && !this.lands[i]._wasOpen){
+              this.lands[i]._wasOpen = true;
+              this.lands[i].justUnlocked = true;
+              return this.lands[i];
+            }
+            if (nowOpen) this.lands[i]._wasOpen = true;
+          }
+          return null;
+        },
+
+        // ── celebration ──
+        openCelebrate(unlock){
+          this.confetti(70);
+          if (unlock){
+            this.setGuide('rabbit');
+            this.celebrate = { title:'Land unlocked!', sub:"You mastered enough — a new world just opened!", reward:REWARDS[0], unlock };
+          } else {
+            const reward = REWARDS[this.rewardIdx % REWARDS.length]; this.rewardIdx++;
+            this.celebrate = { title:'Great job!', sub:"You're reading like a star!", reward, unlock:null };
+          }
+          this.view = 'celebrate';
+        },
+        keepPlaying(){ this.view='activity'; this.newRound(); },
+        backToMap(){
+          this.view='map'; this._locked=false;
+          this.setGuide('rabbit');
+          setTimeout(()=> this.say('You did great! Pick another land whenever you like.'), 250);
+        },
+
+        // ── effects ──
+        starPop(idx){
+          const tiles = document.querySelectorAll('.answer');
+          const el = tiles[idx]; if(!el) return;
+          const r = el.getBoundingClientRect();
+          const s = document.createElement('div');
+          s.className='star-pop'; s.textContent='⭐';
+          s.style.left = (r.left + r.width/2) + 'px'; s.style.top = (r.top + r.height/2) + 'px';
+          document.body.appendChild(s); setTimeout(()=> s.remove(), 1000);
+        },
+        confetti(n){
+          const layer = document.getElementById('confetti'); if(!layer) return;
+          const colors = ['#FFD23F','#FF6B6B','#3DDC97','#9B5DE5','#5DC1F0','#FF8FB1','#FF9F1C'];
+          for (let i=0;i<n;i++){
+            const p = document.createElement('div');
+            p.className='confetti-pc';
+            p.style.left = Math.random()*100 + 'vw';
+            p.style.background = colors[i % colors.length];
+            p.style.setProperty('--dur', (1.6 + Math.random()*1.6) + 's');
+            p.style.transform = 'rotate(' + (Math.random()*360) + 'deg)';
+            if (Math.random() > .5) p.style.borderRadius='50%';
+            layer.appendChild(p);
+            setTimeout(()=> p.remove(), 3400);
+          }
+        },
+      };
+    }
+  </script>
+
+<!--
+  ════════════════════════════════════════════════════════════════════════
+  PROTOTYPE REVIEW OVERLAY  ·  v2  ·  drop-in, framework-agnostic
+  ────────────────────────────────────────────────────────────────────────
+  Paste this ENTIRE block once, immediately before </body>.
+  It is self-contained (own scoped CSS, no external deps, memory-only state)
+  and works on top of any DOM — Alpine, React, Vue, or plain HTML.
+
+  It exposes a small global the host app can drive:
+    window.__proto.setState('ready'|'loading'|'empty'|'error')
+    window.__proto.onState(cb)      // host registers a render reaction
+    window.__proto.reset()          // clears pins + restores all tweaks
+  Read the data-* contract at the bottom of this file.
+  ════════════════════════════════════════════════════════════════════════
+-->
+<style id="proto-overlay-style">
+  :root{ --proto-z: 2147483000; }
+  /* Tweak vars the panel writes to. Host CSS should consume these. */
+  :root{
+    --brand: var(--brand, #6366f1);
+    --motion-scale: 1;
+    --proto-density: 1;
+  }
+  #proto-overlay, #proto-overlay *{ box-sizing:border-box; font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  #proto-overlay{ position:fixed; inset:auto 16px 16px auto; z-index:var(--proto-z); }
+  .proto-fab{ width:52px;height:52px;border-radius:9999px;border:none;cursor:pointer;
+    background:var(--brand);color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.28);
+    display:grid;place-items:center;font-size:22px;transition:transform .15s ease; }
+  .proto-fab:hover{ transform:scale(1.06); }
+  .proto-fab.armed{ box-shadow:0 0 0 4px color-mix(in srgb,var(--brand) 40%,transparent),0 8px 24px rgba(0,0,0,.28); }
+  .proto-panel{ position:absolute; bottom:64px; right:0; width:340px; max-height:78vh;
+    background:#0f1117; color:#e7e9ee; border:1px solid #262a36; border-radius:16px;
+    box-shadow:0 24px 64px rgba(0,0,0,.5); display:none; flex-direction:column; overflow:hidden; }
+  #proto-overlay.open .proto-panel{ display:flex; }
+  .proto-head{ display:flex;align-items:center;gap:8px;padding:12px 14px;border-bottom:1px solid #262a36; }
+  .proto-head b{ font-size:13px;letter-spacing:.02em; } .proto-head small{ color:#8a90a2;font-size:11px; }
+  .proto-tabs{ display:flex;gap:4px;padding:8px 10px;border-bottom:1px solid #262a36; }
+  .proto-tab{ flex:1;padding:7px 8px;border-radius:9px;border:none;cursor:pointer;font-size:12px;font-weight:600;
+    background:transparent;color:#8a90a2; } .proto-tab.active{ background:#1b1f2a;color:#fff; }
+  .proto-body{ overflow:auto;padding:12px 14px;display:flex;flex-direction:column;gap:12px; }
+  .proto-view{ display:none;flex-direction:column;gap:12px; } .proto-view.active{ display:flex; }
+  .proto-row{ display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;color:#c3c8d6; }
+  .proto-btn{ border:1px solid #2c3140;background:#161a23;color:#e7e9ee;border-radius:9px;
+    padding:7px 10px;font-size:12px;font-weight:600;cursor:pointer; } .proto-btn:hover{ background:#1e2330; }
+  .proto-btn.primary{ background:var(--brand);border-color:transparent;color:#fff; }
+  .proto-btn.ghost{ background:transparent; } .proto-btn.danger{ color:#ff8c8c;border-color:#3a2330; }
+  .proto-seg{ display:flex;gap:4px; } .proto-seg .proto-btn{ flex:1;padding:6px 4px; }
+  .proto-seg .proto-btn.on{ background:var(--brand);border-color:transparent;color:#fff; }
+  .proto-input,.proto-text{ width:100%;background:#0a0c11;border:1px solid #262a36;border-radius:9px;
+    color:#e7e9ee;font-size:12px;padding:8px; } .proto-text{ min-height:96px;resize:vertical;font-family:ui-monospace,monospace; }
+  .proto-pin-item{ background:#141823;border:1px solid #232838;border-radius:10px;padding:9px 10px;display:flex;gap:9px; }
+  .proto-pin-item .num{ flex:none;width:22px;height:22px;border-radius:9999px;background:var(--brand);
+    color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center; }
+  .proto-pin-item .meta{ flex:1;min-width:0; }
+  .proto-pin-item code{ font-size:10.5px;color:#9aa3ff;word-break:break-all; }
+  .proto-pin-item p{ margin:3px 0 0;font-size:12px;color:#d7dbe6; }
+  .proto-pin-item .x{ cursor:pointer;color:#6b7186;font-size:14px;background:none;border:none; }
+  .proto-empty{ color:#6b7186;font-size:12px;text-align:center;padding:14px 0; }
+  .proto-hint{ font-size:11px;color:#7f8699;line-height:1.45; }
+  .proto-label{ font-size:11px;font-weight:700;color:#8a90a2;text-transform:uppercase;letter-spacing:.05em; }
+  /* live pins drawn on the page */
+  .proto-pin{ position:absolute;z-index:calc(var(--proto-z) - 1);width:24px;height:24px;border-radius:9999px;
+    background:var(--brand);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;
+    transform:translate(-50%,-50%);box-shadow:0 3px 10px rgba(0,0,0,.4);cursor:pointer;pointer-events:auto; }
+  /* arm mode: highlight hovered element */
+  body.proto-arming *{ cursor:crosshair !important; }
+  .proto-hi{ outline:2px dashed var(--brand) !important;outline-offset:1px !important; }
+  /* outline debug mode */
+  body.proto-outlines *{ outline:1px solid color-mix(in srgb,var(--brand) 45%,transparent) !important; }
+  /* region capture */
+  #proto-capture{ position:fixed;inset:0;z-index:calc(var(--proto-z) + 1);cursor:crosshair;
+    background:rgba(5,7,11,.35);display:none; }
+  #proto-capture.on{ display:block; }
+  #proto-capture .sel{ position:absolute;border:2px solid var(--brand);
+    background:color-mix(in srgb,var(--brand) 14%,transparent);box-shadow:0 0 0 100vmax rgba(5,7,11,.35); }
+  #proto-capture .tip{ position:fixed;top:16px;left:50%;transform:translateX(-50%);
+    background:#0f1117;color:#e7e9ee;border:1px solid #262a36;border-radius:9px;
+    padding:7px 12px;font-size:12px;font-family:ui-sans-serif,system-ui,sans-serif; }
+  .proto-shot{ background:#141823;border:1px solid #232838;border-radius:10px;padding:8px;display:flex;gap:8px;align-items:center; }
+  .proto-shot img{ width:54px;height:40px;object-fit:cover;border-radius:6px;border:1px solid #2c3140; }
+  .proto-shot .acts{ display:flex;flex-direction:column;gap:4px;margin-left:auto; }
+  .proto-shot .mini{ font-size:10.5px;padding:3px 7px;border-radius:7px;border:1px solid #2c3140;
+    background:#161a23;color:#e7e9ee;cursor:pointer; } .proto-shot .mini:hover{ background:#1e2330; }
+  /* density + motion hooks the host can honor */
+  body.proto-compact{ --proto-density:.85; }
+  body.proto-motion-off *,body.proto-motion-off *::before,body.proto-motion-off *::after{
+    animation-duration:.001s !important;transition-duration:.001s !important; }
+  /* viewport sim frame */
+  body.proto-vp{ margin:0 auto !important; box-shadow:0 0 0 100vmax #05070b !important; transition:max-width .2s ease; }
+</style>
+
+<div id="proto-overlay" aria-live="polite">
+  <div class="proto-panel" role="dialog" aria-label="Prototype review tool">
+    <div class="proto-head">
+      <b>Design Review</b><small id="proto-count">0 pins</small>
+      <button class="proto-btn ghost" id="proto-close" style="margin-left:auto;padding:4px 8px">✕</button>
+    </div>
+    <div class="proto-tabs">
+      <button class="proto-tab active" data-view="pins">📍 Pins</button>
+      <button class="proto-tab" data-view="tweaks">🎚 Tweaks</button>
+      <button class="proto-tab" data-view="export">📤 Export</button>
+    </div>
+    <div class="proto-body">
+      <!-- PINS -->
+      <div class="proto-view active" data-view="pins">
+        <button class="proto-btn primary" id="proto-arm">Start pinning · click any element</button>
+        <button class="proto-btn" id="proto-shot-btn">📷 Capture region</button>
+        <p class="proto-hint">Arm pinning, then click anything to drop a numbered note. Or capture a region — the shot downloads so you can paste it into chat alongside your feedback.</p>
+        <div id="proto-shots"></div>
+        <div id="proto-pins"></div>
+      </div>
+      <!-- TWEAKS -->
+      <div class="proto-view" data-view="tweaks">
+        <div><span class="proto-label">Theme</span>
+          <div class="proto-seg" data-group="theme">
+            <button class="proto-btn on" data-theme="light">Light</button>
+            <button class="proto-btn" data-theme="dark">Dark</button>
+          </div></div>
+        <div class="proto-row"><span>Brand color</span>
+          <input type="color" id="proto-brand" value="#6366f1" class="proto-input" style="width:46px;height:30px;padding:2px"></div>
+        <div><span class="proto-label">Motion</span>
+          <div class="proto-seg" data-group="motion">
+            <button class="proto-btn on" data-motion="1">Normal</button>
+            <button class="proto-btn" data-motion="0.5">Fast</button>
+            <button class="proto-btn" data-motion="off">Off</button>
+          </div></div>
+        <div><span class="proto-label">Density</span>
+          <div class="proto-seg" data-group="density">
+            <button class="proto-btn on" data-density="comfortable">Comfortable</button>
+            <button class="proto-btn" data-density="compact">Compact</button>
+          </div></div>
+        <div><span class="proto-label">Viewport</span>
+          <div class="proto-seg" data-group="vp">
+            <button class="proto-btn" data-vp="390">Mobile</button>
+            <button class="proto-btn" data-vp="834">Tablet</button>
+            <button class="proto-btn on" data-vp="0">Full</button>
+          </div></div>
+        <div class="proto-row"><span>Element outlines</span>
+          <button class="proto-btn" id="proto-outlines">Off</button></div>
+        <div><span class="proto-label">Simulate state</span>
+          <div class="proto-seg" data-group="state">
+            <button class="proto-btn on" data-state="ready">Ready</button>
+            <button class="proto-btn" data-state="loading">Loading</button>
+            <button class="proto-btn" data-state="empty">Empty</button>
+            <button class="proto-btn" data-state="error">Error</button>
+          </div></div>
+        <button class="proto-btn danger" id="proto-reset">↺ Reset prototype</button>
+      </div>
+      <!-- EXPORT -->
+      <div class="proto-view" data-view="export">
+        <p class="proto-hint">Pins + the notes below compile into one markdown block. Copy it and paste it back into chat — the skill recognizes the header and applies each change.</p>
+        <span class="proto-label">Global notes</span>
+        <textarea class="proto-text" id="proto-notes" placeholder="Anything not tied to a single element…" style="min-height:64px"></textarea>
+        <span class="proto-label">Generated feedback</span>
+        <textarea class="proto-text" id="proto-md" readonly></textarea>
+        <button class="proto-btn primary" id="proto-copy">Copy feedback markdown</button>
+      </div>
+    </div>
+  </div>
+  <button class="proto-fab" id="proto-fab" title="Design review">✎</button>
+</div>
+
+<script id="proto-overlay-script">
+(function(){
+  if (window.__proto) return;                       // idempotent
+  const $  = (s,r=document)=>r.querySelector(s);
+  const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+  const root = $('#proto-overlay'), fab = $('#proto-fab');
+  const state = { pins:[], captures:[], arming:false, title:document.title||'Prototype', theme:'light',
+                  brand:'#6366f1', motion:'1', density:'comfortable', appState:'ready' };
+  const stateHooks = [];
+
+  /* ---- stable, readable selector for any element ---- */
+  function selectorFor(el){
+    if(!el || el===document.body) return 'body';
+    if(el.id) return '#'+el.id;
+    const path=[]; let n=el, depth=0;
+    while(n && n.nodeType===1 && n!==document.body && depth<4){
+      let part=n.tagName.toLowerCase();
+      const cls=[...n.classList].filter(c=>!c.startsWith('proto-')).slice(0,2);
+      if(cls.length) part+='.'+cls.join('.');
+      const sibs=[...(n.parentNode?.children||[])].filter(s=>s.tagName===n.tagName);
+      if(sibs.length>1) part+=`:nth-of-type(${sibs.indexOf(n)+1})`;
+      path.unshift(part); n=n.parentElement; depth++;
+    }
+    return path.join(' > ');
+  }
+  const snippet = el => (el.innerText||el.value||el.getAttribute('aria-label')||'').trim().slice(0,48);
+
+  /* ---- pin lifecycle ---- */
+  function addPin(el){
+    const pin={ id:Date.now()+Math.random(), n:state.pins.length+1,
+                selector:selectorFor(el), label:snippet(el), comment:'', el };
+    state.pins.push(pin); drawPins(); renderPinList(); buildMarkdown();
+    openEditor(pin, true);
+  }
+  function drawPins(){
+    $$('.proto-pin').forEach(p=>p.remove());
+    state.pins.forEach(p=>{
+      const r=p.el?.getBoundingClientRect?.(); if(!r) return;
+      const b=document.createElement('button'); b.className='proto-pin'; b.textContent=p.n;
+      b.style.left=(r.left+r.width/2+scrollX)+'px'; b.style.top=(r.top+scrollY)+'px';
+      b.onclick=e=>{ e.stopPropagation(); openEditor(p,false); };
+      document.body.appendChild(b);
+    });
+  }
+  function openEditor(pin, fresh){
+    const v=prompt(`Pin #${pin.n} — ${pin.selector}\nWhat should change here?`, pin.comment||'');
+    if(v===null){ if(fresh) deletePin(pin.id); return; }
+    pin.comment=v.trim(); renderPinList(); buildMarkdown();
+  }
+  function deletePin(id){
+    state.pins=state.pins.filter(p=>p.id!==id).map((p,i)=>(p.n=i+1,p));
+    drawPins(); renderPinList(); buildMarkdown();
+  }
+  function renderPinList(){
+    const box=$('#proto-pins'); $('#proto-count').textContent=`${state.pins.length} pins`;
+    if(!state.pins.length){ box.innerHTML='<div class="proto-empty">No pins yet.</div>'; return; }
+    box.innerHTML='';
+    state.pins.forEach(p=>{
+      const d=document.createElement('div'); d.className='proto-pin-item';
+      d.innerHTML=`<span class="num">${p.n}</span><div class="meta">
+        <code>${p.selector}</code><p>${p.comment||'<i style="color:#6b7186">(click pin to add note)</i>'}</p></div>
+        <button class="x" title="delete">🗑</button>`;
+      d.querySelector('.x').onclick=()=>deletePin(p.id);
+      d.querySelector('.meta').onclick=()=>openEditor(p,false);
+      box.appendChild(d);
+    });
+  }
+
+  /* ---- region screenshot capture (lazy-loads html2canvas on first use) ---- */
+  let h2cPromise=null;
+  function ensureH2C(){
+    if(window.html2canvas) return Promise.resolve(window.html2canvas);
+    if(h2cPromise) return h2cPromise;
+    h2cPromise=new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+      s.onload=()=>res(window.html2canvas); s.onerror=()=>rej(new Error('cdn blocked'));
+      document.head.appendChild(s);
+    });
+    return h2cPromise;
+  }
+  function startCapture(){
+    root.classList.remove('open');
+    const layer=document.createElement('div'); layer.id='proto-capture';
+    layer.innerHTML='<div class="tip">Drag to select a region · Esc to cancel</div>';
+    document.body.appendChild(layer); layer.classList.add('on');
+    let sx,sy,box=null;
+    const cancel=()=>{ layer.remove(); document.removeEventListener('keydown',esc); };
+    const esc=e=>{ if(e.key==='Escape') cancel(); }; document.addEventListener('keydown',esc);
+    layer.addEventListener('pointerdown',e=>{
+      sx=e.clientX; sy=e.clientY; box=document.createElement('div'); box.className='sel';
+      box.style.left=sx+'px'; box.style.top=sy+'px'; layer.appendChild(box);
+    });
+    layer.addEventListener('pointermove',e=>{ if(!box) return;
+      const x=Math.min(e.clientX,sx),y=Math.min(e.clientY,sy);
+      box.style.left=x+'px'; box.style.top=y+'px';
+      box.style.width=Math.abs(e.clientX-sx)+'px'; box.style.height=Math.abs(e.clientY-sy)+'px';
+    });
+    layer.addEventListener('pointerup',async e=>{
+      if(!box){ cancel(); return; }
+      const r=box.getBoundingClientRect(); layer.remove(); document.removeEventListener('keydown',esc);
+      if(r.width<8||r.height<8) return;
+      const tip=document.createElement('div'); tip.className='tip'; tip.style.zIndex=2147483647;
+      tip.style.position='fixed'; tip.style.top='16px'; tip.style.left='50%'; tip.style.transform='translateX(-50%)';
+      tip.textContent='Rendering screenshot…'; document.body.appendChild(tip);
+      const hidden=[root,...$$('.proto-pin')]; hidden.forEach(n=>n.style.visibility='hidden');
+      try{
+        const h2c=await ensureH2C();
+        const canvas=await h2c(document.body,{ x:r.left+scrollX, y:r.top+scrollY,
+          width:r.width, height:r.height, scale:Math.min(window.devicePixelRatio||1,2),
+          backgroundColor:getComputedStyle(document.body).backgroundColor, useCORS:true, logging:false });
+        const url=canvas.toDataURL('image/png');
+        state.captures.push({ id:Date.now(), url, w:Math.round(r.width), h:Math.round(r.height) });
+        renderShots(); buildMarkdown();
+        downloadShot(url, state.captures.length); // auto-download so it's ready to paste into chat
+      }catch(err){
+        alert('Screenshot needs html2canvas from the CDN, which appears blocked here.\nIt will work when you open the downloaded file in a normal browser.');
+      }finally{ hidden.forEach(n=>n.style.visibility=''); tip.remove(); }
+    });
+  }
+  function downloadShot(url,n){ const a=document.createElement('a');
+    a.href=url; a.download=`prototype-region-${n}.png`; a.click(); }
+  async function copyShot(url){
+    try{ const blob=await (await fetch(url)).blob();
+      await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);
+    }catch(e){ downloadShot(url,'copy'); }
+  }
+  function renderShots(){
+    const box=$('#proto-shots'); box.innerHTML='';
+    state.captures.forEach((c,i)=>{
+      const d=document.createElement('div'); d.className='proto-shot';
+      d.innerHTML=`<img src="${c.url}" alt=""><div><b style="font-size:12px">Region ${i+1}</b>
+        <div style="font-size:10.5px;color:#7f8699">${c.w}×${c.h}px · downloaded</div></div>
+        <div class="acts"><button class="mini" data-a="copy">Copy</button>
+        <button class="mini" data-a="dl">Save</button><button class="mini" data-a="rm">✕</button></div>`;
+      d.querySelector('[data-a="copy"]').onclick=()=>copyShot(c.url);
+      d.querySelector('[data-a="dl"]').onclick=()=>downloadShot(c.url,i+1);
+      d.querySelector('[data-a="rm"]').onclick=()=>{ state.captures.splice(i,1); renderShots(); buildMarkdown(); };
+      box.appendChild(d);
+    });
+  }
+
+  /* ---- markdown export (header is the recognition contract) ---- */
+  function buildMarkdown(){
+    const t=document.querySelector('body.proto-vp')?` · viewport sim on`:'';
+    let md=`## 🎯 Prototype Review Feedback\n`+
+           `> Paste this back into chat to request the next iteration.\n\n`+
+           `**Prototype:** ${state.title}\n`+
+           `**Settings:** theme=${state.theme} · brand=${state.brand} · density=${state.density} · motion=${state.motion}${t}\n\n`;
+    if(state.pins.length){
+      md+=`### Pinned changes\n`;
+      state.pins.forEach(p=>{ md+=`${p.n}. \`${p.selector}\`${p.label?` ("${p.label}")`:''} — ${p.comment||'(no note)'}\n`; });
+      md+='\n';
+    }
+    const notes=$('#proto-notes').value.trim();
+    if(notes){ md+=`### Global notes\n${notes}\n`; }
+    if(state.captures.length){
+      md+=`\n### Screenshots\n${state.captures.length} region screenshot(s) captured and downloaded `+
+          `(prototype-region-*.png). Attach them to this message so the changes can be matched to what's shown.\n`;
+    }
+    if(!state.pins.length && !notes && !state.captures.length) md+=`_No pins, notes, or screenshots yet._\n`;
+    $('#proto-md').value=md;
+    return md;
+  }
+
+  /* ---- tweak panel wiring ---- */
+  function setTheme(t){ state.theme=t;
+    document.documentElement.classList.toggle('dark', t==='dark');
+    document.documentElement.dataset.theme=t; document.body.dataset.theme=t; buildMarkdown(); }
+  function setBrand(c){ state.brand=c; document.documentElement.style.setProperty('--brand',c); buildMarkdown(); }
+  function setMotion(m){ state.motion=m;
+    document.body.classList.toggle('proto-motion-off', m==='off');
+    document.documentElement.style.setProperty('--motion-scale', m==='off'?'0':m); buildMarkdown(); }
+  function setDensity(d){ state.density=d; document.body.classList.toggle('proto-compact', d==='compact'); buildMarkdown(); }
+  function setViewport(px){ document.body.classList.toggle('proto-vp', px>0);
+    document.body.style.maxWidth = px>0 ? px+'px' : ''; setTimeout(drawPins,220); }
+  function setState(s){ state.appState=s;
+    document.body.dataset.appState=s; stateHooks.forEach(cb=>{try{cb(s)}catch(e){}}); buildMarkdown(); }
+  function reset(){
+    state.pins=[]; state.captures=[]; $$('.proto-pin').forEach(p=>p.remove()); renderPinList(); renderShots();
+    $('#proto-notes').value=''; setTheme('light'); setBrand('#6366f1'); setMotion('1');
+    setDensity('comfortable'); setViewport(0); setState('ready');
+    $('#proto-brand').value='#6366f1';
+    $$('.proto-seg').forEach(g=>{ const def=g.querySelector('[data-theme="light"],[data-motion="1"],[data-density="comfortable"],[data-vp="0"],[data-state="ready"]');
+      g.querySelectorAll('.proto-btn').forEach(b=>b.classList.remove('on')); def&&def.classList.add('on'); });
+    document.body.classList.remove('proto-outlines'); $('#proto-outlines').textContent='Off';
+    buildMarkdown();
+  }
+  function segPick(group,el){ el.parentNode.querySelectorAll('.proto-btn').forEach(b=>b.classList.remove('on')); el.classList.add('on'); }
+
+  /* ---- events ---- */
+  fab.onclick=()=>root.classList.toggle('open');
+  $('#proto-close').onclick=()=>root.classList.remove('open');
+  $$('.proto-tab').forEach(t=>t.onclick=()=>{
+    $$('.proto-tab').forEach(x=>x.classList.remove('active')); t.classList.add('active');
+    $$('.proto-view').forEach(v=>v.classList.toggle('active', v.dataset.view===t.dataset.view));
+    if(t.dataset.view==='export') buildMarkdown();
+  });
+  $('#proto-arm').onclick=function(){
+    state.arming=!state.arming;
+    document.body.classList.toggle('proto-arming', state.arming); fab.classList.toggle('armed', state.arming);
+    this.textContent=state.arming?'Pinning ON · click an element (Esc to stop)':'Start pinning · click any element';
+    this.classList.toggle('primary', !state.arming);
+  };
+  $('#proto-shot-btn').onclick=startCapture;
+  document.addEventListener('mouseover',e=>{ if(!state.arming) return;
+    if(e.target.closest('#proto-overlay')) return; e.target.classList.add('proto-hi'); });
+  document.addEventListener('mouseout',e=>e.target.classList.remove('proto-hi'));
+  document.addEventListener('click',e=>{
+    if(!state.arming) return; if(e.target.closest('#proto-overlay')||e.target.closest('.proto-pin')) return;
+    e.preventDefault(); e.stopPropagation(); addPin(e.target);
+  }, true);
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&state.arming) $('#proto-arm').click(); });
+  $('#proto-brand').oninput=e=>setBrand(e.target.value);
+  $('#proto-notes').oninput=buildMarkdown;
+  $('#proto-outlines').onclick=function(){ const on=document.body.classList.toggle('proto-outlines'); this.textContent=on?'On':'Off'; };
+  $('#proto-reset').onclick=()=>{ if(confirm('Reset pins and all tweaks?')) reset(); };
+  $('#proto-copy').onclick=function(){ const ta=$('#proto-md'); ta.select();
+    navigator.clipboard?.writeText(ta.value).catch(()=>document.execCommand('copy'));
+    this.textContent='Copied ✓'; setTimeout(()=>this.textContent='Copy feedback markdown',1200); };
+  document.querySelector('.proto-tabs').addEventListener('click',e=>{}); // noop guard
+  $$('.proto-seg').forEach(g=>g.addEventListener('click',e=>{
+    const b=e.target.closest('.proto-btn'); if(!b) return; segPick(g.dataset.group,b);
+    if(b.dataset.theme) setTheme(b.dataset.theme);
+    if(b.dataset.motion) setMotion(b.dataset.motion);
+    if(b.dataset.density) setDensity(b.dataset.density);
+    if(b.dataset.vp!=null) setViewport(+b.dataset.vp);
+    if(b.dataset.state) setState(b.dataset.state);
+  }));
+  window.addEventListener('scroll',drawPins,true);
+  window.addEventListener('resize',()=>setTimeout(drawPins,60));
+
+  /* ---- public API for the host app ---- */
+  window.__proto = { setState, reset, addPin, captureRegion:startCapture, exportMarkdown:buildMarkdown,
+    onState:cb=>stateHooks.push(cb), getPins:()=>state.pins, getCaptures:()=>state.captures };
+
+  renderPinList(); renderShots(); buildMarkdown(); setTheme('light');
+})();
+</script>
+<!--
+  HOST CONTRACT
+  • Honor these CSS vars so the Tweaks panel works:
+      var(--brand)         primary/accent color
+      var(--motion-scale)  multiply your animation/transition durations by this
+  • State simulation: keep markup for loading/empty/error in the DOM and toggle on
+      window.__proto.onState(s => { ... show/hide your skeletons/empty/error ... })
+    or read document.body.dataset.appState.
+  • Dark mode: react to the `dark` class on <html> (Tailwind `dark:` works out of the box).
+-->
+</body>
+</html>

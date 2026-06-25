@@ -1,0 +1,50 @@
+name: Fetch generated assets
+
+# Automatically downloads the Higgsfield-generated art + voice pack into assets/
+# and commits them — so nobody has to run scripts/fetch_assets.py by hand.
+#
+# GitHub-hosted runners have open internet, so this works even though the Claude
+# cloud sandbox blocks the asset CDN. Runs:
+#   • on demand   — the "Run workflow" button (or API trigger), and
+#   • on push     — whenever the asset manifest (scripts/fetch_assets.py) changes,
+#                   i.e. right after new generations are added to it.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/fetch_assets.py'
+      - '.github/workflows/fetch-assets.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: fetch-assets-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Download assets
+        continue-on-error: true   # commit whatever downloaded even if a few URLs fail
+        run: python scripts/fetch_assets.py --force
+
+      - name: Commit any new assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets
+          if git diff --staged --quiet; then
+            echo "No new or changed assets to commit."
+          else
+            git commit -m "Auto-fetch generated assets [skip ci]"
+            git push
+            echo "Committed updated assets."
+          fi
