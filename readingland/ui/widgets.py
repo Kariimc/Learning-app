@@ -7,11 +7,12 @@ response* per the design brief.
 from __future__ import annotations
 
 import math
+import os
 from typing import Callable, Optional
 
 from kivy.animation import Animation
 from kivy.graphics import (Color, Ellipse, Line, PopMatrix, PushMatrix,
-                            RoundedRectangle, Scale, Triangle)
+                            Rectangle, RoundedRectangle, Scale, Triangle)
 from kivy.metrics import dp
 from kivy.properties import ListProperty, NumericProperty, StringProperty
 from kivy.uix.behaviors import ButtonBehavior
@@ -83,12 +84,17 @@ class RoundedCard(BoxLayout):
 
 # --------------------------------------------------------------------------- #
 class BigButton(ButtonBehavior, Label):
-    """Large rounded button with bounce pop on press."""
+    """Large rounded button with bounce pop on press.
 
-    bg_color = ListProperty(list(config.PALETTE["mint"]))
-    radius   = NumericProperty(dp(32))
-    sfx      = StringProperty("pop")
-    _bounce  = NumericProperty(1.0)
+    Set ``btn_image`` to an absolute path (e.g. from ``ui_image("btn_mint")``)
+    to swap the flat colour background for a 3-D plush texture.
+    """
+
+    bg_color  = ListProperty(list(config.PALETTE["mint"]))
+    radius    = NumericProperty(dp(32))
+    sfx       = StringProperty("pop")
+    btn_image = StringProperty("")
+    _bounce   = NumericProperty(1.0)
 
     def __init__(self, on_tap: Optional[Callable] = None, **kwargs):
         kwargs.setdefault("font_size", theme.FONT_HEADING)
@@ -107,9 +113,12 @@ class BigButton(ButtonBehavior, Label):
             self._shadow = RoundedRectangle(radius=[self.radius])
             self._bg_c = Color(*self.bg_color)
             self._bg = RoundedRectangle(radius=[self.radius])
+            self._img_c = Color(1, 1, 1, 0)
+            self._img_rect = Rectangle()
         with self.canvas.after:
             PopMatrix()
         self.bind(pos=self._sync, size=self._sync, bg_color=self._sync_color,
+                  btn_image=self._sync,
                   _bounce=self._update_scale, center=self._update_scale)
 
     def _sync(self, *_):
@@ -120,10 +129,20 @@ class BigButton(ButtonBehavior, Label):
         self._bg.pos = self.pos
         self._bg.size = self.size
         self._bg.radius = [self.radius]
+        self._img_rect.pos = self.pos
+        self._img_rect.size = self.size
+        if self.btn_image and os.path.exists(self.btn_image):
+            self._bg_c.rgba = (0, 0, 0, 0)
+            self._img_c.rgba = (1, 1, 1, 1)
+            self._img_rect.source = self.btn_image
+        else:
+            self._bg_c.rgba = self.bg_color
+            self._img_c.rgba = (0, 0, 0, 0)
         self._update_scale()
 
     def _sync_color(self, *_):
-        self._bg_c.rgba = self.bg_color
+        if not (self.btn_image and os.path.exists(self.btn_image)):
+            self._bg_c.rgba = self.bg_color
 
     def _update_scale(self, *_):
         self._gscale.x = self._bounce
