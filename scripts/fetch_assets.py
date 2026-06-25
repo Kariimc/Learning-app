@@ -24,11 +24,11 @@ CDN = "https://d8j0ntlcm91z4.cloudfront.net/user_3F1n9RqGZCJVrB84dvcvAMuNMRC"
 ASSETS = {
     # --- Character portraits (3-D plush style, transparent bg) ------------ #
     "assets/images/characters/reading_rabbit/portrait.png":
-        f"{CDN}/hf_20260625_093618_51bd7f31-f9ff-440a-aa8e-3e862dfd1ed3.jpeg",
+        f"{CDN}/hf_20260625_204748_5be6cc51-e9e2-4b41-8d54-73a2db7a4264.png",
     "assets/images/characters/benny_bear/portrait.png":
         f"{CDN}/hf_20260624_124639_07dbdb38-ff3f-4bd3-8f4f-41bbe75fff00.png",
     "assets/images/characters/penny_penguin/portrait.png":
-        f"{CDN}/hf_20260624_124641_f62cc169-c0fb-4f64-8df8-d57013907565.jpeg",
+        f"{CDN}/hf_20260625_204802_c563b7a3-2f30-452f-81cc-40eb7e9a6f31.png",
     "assets/images/characters/ollie_owl/portrait.png":
         f"{CDN}/hf_20260624_124642_94de2730-cbd4-4be4-a000-ef0ef194436a.png",
     "assets/images/characters/milo_monkey/portrait.png":
@@ -230,6 +230,51 @@ ASSETS = {
         f"{CDN}/hf_20260622_064724_db479e9b-4e76-4521-963f-c04278181097.mp3",
     "assets/audio/voice/mabel/a.mp3":
         f"{CDN}/hf_20260622_064809_01e308ae-38dc-4a61-b1e0-692ceb0a4871.mp3",
+    # --- Plush emoji-replacement icons (wave 1: land + prototype content) ------ #
+    "assets/images/ui/land_visual.png":
+        f"{CDN}/hf_20260625_205720_8c096690-fc67-453f-bf35-cbf630d89b72.png",
+    "assets/images/ui/land_alphabet.png":
+        f"{CDN}/hf_20260625_205722_a1246c84-a356-4abb-be5a-178f755f83e3.png",
+    "assets/images/ui/land_phonics.png":
+        f"{CDN}/hf_20260625_205724_6d08383e-db79-40b7-a276-c3ba8e49a43b.png",
+    "assets/images/ui/land_words.png":
+        f"{CDN}/hf_20260625_205726_852a6b11-4173-458f-aaed-97de67d49fe1.png",
+    "assets/images/ui/land_sentences.png":
+        f"{CDN}/hf_20260625_205727_7ff196f3-352d-4a57-ab38-13d97051d94c.png",
+    "assets/images/ui/land_stories.png":
+        f"{CDN}/hf_20260625_205729_85a78c5d-ceb4-4826-a7ff-5ebd15eaa045.png",
+    "assets/images/ui/icon_trace.png":
+        f"{CDN}/hf_20260625_205730_4678c197-0868-486d-bbf7-76158520a92a.png",
+    "assets/images/cards/icon_dog.png":
+        f"{CDN}/hf_20260625_204917_f97b898a-af33-471e-9933-8d5131763c3c.png",
+    "assets/images/cards/icon_cat.png":
+        f"{CDN}/hf_20260625_204927_7782b07b-15d8-48db-b9d0-92e14a074128.png",
+    "assets/images/cards/icon_ball.png":
+        f"{CDN}/hf_20260625_204929_f741e9d7-413f-4792-8507-e58492d256d3.png",
+    "assets/images/cards/icon_apple.png":
+        f"{CDN}/hf_20260625_204930_70d79b63-d1b5-4585-a8c9-41a8f33e33ed.png",
+    "assets/images/cards/icon_star.png":
+        f"{CDN}/hf_20260625_204932_1d7e61a7-4d02-45ac-95f3-87524e53dc55.png",
+    "assets/images/cards/icon_circle.png":
+        f"{CDN}/hf_20260625_211357_036b9747-96fe-4b8b-855f-7199d50ea8a6.png",
+    "assets/images/cards/icon_square.png":
+        f"{CDN}/hf_20260625_211358_31b02cb0-8fda-46c9-aa0f-c8c0885a923d.png",
+    "assets/images/cards/icon_triangle.png":
+        f"{CDN}/hf_20260625_211400_b9bd5fff-12cc-407e-bfd5-82947e880755.png",
+    "assets/images/cards/icon_heart.png":
+        f"{CDN}/hf_20260625_211401_43d5dc87-11ba-4dc4-9728-9c887d6597db.png",
+    "assets/images/cards/icon_fish.png":
+        f"{CDN}/hf_20260625_211403_78a7b00b-57c9-4331-b944-d380da2b69e0.png",
+    "assets/images/cards/icon_bird.png":
+        f"{CDN}/hf_20260625_211404_947cd94b-ecf6-424a-886b-772faa0056a3.png",
+    "assets/images/cards/icon_car.png":
+        f"{CDN}/hf_20260625_211405_1c480d4f-486b-424a-a234-2d2af2f71176.png",
+    "assets/images/cards/icon_egg.png":
+        f"{CDN}/hf_20260625_211407_a1f3d731-54fb-4c70-ac3c-d00ce2353abd.png",
+    "assets/images/cards/icon_goat.png":
+        f"{CDN}/hf_20260625_211408_62438e03-bef8-4ec9-bb43-a9a0e0197398.png",
+    "assets/images/cards/icon_hat.png":
+        f"{CDN}/hf_20260625_211409_cb9f6ea5-b9d2-4bad-9ce3-d6caafd9c47b.png",
 }
 
 
