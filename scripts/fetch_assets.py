@@ -99,11 +99,11 @@ ASSETS = {
     "assets/audio/voice/mabel/greet_home.mp3":
         f"{CDN}/hf_20260622_064607_511bb017-548d-4913-84bd-526708372f04.mp3",
     "assets/audio/voice/mabel/greet_story.mp3":
-        f"{CDN}/hf_20260622_062450_5da94f28-c9ea-4f9f-9ae2-1b16da4f9a4f.mp3",
+        f"{CDN}/hf_20260624_124732_957a352a-01b3-4c6a-85c6-adf426c36517.mp3",
     "assets/audio/voice/mabel/locked_stage.mp3":
-        f"{CDN}/hf_20260622_062454_512ae0d6-5d68-4778-ab07-859f0ae657f4.mp3",
+        f"{CDN}/hf_20260624_124733_df6be1e1-de0c-46a9-b03f-4f3a479fba21.mp3",
     "assets/audio/voice/mabel/locked_tracing.mp3":
-        f"{CDN}/hf_20260622_062458_eb6eb5a9-b06f-426d-a463-e5ae99a16f93.mp3",
+        f"{CDN}/hf_20260624_124734_b9d37c7a-298a-46e0-adb9-6a7e8d3bd0a6.mp3",
     "assets/audio/voice/mabel/finish_book.mp3":
         f"{CDN}/hf_20260622_062501_39306b1a-176c-4da1-8df1-aeb8754b8c14.mp3",
     "assets/audio/voice/mabel/retry_listen.mp3":
