@@ -467,24 +467,24 @@
       penguin: { face:'🐧', name:'Penny Penguin',  key:'penguin' },
       owl:     { face:'🦉', name:'Ollie Owl',      key:'owl'     },
     };
-    // Real production art generated in Higgsfield (same URLs scripts/fetch_assets.py uses).
-    // These load when the file is opened on a machine with internet; emoji/colors fall back otherwise.
-    const CDN = 'https://d8j0ntlcm91z4.cloudfront.net/user_3F1n9RqGZCJVrB84dvcvAMuNMRC';
+    // Real production art, committed in the repo (scripts/fetch_assets.py / CI fetch-assets.yml).
+    // Paths are relative to this file in prototypes/. Works offline from a repo checkout;
+    // emoji/solid-color fallbacks remain via image onerror if a file is missing.
     const ASSET = {
-      map:          CDN + '/hf_20260624_124703_331c9d87-aed5-4be3-b401-c796998d9ea5.png',
-      bg_visual:    CDN + '/hf_20260624_124648_00574061-bed6-49d3-9ef3-7373a128b5b9.png',
-      bg_alphabet:  CDN + '/hf_20260624_124650_73a4235b-810c-46cc-ac49-7d1d01c9bb52.png',
-      bg_phonics:   CDN + '/hf_20260624_124651_570a66e4-ae7e-411c-9c82-9f0fcba10b79.png',
-      bg_words:     CDN + '/hf_20260624_124656_09abb280-5031-402e-9138-c8e89126eda2.png',
-      bg_sentences: CDN + '/hf_20260624_124657_0af94c30-05fe-45ab-a74a-9e19a3ba6d81.png',
-      bg_stories:   CDN + '/hf_20260624_124659_a4cc5385-9874-4ff1-a5fa-683c17f47620.png',
-      por_rabbit:   CDN + '/hf_20260625_093618_51bd7f31-f9ff-440a-aa8e-3e862dfd1ed3.jpeg',
-      por_bear:     CDN + '/hf_20260624_124639_07dbdb38-ff3f-4bd3-8f4f-41bbe75fff00.png',
-      por_penguin:  CDN + '/hf_20260624_124641_f62cc169-c0fb-4f64-8df8-d57013907565.jpeg',
-      por_owl:      CDN + '/hf_20260624_124642_94de2730-cbd4-4be4-a000-ef0ef194436a.png',
-      btn_gold:     CDN + '/hf_20260625_093622_97c4dc10-d500-494b-82a8-78987401747c.png',
-      btn_mint:     CDN + '/hf_20260625_093620_372c9308-b44b-4e94-9f27-a9b4918bf15c.png',
-      btn_coral:    CDN + '/hf_20260625_093621_ce2a048c-e538-4239-9c80-27073f79ff15.png',
+      map:          '../assets/images/backgrounds/bg_map.png',
+      bg_visual:    '../assets/images/backgrounds/bg_visual.png',
+      bg_alphabet:  '../assets/images/backgrounds/bg_alphabet.png',
+      bg_phonics:   '../assets/images/backgrounds/bg_phonics.png',
+      bg_words:     '../assets/images/backgrounds/bg_words.png',
+      bg_sentences: '../assets/images/backgrounds/bg_sentences.png',
+      bg_stories:   '../assets/images/backgrounds/bg_stories.png',
+      por_rabbit:   '../assets/images/characters/reading_rabbit/portrait.png',
+      por_bear:     '../assets/images/characters/benny_bear/portrait.png',
+      por_penguin:  '../assets/images/characters/penny_penguin/portrait.png',
+      por_owl:      '../assets/images/characters/ollie_owl/portrait.png',
+      btn_gold:     '../assets/images/ui/btn_gold.png',
+      btn_mint:     '../assets/images/ui/btn_mint.png',
+      btn_coral:    '../assets/images/ui/btn_coral.png',
     };
     const REWARDS = [
       { icon:'⭐', name:'Gold Star sticker!' },
