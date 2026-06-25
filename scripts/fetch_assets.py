@@ -22,61 +22,69 @@ CDN = "https://d8j0ntlcm91z4.cloudfront.net/user_3F1n9RqGZCJVrB84dvcvAMuNMRC"
 
 # target path (relative to repo root) -> source URL
 ASSETS = {
-    # --- Character portraits (transparent) + app icon --------------------- #
+    # --- Character portraits (3-D plush style, transparent bg) ------------ #
     "assets/images/characters/reading_rabbit/portrait.png":
-        f"{CDN}/hf_20260622_050001_f2680efb-9adf-4d76-b580-b6c5dbe597f6.png",
+        f"{CDN}/hf_20260624_124607_68b15c80-dd9b-4bcd-9acd-cf815a92dbee.png",
     "assets/images/characters/benny_bear/portrait.png":
-        f"{CDN}/hf_20260622_050005_40c735b0-cf7f-4472-ac17-77e09484a394.png",
+        f"{CDN}/hf_20260624_124639_07dbdb38-ff3f-4bd3-8f4f-41bbe75fff00.png",
     "assets/images/characters/penny_penguin/portrait.png":
-        f"{CDN}/hf_20260622_050009_e75c48ae-df3b-4235-bf75-c0dc4eb657cb.png",
+        f"{CDN}/hf_20260624_124641_f62cc169-c0fb-4f64-8df8-d57013907565.jpeg",
     "assets/images/characters/ollie_owl/portrait.png":
-        f"{CDN}/hf_20260622_050013_df27ad85-491e-41bf-8776-9aaf80ede552.png",
+        f"{CDN}/hf_20260624_124642_94de2730-cbd4-4be4-a000-ef0ef194436a.png",
     "assets/images/characters/milo_monkey/portrait.png":
-        f"{CDN}/hf_20260622_050019_1860cb5d-bccc-4dae-b11d-87a28f772ac9.png",
+        f"{CDN}/hf_20260624_124644_517889d9-5272-4638-aab0-e6b316153b9c.png",
     "assets/images/ui/app_icon.png":
-        f"{CDN}/hf_20260622_045558_a0f5efd4-b314-45c2-9c9d-f89c3fdd58fd.png",
+        f"{CDN}/hf_20260624_124646_60dc1a70-1e12-4e16-a003-e058cdb45ed4.png",
 
     # --- Land backgrounds (one per stage + world map) --------------------- #
     "assets/images/backgrounds/bg_visual.png":
-        f"{CDN}/hf_20260622_060745_64a0d9aa-a9e2-423b-bf6e-daddaf3ddf46.png",
+        f"{CDN}/hf_20260624_124648_00574061-bed6-49d3-9ef3-7373a128b5b9.png",
     "assets/images/backgrounds/bg_alphabet.png":
-        f"{CDN}/hf_20260622_060750_a2379894-b558-447b-9340-6875389ee175.png",
+        f"{CDN}/hf_20260624_124650_73a4235b-810c-46cc-ac49-7d1d01c9bb52.png",
     "assets/images/backgrounds/bg_phonics.png":
-        f"{CDN}/hf_20260622_060756_f0d69cef-c8d1-4831-b085-cfce9b769f84.png",
+        f"{CDN}/hf_20260624_124651_570a66e4-ae7e-411c-9c82-9f0fcba10b79.png",
     "assets/images/backgrounds/bg_words.png":
-        f"{CDN}/hf_20260622_060801_8f089e3d-0cad-49b9-aa32-05792e18aa28.png",
+        f"{CDN}/hf_20260624_124656_09abb280-5031-402e-9138-c8e89126eda2.png",
     "assets/images/backgrounds/bg_sentences.png":
-        f"{CDN}/hf_20260622_060806_a34290b3-e871-4e0a-8e63-feabe36eba4f.png",
+        f"{CDN}/hf_20260624_124657_0af94c30-05fe-45ab-a74a-9e19a3ba6d81.png",
     "assets/images/backgrounds/bg_stories.png":
-        f"{CDN}/hf_20260622_060811_810a207a-f2a3-4504-8d64-234cc76053d0.png",
+        f"{CDN}/hf_20260624_124659_a4cc5385-9874-4ff1-a5fa-683c17f47620.png",
     "assets/images/backgrounds/bg_map.png":
-        f"{CDN}/hf_20260622_060817_2e2e5e79-a93a-4400-a400-f9ba00052ef3.png",
+        f"{CDN}/hf_20260624_124703_331c9d87-aed5-4be3-b401-c796998d9ea5.png",
 
     # --- Storybook page illustrations (cards/<book>_p<page>) -------------- #
     "assets/images/cards/story_cat_nap_p0.png":
-        f"{CDN}/hf_20260622_062325_2cc7b7c1-1380-4e9b-b1f1-2e04ec259097.png",
+        f"{CDN}/hf_20260624_124704_906ceca1-9f06-4510-a588-2ec7b322c14c.jpeg",
     "assets/images/cards/story_cat_nap_p1.png":
-        f"{CDN}/hf_20260622_062329_3075dfcb-d318-4ead-ae50-42a402cec311.png",
+        f"{CDN}/hf_20260624_124705_87f80398-05a1-4705-8a18-7e6f917ce176.png",
     "assets/images/cards/story_cat_nap_p2.png":
-        f"{CDN}/hf_20260622_062334_a7eac6c2-ae96-4018-a65c-6862c628cad0.png",
+        f"{CDN}/hf_20260624_124706_a8eaf407-2741-4035-8105-8f9edd4554e0.png",
     "assets/images/cards/story_cat_nap_p3.png":
-        f"{CDN}/hf_20260622_062339_428eec05-c26e-42cf-9a27-88ebb7d1aed4.png",
+        f"{CDN}/hf_20260624_124707_5c3b95b1-5122-4b0a-ba71-db00db9ad068.png",
     "assets/images/cards/story_big_dog_p0.png":
-        f"{CDN}/hf_20260622_062346_4a5ddbda-4825-4f20-950c-10c61e2815e0.png",
+        f"{CDN}/hf_20260624_124711_94539d13-230a-427f-9e1e-a43d2ab640e1.png",
     "assets/images/cards/story_big_dog_p1.png":
-        f"{CDN}/hf_20260622_062352_32c4f0ee-cb83-42ca-be6f-a79a45fb4329.png",
+        f"{CDN}/hf_20260624_124713_0a6fcdc0-a655-4d66-ae9d-c898b974c008.png",
     "assets/images/cards/story_big_dog_p2.png":
-        f"{CDN}/hf_20260622_062358_3eeb1eb6-9802-4da5-bb42-7e124a4ff109.png",
+        f"{CDN}/hf_20260624_124714_377b5627-d4ea-4620-9578-4b9d7647482c.png",
     "assets/images/cards/story_big_dog_p3.png":
-        f"{CDN}/hf_20260622_062403_e92b31c2-5446-467d-9666-f0113c1e0bf0.png",
+        f"{CDN}/hf_20260624_124715_e509bfb3-3903-4232-ab8e-f4f98c2ea370.png",
     "assets/images/cards/story_sun_and_bird_p0.png":
-        f"{CDN}/hf_20260622_062408_eeeba652-eb9a-4a1a-93c4-0e45c4f0da94.png",
+        f"{CDN}/hf_20260624_124716_308d6c84-9644-4986-8ebc-1239d795767f.png",
     "assets/images/cards/story_sun_and_bird_p1.png":
-        f"{CDN}/hf_20260622_062416_fd572c9e-b35a-480d-8f42-a56316e369d4.png",
+        f"{CDN}/hf_20260624_124718_3345b9fe-9ed9-4b6b-89d4-99a641f6af25.png",
     "assets/images/cards/story_sun_and_bird_p2.png":
-        f"{CDN}/hf_20260622_062420_e3c90776-c25e-49f8-8fc0-be37097c4927.png",
+        f"{CDN}/hf_20260624_124719_3f01c6ea-715d-46dc-887a-07780fcc996a.png",
     "assets/images/cards/story_sun_and_bird_p3.png":
-        f"{CDN}/hf_20260622_062425_ef0f300c-7749-47ca-ad58-07a113685d70.png",
+        f"{CDN}/hf_20260624_124720_2901d86a-b640-4881-8cdb-2f89e6d79620.png",
+
+    # --- 3-D plush button textures (ui/btn_<colour>.png) ------------------ #
+    "assets/images/ui/btn_mint.png":
+        f"{CDN}/hf_20260624_124726_78ddae20-065c-4f9d-8013-3adca54766cd.png",
+    "assets/images/ui/btn_coral.png":
+        f"{CDN}/hf_20260624_124727_cb13215e-83da-4430-91a6-68e5c7ed2a07.png",
+    "assets/images/ui/btn_gold.png":
+        f"{CDN}/hf_20260624_124728_7e236b3f-f150-448e-bb39-1f5cd2ddef6d.png",
 
     # --- Fonts ------------------------------------------------------------ #
     # Google now ships Fredoka only as a variable font (the old static/
