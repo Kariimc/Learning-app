@@ -231,6 +231,20 @@
     /* compact tweaks beyond spacing */
     body.proto-compact .greet{ font-size:22px; }
     @media (max-width:540px){ .mascot-wrap{ right:12px; } .mascot{ width:78px; height:78px; font-size:42px; } }
+
+    /* ── real Higgsfield assets: character portraits, land backgrounds, plush buttons ── */
+    .mascot{ overflow:visible; position:relative; }
+    .mascot .m-emoji{ position:absolute; inset:0; display:grid; place-items:center; }
+    .mascot .m-img{ position:absolute; inset:3px; width:calc(100% - 6px); height:calc(100% - 6px);
+      object-fit:cover; border-radius:50%; background:var(--surface); }
+    .cel-mascot{ width:104px; height:104px; margin:0 auto; border:3px solid var(--border);
+      border-radius:50%; box-shadow:var(--shadow-toy); background:radial-gradient(circle at 50% 35%, var(--surface-2), var(--surface)); }
+    .scene-bg{ position:absolute; inset:0; background-size:cover; background-position:center top; z-index:0; pointer-events:none; }
+    .scene-bg::after{ content:""; position:absolute; inset:0;
+      background:linear-gradient(180deg, rgba(8,12,24,.32) 0%, rgba(8,12,24,.04) 20%, rgba(8,12,24,.10) 66%, rgba(8,12,24,.42) 100%); }
+    .land{ background-size:cover; background-position:center; }
+    .btn.plush{ background-size:100% 100%; background-repeat:no-repeat; color:#3a2600;
+      text-shadow:0 1px 0 rgba(255,255,255,.45); box-shadow:var(--shadow-soft); }
   </style>
 </head>
 
@@ -280,6 +294,7 @@
 
       <!-- ───── MAP VIEW ───── -->
       <div x-show="view==='map'" x-transition.opacity>
+        <div class="scene-bg" :style="`background-image:url('${assets.map}')`"></div>
         <header class="topbar">
           <button class="chip" @click="say(profile.name+' is reading today! Tap a land to play.', true)" title="Switch profile">
             <span class="avatar" x-text="profile.face"></span>
@@ -291,7 +306,7 @@
           <button class="round-btn sun" @click="say('The Rewards Room is full of stickers you earned!', true)" title="Rewards">🎁</button>
         </header>
 
-        <h1 class="greet fred" style="padding:0 22px;" x-text="'Hi, ' + profile.name + '!'"></h1>
+        <h1 class="greet fred" style="padding:0 22px; position:relative; z-index:2;" x-text="'Hi, ' + profile.name + '!'"></h1>
 
         <div class="stage">
           <div class="path">
@@ -299,7 +314,9 @@
 
             <template x-for="(land, i) in lands" :key="land.id">
               <button class="land" :class="{ locked: !isUnlocked(i) }"
-                      :style="`background:${ isUnlocked(i) ? land.color : '#9aa0ad' }`"
+                      :style="isUnlocked(i)
+                        ? `background-color:${land.color}; background-image:linear-gradient(120deg, color-mix(in srgb,${land.color} 80%, transparent), color-mix(in srgb,${land.color} 52%, transparent)), url('${land.bg}')`
+                        : 'background-color:#9aa0ad'"
                       @click="openLand(i)">
                 <span class="badge-new" x-show="land.justUnlocked" x-transition>✨ NEW</span>
                 <span class="tile" x-text="isUnlocked(i) ? land.emoji : '🔒'"></span>
@@ -335,13 +352,16 @@
         <!-- Reading Rabbit greeter -->
         <div class="mascot-wrap">
           <div class="bubble" x-show="bubble" x-transition :key="bubbleKey" x-text="bubble"></div>
-          <div class="mascot" :class="{ react: reacting }" x-text="guideFace"></div>
+          <div class="mascot" :class="{ react: reacting }">
+            <span class="m-emoji" x-text="guideFace"></span>
+            <img class="m-img" :src="guidePortrait" :alt="guideName" @error="$el.style.display='none'" @load="$el.style.display=''">
+          </div>
         </div>
       </div>
 
       <!-- ───── ACTIVITY VIEW ───── -->
       <div class="act" x-show="view==='activity'" x-transition.opacity
-           :style="`background:linear-gradient(180deg, color-mix(in srgb, ${activeColor} 30%, var(--bg)) 0%, var(--bg-2) 75%)`">
+           :style="`background-image:linear-gradient(180deg, rgba(8,12,24,.30), rgba(8,12,24,.52)), url('${activeLand.bg}'); background-size:cover; background-position:center;`">
         <div class="act-top">
           <button class="round-btn" style="background:var(--surface); color:var(--text)" @click="backToMap()" title="Back to map">⌂</button>
           <span class="land-chip" x-text="activeLand.emoji + '  ' + activeLand.title"></span>
@@ -353,7 +373,10 @@
         </div>
 
         <div style="display:flex; align-items:center; gap:14px; padding:4px 22px 0; max-width:760px; margin:0 auto; width:100%;">
-          <div class="mascot" :class="{ react: reacting }" style="width:84px;height:84px;font-size:46px;" x-text="guideFace"></div>
+          <div class="mascot" :class="{ react: reacting }" style="width:84px;height:84px;font-size:46px;">
+            <span class="m-emoji" x-text="guideFace"></span>
+            <img class="m-img" :src="guidePortrait" :alt="guideName" @error="$el.style.display='none'" @load="$el.style.display=''">
+          </div>
           <div class="prompt fred" style="flex:1" x-text="round.prompt">&nbsp;</div>
         </div>
 
@@ -378,7 +401,11 @@
       <!-- ───── CELEBRATION ───── -->
       <div class="celebrate" x-show="view==='celebrate'" x-transition.opacity x-cloak>
         <div class="cel-card">
-          <div class="cel-emoji" x-text="celebrate.unlock ? '🎉' : guideFace"></div>
+          <div class="cel-emoji" x-show="celebrate.unlock" x-text="'🎉'"></div>
+          <div class="mascot cel-mascot" x-show="!celebrate.unlock">
+            <span class="m-emoji" x-text="guideFace"></span>
+            <img class="m-img" :src="guidePortrait" :alt="guideName" @error="$el.style.display='none'" @load="$el.style.display=''">
+          </div>
           <h2 class="cel-title fred" x-text="celebrate.title"></h2>
           <p class="cel-sub" x-text="celebrate.sub"></p>
 
@@ -397,7 +424,7 @@
 
           <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:6px;">
             <button class="btn ghost" @click="keepPlaying()">Keep playing</button>
-            <button class="btn" @click="backToMap()">Back to the Map →</button>
+            <button class="btn plush" :style="`background-image:url('${assets.btn_gold}')`" @click="backToMap()">Back to the Map →</button>
           </div>
         </div>
       </div>
@@ -435,10 +462,29 @@
       { id:'H', label:'H', emoji:'🎩', color:'#FFD23F' },
     ];
     const GUIDES = {
-      rabbit:  { face:'🐰', name:'Reading Rabbit' },
-      bear:    { face:'🐻', name:'Benny Bear' },
-      penguin: { face:'🐧', name:'Penny Penguin' },
-      owl:     { face:'🦉', name:'Ollie Owl' },
+      rabbit:  { face:'🐰', name:'Reading Rabbit', key:'rabbit'  },
+      bear:    { face:'🐻', name:'Benny Bear',     key:'bear'    },
+      penguin: { face:'🐧', name:'Penny Penguin',  key:'penguin' },
+      owl:     { face:'🦉', name:'Ollie Owl',      key:'owl'     },
+    };
+    // Real production art generated in Higgsfield (same URLs scripts/fetch_assets.py uses).
+    // These load when the file is opened on a machine with internet; emoji/colors fall back otherwise.
+    const CDN = 'https://d8j0ntlcm91z4.cloudfront.net/user_3F1n9RqGZCJVrB84dvcvAMuNMRC';
+    const ASSET = {
+      map:          CDN + '/hf_20260624_124703_331c9d87-aed5-4be3-b401-c796998d9ea5.png',
+      bg_visual:    CDN + '/hf_20260624_124648_00574061-bed6-49d3-9ef3-7373a128b5b9.png',
+      bg_alphabet:  CDN + '/hf_20260624_124650_73a4235b-810c-46cc-ac49-7d1d01c9bb52.png',
+      bg_phonics:   CDN + '/hf_20260624_124651_570a66e4-ae7e-411c-9c82-9f0fcba10b79.png',
+      bg_words:     CDN + '/hf_20260624_124656_09abb280-5031-402e-9138-c8e89126eda2.png',
+      bg_sentences: CDN + '/hf_20260624_124657_0af94c30-05fe-45ab-a74a-9e19a3ba6d81.png',
+      bg_stories:   CDN + '/hf_20260624_124659_a4cc5385-9874-4ff1-a5fa-683c17f47620.png',
+      por_rabbit:   CDN + '/hf_20260625_093618_51bd7f31-f9ff-440a-aa8e-3e862dfd1ed3.jpeg',
+      por_bear:     CDN + '/hf_20260624_124639_07dbdb38-ff3f-4bd3-8f4f-41bbe75fff00.png',
+      por_penguin:  CDN + '/hf_20260624_124641_f62cc169-c0fb-4f64-8df8-d57013907565.jpeg',
+      por_owl:      CDN + '/hf_20260624_124642_94de2730-cbd4-4be4-a000-ef0ef194436a.png',
+      btn_gold:     CDN + '/hf_20260625_093622_97c4dc10-d500-494b-82a8-78987401747c.png',
+      btn_mint:     CDN + '/hf_20260625_093620_372c9308-b44b-4e94-9f27-a9b4918bf15c.png',
+      btn_coral:    CDN + '/hf_20260625_093621_ce2a048c-e538-4239-9c80-27073f79ff15.png',
     };
     const REWARDS = [
       { icon:'⭐', name:'Gold Star sticker!' },
@@ -462,6 +508,8 @@
         bubble:'',
         bubbleKey:0,
         guideFace:'🐰',
+        _guideKey:'rabbit',
+        assets: ASSET,
         activeIndex:0,
         round:{ id:0, prompt:'', target:null, choices:[] },
         firstTry:true,
@@ -479,9 +527,13 @@
 
         // ── lifecycle ──
         init(){
+          this.lands.forEach(l => { l.bg = ASSET['bg_' + l.key]; });
           if (window.__proto) window.__proto.onState(s => { this.ui = s; });
           this.greetHome();
         },
+        setGuide(k){ this._guideKey = k; this.guideFace = GUIDES[k].face; },
+        get guidePortrait(){ return ASSET['por_' + this._guideKey] || ''; },
+        get guideName(){ return GUIDES[this._guideKey].name; },
         setReady(){ if(window.__proto){ window.__proto.setState('ready'); } else { this.ui='ready'; } },
         addChild(){ this.setReady(); this.view='map'; this.greetHome(); },
 
@@ -501,14 +553,14 @@
         },
         react(){ this.reacting=false; this.$nextTick(()=>{ this.reacting=true; setTimeout(()=> this.reacting=false, 650); }); },
         greetHome(){
-          this.guideFace = GUIDES.rabbit.face;
+          this.setGuide('rabbit');
           setTimeout(()=> this.say("Hi friend! I'm Reading Rabbit. Tap a land and let's learn!"), 350);
         },
 
         // ── open a land ──
         openLand(i){
           if (!this.isUnlocked(i)){
-            this.guideFace = GUIDES.rabbit.face;
+            this.setGuide('rabbit');
             this.say("Keep learning and this land will open. You can do it!", true);
             return;
           }
@@ -518,7 +570,7 @@
           }
           this.activeIndex = i;
           this.lands[i].justUnlocked = false;
-          this.guideFace = GUIDES[this.lands[i].guide].face;
+          this.setGuide(this.lands[i].guide);
           this.sessionRounds = 0;
           this.view = 'activity';
           this.newRound();
@@ -598,7 +650,7 @@
         openCelebrate(unlock){
           this.confetti(70);
           if (unlock){
-            this.guideFace = GUIDES.rabbit.face;
+            this.setGuide('rabbit');
             this.celebrate = { title:'Land unlocked!', sub:"You mastered enough — a new world just opened!", reward:REWARDS[0], unlock };
           } else {
             const reward = REWARDS[this.rewardIdx % REWARDS.length]; this.rewardIdx++;
@@ -609,7 +661,7 @@
         keepPlaying(){ this.view='activity'; this.newRound(); },
         backToMap(){
           this.view='map'; this._locked=false;
-          this.guideFace = GUIDES.rabbit.face;
+          this.setGuide('rabbit');
           setTimeout(()=> this.say('You did great! Pick another land whenever you like.'), 250);
         },
 
