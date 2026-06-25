@@ -246,35 +246,35 @@ ASSETS = {
     "assets/images/ui/icon_trace.png":
         f"{CDN}/hf_20260625_205730_4678c197-0868-486d-bbf7-76158520a92a.png",
     "assets/images/cards/icon_dog.png":
-        f"{CDN}/hf_20260625_204917_f97b898a-af33-471e-9933-8d5131763c3c.png",
+        f"{CDN}/hf_20260625_222418_73f0e4c3-3730-4c08-855f-52261c51d840.png",
     "assets/images/cards/icon_cat.png":
-        f"{CDN}/hf_20260625_204927_7782b07b-15d8-48db-b9d0-92e14a074128.png",
+        f"{CDN}/hf_20260625_222433_384654bc-dfcf-4ccc-bbaa-a9fff02e3438.png",
     "assets/images/cards/icon_ball.png":
-        f"{CDN}/hf_20260625_204929_f741e9d7-413f-4792-8507-e58492d256d3.png",
+        f"{CDN}/hf_20260625_222904_d9411aa6-5803-4dc4-a6ba-c12e96f15c51.png",
     "assets/images/cards/icon_apple.png":
-        f"{CDN}/hf_20260625_204930_70d79b63-d1b5-4585-a8c9-41a8f33e33ed.png",
+        f"{CDN}/hf_20260625_222908_ba5aaf96-3312-4a95-9f21-db78aabd2903.png",
     "assets/images/cards/icon_star.png":
-        f"{CDN}/hf_20260625_204932_1d7e61a7-4d02-45ac-95f3-87524e53dc55.png",
+        f"{CDN}/hf_20260625_222912_fb2df1df-a62f-4228-a0d4-ad4930cd4cea.png",
     "assets/images/cards/icon_circle.png":
-        f"{CDN}/hf_20260625_211357_036b9747-96fe-4b8b-855f-7199d50ea8a6.png",
+        f"{CDN}/hf_20260625_215139_e00eb274-87c6-4f4b-a131-53da32819e77.png",
     "assets/images/cards/icon_square.png":
-        f"{CDN}/hf_20260625_211358_31b02cb0-8fda-46c9-aa0f-c8c0885a923d.png",
+        f"{CDN}/hf_20260625_222056_32470626-ac89-4377-874c-29c39fe29de0.png",
     "assets/images/cards/icon_triangle.png":
-        f"{CDN}/hf_20260625_211400_b9bd5fff-12cc-407e-bfd5-82947e880755.png",
+        f"{CDN}/hf_20260625_222059_5254723f-de75-4d77-b0a1-8768a42602d0.png",
     "assets/images/cards/icon_heart.png":
-        f"{CDN}/hf_20260625_211401_43d5dc87-11ba-4dc4-9728-9c887d6597db.png",
+        f"{CDN}/hf_20260625_222117_f58b798c-22e0-4696-a97c-657c2e006a45.png",
     "assets/images/cards/icon_fish.png":
-        f"{CDN}/hf_20260625_211403_78a7b00b-57c9-4331-b944-d380da2b69e0.png",
+        f"{CDN}/hf_20260625_222120_b6aa7d9a-c27a-430d-8060-c70f44d6c32d.png",
     "assets/images/cards/icon_bird.png":
-        f"{CDN}/hf_20260625_211404_947cd94b-ecf6-424a-886b-772faa0056a3.png",
+        f"{CDN}/hf_20260625_222124_96874203-dd17-4c5b-8217-7bc447fd3102.png",
     "assets/images/cards/icon_car.png":
-        f"{CDN}/hf_20260625_211405_1c480d4f-486b-424a-a234-2d2af2f71176.png",
+        f"{CDN}/hf_20260625_222127_3b68cf7f-a302-4a88-a694-3295ea19c6e2.png",
     "assets/images/cards/icon_egg.png":
-        f"{CDN}/hf_20260625_211407_a1f3d731-54fb-4c70-ac3c-d00ce2353abd.png",
+        f"{CDN}/hf_20260625_222143_ace7293a-3745-4047-8bd3-372cff3cfb14.png",
     "assets/images/cards/icon_goat.png":
-        f"{CDN}/hf_20260625_211408_62438e03-bef8-4ec9-bb43-a9a0e0197398.png",
+        f"{CDN}/hf_20260625_222153_9b0f4248-1d57-4782-b1e1-79b567bf9c12.png",
     "assets/images/cards/icon_hat.png":
-        f"{CDN}/hf_20260625_211409_cb9f6ea5-b9d2-4bad-9ce3-d6caafd9c47b.png",
+        f"{CDN}/hf_20260625_222414_fd6a3756-5a16-443a-87e2-9584b75fbf08.png",
 }
 
 
