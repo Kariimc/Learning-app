@@ -641,24 +641,36 @@
       penguin: { face:'🐧', name:'Penny Penguin',  key:'penguin' },
       owl:     { face:'🦉', name:'Ollie Owl',      key:'owl'     },
     };
-    // Real production art, committed in the repo (scripts/fetch_assets.py / CI fetch-assets.yml).
-    // Paths are relative to this file in prototypes/. Works offline from a repo checkout;
-    // emoji/solid-color fallbacks remain via image onerror if a file is missing.
+    // Real production art — CDN URLs from scripts/fetch_assets.py so this file renders
+    // the real Higgsfield art when opened standalone (no repo checkout required).
+    const _CDN = 'https://d8j0ntlcm91z4.cloudfront.net/user_3F1n9RqGZCJVrB84dvcvAMuNMRC';
     const ASSET = {
-      map:          '../assets/images/backgrounds/bg_map.png',
-      bg_visual:    '../assets/images/backgrounds/bg_visual.png',
-      bg_alphabet:  '../assets/images/backgrounds/bg_alphabet.png',
-      bg_phonics:   '../assets/images/backgrounds/bg_phonics.png',
-      bg_words:     '../assets/images/backgrounds/bg_words.png',
-      bg_sentences: '../assets/images/backgrounds/bg_sentences.png',
-      bg_stories:   '../assets/images/backgrounds/bg_stories.png',
-      por_rabbit:   '../assets/images/characters/reading_rabbit/portrait.png',
-      por_bear:     '../assets/images/characters/benny_bear/portrait.png',
-      por_penguin:  '../assets/images/characters/penny_penguin/portrait.png',
-      por_owl:      '../assets/images/characters/ollie_owl/portrait.png',
-      btn_gold:     '../assets/images/ui/btn_gold.png',
-      btn_mint:     '../assets/images/ui/btn_mint.png',
-      btn_coral:    '../assets/images/ui/btn_coral.png',
+      map:          `${_CDN}/hf_20260624_124703_331c9d87-aed5-4be3-b401-c796998d9ea5.png`,
+      bg_visual:    `${_CDN}/hf_20260624_124648_00574061-bed6-49d3-9ef3-7373a128b5b9.png`,
+      bg_alphabet:  `${_CDN}/hf_20260624_124650_73a4235b-810c-46cc-ac49-7d1d01c9bb52.png`,
+      bg_phonics:   `${_CDN}/hf_20260624_124651_570a66e4-ae7e-411c-9c82-9f0fcba10b79.png`,
+      bg_words:     `${_CDN}/hf_20260624_124656_09abb280-5031-402e-9138-c8e89126eda2.png`,
+      bg_sentences: `${_CDN}/hf_20260624_124657_0af94c30-05fe-45ab-a74a-9e19a3ba6d81.png`,
+      bg_stories:   `${_CDN}/hf_20260624_124659_a4cc5385-9874-4ff1-a5fa-683c17f47620.png`,
+      por_rabbit:   `${_CDN}/hf_20260625_204748_5be6cc51-e9e2-4b41-8d54-73a2db7a4264.png`,
+      por_bear:     `${_CDN}/hf_20260624_124639_07dbdb38-ff3f-4bd3-8f4f-41bbe75fff00.png`,
+      por_penguin:  `${_CDN}/hf_20260625_204802_c563b7a3-2f30-452f-81cc-40eb7e9a6f31.png`,
+      por_owl:      `${_CDN}/hf_20260624_124642_94de2730-cbd4-4be4-a000-ef0ef194436a.png`,
+      btn_gold:     `${_CDN}/hf_20260625_093622_97c4dc10-d500-494b-82a8-78987401747c.png`,
+      btn_mint:     `${_CDN}/hf_20260625_093620_372c9308-b44b-4e94-9f27-a9b4918bf15c.png`,
+      btn_coral:    `${_CDN}/hf_20260625_093621_ce2a048c-e538-4239-9c80-27073f79ff15.png`,
+      story_cat_nap_p0:      `${_CDN}/hf_20260624_124704_906ceca1-9f06-4510-a588-2ec7b322c14c.jpeg`,
+      story_cat_nap_p1:      `${_CDN}/hf_20260624_124705_87f80398-05a1-4705-8a18-7e6f917ce176.png`,
+      story_cat_nap_p2:      `${_CDN}/hf_20260624_124706_a8eaf407-2741-4035-8105-8f9edd4554e0.png`,
+      story_cat_nap_p3:      `${_CDN}/hf_20260624_124707_5c3b95b1-5122-4b0a-ba71-db00db9ad068.png`,
+      story_big_dog_p0:      `${_CDN}/hf_20260624_124711_94539d13-230a-427f-9e1e-a43d2ab640e1.png`,
+      story_big_dog_p1:      `${_CDN}/hf_20260624_124713_0a6fcdc0-a655-4d66-ae9d-c898b974c008.png`,
+      story_big_dog_p2:      `${_CDN}/hf_20260624_124714_377b5627-d4ea-4620-9578-4b9d7647482c.png`,
+      story_big_dog_p3:      `${_CDN}/hf_20260624_124715_e509bfb3-3903-4232-ab8e-f4f98c2ea370.png`,
+      story_sun_and_bird_p0: `${_CDN}/hf_20260624_124716_308d6c84-9644-4986-8ebc-1239d795767f.png`,
+      story_sun_and_bird_p1: `${_CDN}/hf_20260624_124718_3345b9fe-9ed9-4b6b-89d4-99a641f6af25.png`,
+      story_sun_and_bird_p2: `${_CDN}/hf_20260624_124719_3f01c6ea-715d-46dc-887a-07780fcc996a.png`,
+      story_sun_and_bird_p3: `${_CDN}/hf_20260624_124720_2901d86a-b640-4881-8cdb-2f89e6d79620.png`,
     };
     const REWARDS = [
       { icon:'⭐', name:'Gold Star sticker!' },
@@ -700,7 +712,32 @@
     };
     const LAND_ICON = { visual:'land_visual', alphabet:'land_alphabet', phonics:'land_phonics',
       words:'land_words', sentences:'land_sentences', stories:'land_stories' };
-    const ICON_SRC = {};  // standalone preview injects data: URIs here, keyed by file stem
+    const ICON_SRC = {
+      // Content icons — background-removed cutouts (15 items)
+      'icon_circle':   `${_CDN}/hf_20260625_215139_e00eb274-87c6-4f4b-a131-53da32819e77.png`,
+      'icon_square':   `${_CDN}/hf_20260625_222056_32470626-ac89-4377-874c-29c39fe29de0.png`,
+      'icon_triangle': `${_CDN}/hf_20260625_222059_5254723f-de75-4d77-b0a1-8768a42602d0.png`,
+      'icon_heart':    `${_CDN}/hf_20260625_222117_f58b798c-22e0-4696-a97c-657c2e006a45.png`,
+      'icon_fish':     `${_CDN}/hf_20260625_222120_b6aa7d9a-c27a-430d-8060-c70f44d6c32d.png`,
+      'icon_bird':     `${_CDN}/hf_20260625_222124_96874203-dd17-4c5b-8217-7bc447fd3102.png`,
+      'icon_car':      `${_CDN}/hf_20260625_222127_3b68cf7f-a302-4a88-a694-3295ea19c6e2.png`,
+      'icon_egg':      `${_CDN}/hf_20260625_222143_ace7293a-3745-4047-8bd3-372cff3cfb14.png`,
+      'icon_goat':     `${_CDN}/hf_20260625_222153_9b0f4248-1d57-4782-b1e1-79b567bf9c12.png`,
+      'icon_hat':      `${_CDN}/hf_20260625_222414_fd6a3756-5a16-443a-87e2-9584b75fbf08.png`,
+      'icon_dog':      `${_CDN}/hf_20260625_222418_73f0e4c3-3730-4c08-855f-52261c51d840.png`,
+      'icon_cat':      `${_CDN}/hf_20260625_222433_384654bc-dfcf-4ccc-bbaa-a9fff02e3438.png`,
+      'icon_ball':     `${_CDN}/hf_20260625_222904_d9411aa6-5803-4dc4-a6ba-c12e96f15c51.png`,
+      'icon_apple':    `${_CDN}/hf_20260625_222908_ba5aaf96-3312-4a95-9f21-db78aabd2903.png`,
+      'icon_star':     `${_CDN}/hf_20260625_222912_fb2df1df-a62f-4228-a0d4-ad4930cd4cea.png`,
+      // Tile icons — baked backgrounds (land tiles + trace; owner keeps these as-is)
+      'icon_trace':      `${_CDN}/hf_20260625_205730_4678c197-0868-486d-bbf7-76158520a92a.png`,
+      'land_visual':     `${_CDN}/hf_20260625_205720_8c096690-fc67-453f-bf35-cbf630d89b72.png`,
+      'land_alphabet':   `${_CDN}/hf_20260625_205722_a1246c84-a356-4abb-be5a-178f755f83e3.png`,
+      'land_phonics':    `${_CDN}/hf_20260625_205724_6d08383e-db79-40b7-a276-c3ba8e49a43b.png`,
+      'land_words':      `${_CDN}/hf_20260625_205726_852a6b11-4173-458f-aaed-97de67d49fe1.png`,
+      'land_sentences':  `${_CDN}/hf_20260625_205727_7ff196f3-352d-4a57-ab38-13d97051d94c.png`,
+      'land_stories':    `${_CDN}/hf_20260625_205729_85a78c5d-ceb4-4826-a7ff-5ebd15eaa045.png`,
+    };
     const pick = (arr) => arr[Math.floor(Math.random()*arr.length)];
     const shuffle = (arr) => { const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
 
@@ -752,9 +789,7 @@
             const li = LAND_ICON[l.key];
             l.icon = li ? (ICON_SRC[li] || ('../assets/images/ui/' + li + '.png')) : '';
           });
-          BOOKS.forEach(b => b.pages.forEach(pg => {
-            ASSET['story_'+b.id+'_p'+pg.p] = '../assets/images/cards/story_'+b.id+'_p'+pg.p+'.png';
-          }));
+          // story page URLs already pre-populated in ASSET above
           if (window.__proto) window.__proto.onState(s => { this.ui = s; });
           this.greetHome();
         },
