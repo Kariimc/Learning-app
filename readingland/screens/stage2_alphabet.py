@@ -27,4 +27,4 @@ class Stage2Screen(MatchingStageScreen):
         return item.label  # uppercase letter
 
     def tile_emoji(self, item: ContentItem) -> str:
-        return item.emoji
+        return ""   # the big Fredoka letter is the tile - no emoji hints

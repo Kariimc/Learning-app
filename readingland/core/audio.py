@@ -70,12 +70,18 @@ class AudioManager:
     def voice_path(self, key: str) -> Optional[str]:
         for ext in (".ogg", ".mp3", ".wav"):
             p = os.path.join(self.assets_dir, "audio", "voice", self.voice_pack, key + ext)
-            if os.path.exists(p):
+            if config.asset_file_exists(p):
                 return p
         return None
 
     def narrate(self, text: str, key: Optional[str] = None) -> None:
-        """Speak a line. Prefers a recorded file keyed by ``key``."""
+        """Speak a line - real recorded Mabel voice only.
+
+        Order: the recording keyed by ``key``; else the line composed from
+        per-word recordings; else (only if TTS fallback is allowed) TTS.
+        With ``ALLOW_TTS_FALLBACK = False`` the child never hears a synthetic
+        voice - an uncovered line is silent and the on-screen text carries it.
+        """
         self.spoken_log.append(text)
         if not self.enabled:
             return
@@ -83,7 +89,49 @@ class AudioManager:
         if config.PREFER_RECORDED_AUDIO and path:
             self._play_file(path)
             return
-        self._speak_tts(text)
+        if self.narrate_words(text):
+            return
+        if getattr(config, "ALLOW_TTS_FALLBACK", False):
+            self._speak_tts(text)
+
+    def narrate_words(self, text: str) -> bool:
+        """Speak ``text`` as a sequence of recorded word clips.
+
+        Returns True only when EVERY word has a real recording (single letters
+        map to their letter_<x> clip); otherwise plays nothing.
+        """
+        import re
+        words = [re.sub(r"[^a-z']", "", w.lower()) for w in text.split()]
+        words = [w for w in words if w]
+        if not words:
+            return False
+        paths = []
+        for w in words:
+            p = self.voice_path(w)
+            if not p and len(w) == 1:
+                p = self.voice_path(f"letter_{w}")
+            if not p:
+                return False
+            paths.append(p)
+        self._play_files_seq(paths)
+        return True
+
+    def _play_files_seq(self, paths, gap: float = 0.12) -> None:
+        """Play recorded clips back to back."""
+        if not paths:
+            return
+        try:
+            from kivy.clock import Clock
+        except Exception:
+            for p in paths:
+                self._play_file(p)
+            return
+        delay = 0.0
+        for p in paths:
+            Clock.schedule_once(lambda dt, p=p: self._play_file(p), delay)
+            snd = self._load(p)
+            delay += (snd.length if snd and snd.length and snd.length > 0
+                      else 0.6) + gap
 
     def play_sfx(self, name: str) -> None:
         """Play a short sound effect from assets/audio/sfx/<name>.ogg."""
@@ -91,7 +139,7 @@ class AudioManager:
             return
         for ext in (".ogg", ".wav", ".mp3"):
             p = os.path.join(self.assets_dir, "audio", "sfx", name + ext)
-            if os.path.exists(p):
+            if config.asset_file_exists(p):
                 self._play_file(p)
                 return
 
@@ -100,7 +148,7 @@ class AudioManager:
             return
         for ext in (".ogg", ".mp3"):
             p = os.path.join(self.assets_dir, "audio", "music", name + ext)
-            if os.path.exists(p):
+            if config.asset_file_exists(p):
                 snd = self._load(p)
                 if snd:
                     snd.loop = loop

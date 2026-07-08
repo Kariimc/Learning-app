@@ -17,11 +17,13 @@ class Stage4Screen(MatchingStageScreen):
     def prompt_text(self, item: ContentItem) -> str:
         if item.data.get("kind") == "sight":
             return f"Find the word \"{item.label}\"."
-        return f"{item.emoji}  Which word says \"{item.label}\"?"
+        return f"Which word says \"{item.label}\"?"
+
+    def narration_key(self, item: ContentItem) -> str:
+        return item.label.lower()   # every word has a real Mabel recording
 
     def tile_glyph(self, item: ContentItem) -> str:
         return item.label  # the word itself
 
     def tile_emoji(self, item: ContentItem) -> str:
-        # Sight words have no picture; nouns/verbs show a small hint emoji.
-        return "" if item.data.get("kind") == "sight" else item.emoji
+        return ""

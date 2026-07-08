@@ -45,10 +45,12 @@ class ProfileSelectScreen(BaseScreen):
 
     def refresh(self):
         self.grid.clear_widgets()
+        from ..ui.assets import character_image
         for prof in app().session.profiles.list():
             char = app().content.character(prof.avatar)
-            tile = GlyphTile(glyph=char.get("emoji", "🙂"), emoji=prof.name,
-                             on_tap=self._make_select(prof.id))
+            portrait = character_image(prof.avatar) or ""
+            tile = GlyphTile(glyph=prof.name, emoji="" if portrait else prof.name,
+                             image=portrait, on_tap=self._make_select(prof.id))
             tile.bg_color = list(config.hex_rgba(char.get("color", "#FFF6E9")))
             self.grid.add_widget(tile)
         add = GlyphTile(glyph="➕", emoji="New", on_tap=lambda *_: self._add_profile())
@@ -67,10 +69,13 @@ class ProfileSelectScreen(BaseScreen):
         card.add_widget(Label(text="Pick your buddy!", font_size=theme.FONT_TITLE,
                               bold=True, color=config.PALETTE["ink"], size_hint=(1, 0.2)))
         row = GridLayout(cols=3, spacing=dp(14), size_hint=(1, 0.8))
+        from ..ui.assets import character_image
         for avatar in AVATARS:
             char = app().content.character(avatar)
-            tile = GlyphTile(glyph=char.get("emoji", "🙂"), emoji=char.get("name", avatar),
-                             on_tap=self._make_create(avatar, modal))
+            portrait = character_image(avatar) or ""
+            name = char.get("name", avatar)
+            tile = GlyphTile(glyph=name, emoji="" if portrait else name,
+                             image=portrait, on_tap=self._make_create(avatar, modal))
             tile.bg_color = list(config.hex_rgba(char.get("color", "#FFF6E9")))
             row.add_widget(tile)
         card.add_widget(row)

@@ -19,25 +19,28 @@ from .progress import ProgressTracker
 # --------------------------------------------------------------------------- #
 # Reward catalogue (data, not behaviour).
 # --------------------------------------------------------------------------- #
+# Every sticker/badge shows one of the real generated plush cutouts - the
+# child collects the actual art, never an emoji stand-in. "icon" resolves via
+# ui.assets.content_icon (cards) or ui_image (plush buttons).
 STICKERS: Dict[str, dict] = {
-    "star_smile": {"name": "Smiley Star", "emoji": "🌟"},
-    "happy_apple": {"name": "Happy Apple", "emoji": "🍎"},
-    "brave_cat": {"name": "Brave Cat", "emoji": "🐱"},
-    "good_dog": {"name": "Good Dog", "emoji": "🐶"},
-    "rainbow": {"name": "Rainbow", "emoji": "🌈"},
-    "rocket": {"name": "Reading Rocket", "emoji": "🚀"},
-    "crown": {"name": "Reader's Crown", "emoji": "👑"},
-    "balloon": {"name": "Party Balloon", "emoji": "🎈"},
+    "star_smile": {"name": "Smiley Star", "emoji": "", "icon": "star"},
+    "happy_apple": {"name": "Happy Apple", "emoji": "", "icon": "apple"},
+    "brave_cat": {"name": "Brave Cat", "emoji": "", "icon": "cat"},
+    "good_dog": {"name": "Good Dog", "emoji": "", "icon": "dog"},
+    "warm_heart": {"name": "Warm Heart", "emoji": "", "icon": "heart"},
+    "race_car": {"name": "Race Car", "emoji": "", "icon": "car"},
+    "golden_egg": {"name": "Golden Egg", "emoji": "", "icon": "egg"},
+    "silly_goat": {"name": "Silly Goat", "emoji": "", "icon": "goat"},
 }
 
 BADGES: Dict[str, dict] = {
-    "first_steps": {"name": "First Steps", "desc": "Finished your first activity", "emoji": "👣"},
-    "letter_explorer": {"name": "Letter Explorer", "desc": "Mastered 5 letters", "emoji": "🔤"},
-    "sound_smith": {"name": "Sound Smith", "desc": "Blended your first word", "emoji": "🔊"},
-    "word_wizard": {"name": "Word Wizard", "desc": "Read 10 words", "emoji": "🪄"},
-    "sentence_star": {"name": "Sentence Star", "desc": "Read your first sentence", "emoji": "⭐"},
-    "story_reader": {"name": "Story Reader", "desc": "Finished a storybook", "emoji": "📖"},
-    "streak_3": {"name": "On Fire", "desc": "3 days in a row", "emoji": "🔥"},
+    "first_steps": {"name": "First Steps", "desc": "Finished your first activity", "emoji": "", "icon": "btn_mint"},
+    "letter_explorer": {"name": "Letter Explorer", "desc": "Mastered 5 letters", "emoji": "", "icon": "btn_gold"},
+    "sound_smith": {"name": "Sound Smith", "desc": "Blended your first word", "emoji": "", "icon": "btn_coral"},
+    "word_wizard": {"name": "Word Wizard", "desc": "Read 10 words", "emoji": "", "icon": "btn_mint"},
+    "sentence_star": {"name": "Sentence Star", "desc": "Read your first sentence", "emoji": "", "icon": "btn_gold"},
+    "story_reader": {"name": "Story Reader", "desc": "Finished a storybook", "emoji": "", "icon": "btn_coral"},
+    "streak_3": {"name": "On Fire", "desc": "3 days in a row", "emoji": "", "icon": "btn_gold"},
 }
 
 # Characters the child can unlock and "collect".

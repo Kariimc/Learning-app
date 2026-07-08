@@ -61,10 +61,12 @@ class RewardsRoomScreen(BaseScreen):
         self.column.add_widget(self._section_label("My Stickers"))
         sticker_grid = GridLayout(cols=4, spacing=dp(10), size_hint_y=None)
         sticker_grid.bind(minimum_height=sticker_grid.setter("height"))
+        from ..ui.assets import content_icon
         for s in session.rewards.sticker_book(session.pid):
-            tile = GlyphTile(glyph=s["emoji"] if s["owned"] else "❔",
+            art = content_icon(s.get("icon")) or "" if s["owned"] else ""
+            tile = GlyphTile(glyph="" if s["owned"] else "?",
                              emoji=s["name"] if s["owned"] else "?",
-                             size_hint=(1, None), height=dp(120))
+                             image=art, size_hint=(1, None), height=dp(120))
             tile.bg_color = list(config.PALETTE["cream"]) if s["owned"] \
                 else list(config.PALETTE["shadow"])
             sticker_grid.add_widget(tile)
@@ -74,10 +76,12 @@ class RewardsRoomScreen(BaseScreen):
         self.column.add_widget(self._section_label("My Badges"))
         badge_grid = GridLayout(cols=4, spacing=dp(10), size_hint_y=None)
         badge_grid.bind(minimum_height=badge_grid.setter("height"))
+        from ..ui.assets import ui_image
         for b in session.rewards.badge_shelf(session.pid):
-            tile = GlyphTile(glyph=b["emoji"] if b["owned"] else "🔒",
+            art = ui_image(b.get("icon")) or "" if b["owned"] else ""
+            tile = GlyphTile(glyph="" if b["owned"] else "?",
                              emoji=b["name"] if b["owned"] else "Locked",
-                             size_hint=(1, None), height=dp(120))
+                             image=art, size_hint=(1, None), height=dp(120))
             tile.bg_color = list(config.PALETTE["sun"]) if b["owned"] \
                 else list(config.PALETTE["shadow"])
             badge_grid.add_widget(tile)

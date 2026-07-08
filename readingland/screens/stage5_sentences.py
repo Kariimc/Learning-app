@@ -119,11 +119,13 @@ class Stage5Screen(BaseScreen):
             delay += 0.55
 
     def _render_choices(self):
+        from ..ui.assets import content_icon
         choices = app().session.build_choices(self.STAGE, self._target)
         self.choice_row.cols = len(choices)
         self.choice_row.clear_widgets()
         for item in choices:
-            tile = GlyphTile(glyph=item.emoji or "?", emoji="",
+            icon = content_icon(item.data.get("icon") or item.id, item.emoji) or ""
+            tile = GlyphTile(glyph="", emoji="", image=icon,
                              on_tap=self._make_handler(item))
             tile.bg_color = list(config.PALETTE["cream"])
             self.choice_row.add_widget(tile)
@@ -142,7 +144,7 @@ class Stage5Screen(BaseScreen):
             app().audio.play_sfx("correct")
             outcome = app().session.answer(self.STAGE, self._target, True)
             self.mascot.react()
-            self.mascot.say(f"Yes! {self._target.label}")
+            self.mascot.say(f"Yes! {self._target.label}", key="ln_you_found_it")
             self.star_counter.bump(outcome.result.stars_awarded)
             self.progress.value = app().session.stage_summary(self.STAGE).ratio
             self.celebrate(big=outcome.celebrate)

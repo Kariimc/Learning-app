@@ -27,6 +27,12 @@ class ReadingLandApp(App):
         # forces a GL window - keeps headless import/CI clean.
         from kivy.core.window import Window
 
+        # Refuse to boot without the real generated assets (art + Mabel voice
+        # pack). Raises with fix instructions if anything is missing or is an
+        # un-pulled Git-LFS pointer stub - never the placeholder look.
+        from .ui.assets import verify_assets
+        verify_assets()
+
         theme.register_fonts()
         Window.clearcolor = config.PALETTE["sky"]
 

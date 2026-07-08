@@ -15,11 +15,25 @@ from kivy.uix.scrollview import ScrollView
 from .. import config
 from ..core.voice_lines import NAV_LINES
 from ..ui import theme
+from kivy.uix.behaviors import ButtonBehavior
+
 from ..ui.icons import Icon, IconButton
 from ..ui.widgets import BigButton, ChunkyProgressBar, GlyphTile, Mascot, RoundedCard
 from .base import BaseScreen, app
 
 STAGE_ICONS = {1: "👀", 2: "🔤", 3: "🔊", 4: "📕", 5: "📑", 6: "📖"}
+
+
+class _LandCard(ButtonBehavior, RoundedCard):
+    """Whole-card tap target, like the prototype's land cards."""
+
+    def __init__(self, on_tap=None, **kwargs):
+        super().__init__(**kwargs)
+        self._on_tap = on_tap
+
+    def on_release(self):
+        if self._on_tap:
+            self._on_tap(self)
 
 
 class HomeMapScreen(BaseScreen):
@@ -81,27 +95,36 @@ class HomeMapScreen(BaseScreen):
             summ = session.stage_summary(sid)
             unlocked = summ.unlocked
 
-            card = RoundedCard(orientation="horizontal", size_hint=(1, None),
-                               height=dp(120), padding=dp(12), spacing=dp(12))
-            card.bg_color = list(config.STAGE_COLORS[sid]) if unlocked else list(config.PALETTE["shadow"])
-
-            icon = self._land_icon(STAGE_ICONS.get(sid, "⭐"), unlocked,
-                                   self._make_open(sid, unlocked))
-            card.add_widget(icon)
+            # Prototype look: the land's painted art fills the card (dimmed
+            # while locked), title over it, whole card tappable.
+            card = _LandCard(orientation="horizontal", size_hint=(1, None),
+                             height=dp(150), padding=dp(12), spacing=dp(12),
+                             on_tap=self._make_open(sid, unlocked))
+            from ..ui.assets import background_image
+            art = background_image(stage["key"]) or ""
+            card.bg_image = art
+            if art:
+                card.bg_color = [1, 1, 1, 1] if unlocked else [0.45, 0.45, 0.5, 1]
+            else:
+                card.bg_color = list(config.STAGE_COLORS[sid]) if unlocked else list(config.PALETTE["shadow"])
 
             info = BoxLayout(orientation="vertical", spacing=dp(4))
             info.add_widget(Label(text=stage["title"], font_size=theme.FONT_HEADING,
                                   bold=True, color=config.PALETTE["cream"],
+                                  outline_color=(0.15, 0.12, 0.2, 1), outline_width=dp(2),
                                   halign="left", size_hint=(1, 0.4)))
             sub = "Locked - keep learning to open!" if not unlocked else stage["subtitle"]
             info.add_widget(Label(text=sub, font_size=theme.FONT_LABEL,
-                                  color=config.PALETTE["cream"], size_hint=(1, 0.3)))
+                                  color=config.PALETTE["cream"],
+                                  outline_color=(0.15, 0.12, 0.2, 1), outline_width=dp(1.5),
+                                  size_hint=(1, 0.3)))
             bar = ChunkyProgressBar(size_hint=(1, None), height=dp(18))
             bar.value = summ.ratio
             bar.bar_color = list(config.PALETTE["sun"])
             info.add_widget(bar)
             info.add_widget(Label(text=f"{summ.mastered}/{summ.total} mastered",
                                   font_size=dp(14), color=config.PALETTE["cream"],
+                                  outline_color=(0.15, 0.12, 0.2, 1), outline_width=dp(1),
                                   size_hint=(1, 0.2)))
             card.add_widget(info)
             self.path.add_widget(card)
@@ -127,8 +150,15 @@ class HomeMapScreen(BaseScreen):
         card.add_widget(info)
         self.path.add_widget(card)
 
-    def _land_icon(self, emoji, unlocked, on_tap, vector=None):
-        """Crisp land icon: a vector glyph (lock when locked) on a cream tile."""
+    def _land_icon(self, emoji, unlocked, on_tap, vector=None, image=""):
+        """Land icon: always the real generated land art. Locked lands show the
+        same art dimmed (never a placeholder glyph)."""
+        if image:
+            tile = GlyphTile(glyph="", emoji="", image=image, size_hint=(None, 1),
+                             width=dp(96), on_tap=on_tap)
+            tile.bg_color = list(config.PALETTE["cream"])
+            tile.opacity = 1.0 if unlocked else 0.45
+            return tile
         if not unlocked:
             btn = IconButton(icon="lock", size_hint=(None, 1), width=dp(96),
                              bg_color=list(config.PALETTE["cream"]),

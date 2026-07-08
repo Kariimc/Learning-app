@@ -13,6 +13,7 @@ class Stage1Screen(MatchingStageScreen):
     GUIDE = "reading_rabbit"
     ACCENT = config.PALETTE["mint"]
     bg_image_key = "visual"
+    PICTURE_TILES = True   # tiles are the plush picture the child matches
 
     def prompt_text(self, item: ContentItem) -> str:
         cat = item.data.get("category", "thing")
@@ -25,8 +26,11 @@ class Stage1Screen(MatchingStageScreen):
         return verbs.get(cat, f"Find the {item.label}!")
 
     def tile_glyph(self, item: ContentItem) -> str:
-        # Pre-readers see the picture, not text.
-        return item.emoji or "●"
+        # Pre-readers see the plush cutout picture only - no text, no emoji.
+        return ""
 
     def tile_emoji(self, item: ContentItem) -> str:
         return ""
+
+    def narration_key(self, item: ContentItem) -> str:
+        return item.label.lower()   # cat.mp3, dog.mp3, ... - real Mabel clips
