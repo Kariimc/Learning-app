@@ -130,19 +130,20 @@ class HomeMapScreen(BaseScreen):
         self.path.add_widget(card)
 
     def _land_icon(self, emoji, unlocked, on_tap, vector=None, image=""):
-        """Crisp land icon: the real generated land art when present, else a
-        vector glyph (lock when locked) on a cream tile."""
+        """Land icon: always the real generated land art. Locked lands show the
+        same art dimmed (never a placeholder glyph)."""
+        if image:
+            tile = GlyphTile(glyph="", emoji="", image=image, size_hint=(None, 1),
+                             width=dp(96), on_tap=on_tap)
+            tile.bg_color = list(config.PALETTE["cream"])
+            tile.opacity = 1.0 if unlocked else 0.45
+            return tile
         if not unlocked:
             btn = IconButton(icon="lock", size_hint=(None, 1), width=dp(96),
                              bg_color=list(config.PALETTE["cream"]),
                              icon_color=list(config.PALETTE["shadow"][:3]) + [0.6],
                              on_tap=on_tap)
             return btn
-        if image:
-            tile = GlyphTile(glyph="", emoji="", image=image, size_hint=(None, 1),
-                             width=dp(96), on_tap=on_tap)
-            tile.bg_color = list(config.PALETTE["cream"])
-            return tile
         if vector:
             btn = IconButton(icon=vector, size_hint=(None, 1), width=dp(96),
                              bg_color=list(config.PALETTE["cream"]),
