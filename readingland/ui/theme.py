@@ -42,7 +42,7 @@ def register_main_font() -> bool:
     candidates += glob.glob(os.path.join(config.ASSETS_DIR, "fonts", "Fredoka*.ttf"))
     candidates += glob.glob(os.path.join(config.ASSETS_DIR, "fonts", "Nunito*.ttf"))
     for path in candidates:
-        if os.path.exists(path):
+        if config.asset_file_exists(path):
             try:
                 LabelBase.register(name=FONT_MAIN, fn_regular=path)
                 # Also register as default so un-named Labels pick it up.
@@ -79,7 +79,7 @@ def register_fonts() -> bool:
     candidates += glob.glob("/usr/share/fonts/**/NotoColorEmoji.ttf", recursive=True)
     candidates += glob.glob("/usr/share/fonts/**/*Emoji*.ttf", recursive=True)
     for path in candidates:
-        if os.path.exists(path):
+        if config.asset_file_exists(path):
             try:
                 LabelBase.register(name=EMOJI_FONT_NAME, fn_regular=path)
                 _EMOJI_FONT_REGISTERED = True

@@ -157,3 +157,45 @@ NARRATION_REPEAT_DELAY = 0.4
 # Audio
 TTS_RATE = 132              # gentle words-per-minute for fallback TTS (slower = calmer)
 PREFER_RECORDED_AUDIO = True
+
+# --------------------------------------------------------------------------- #
+# Assets - the app ships the real generated art + Mabel voice pack (Git LFS).
+# Placeholders/TTS exist only for content with no asset at all; an asset file
+# that IS on disk must always be used. A clone where LFS objects weren't pulled
+# leaves ~130-byte pointer stubs in place of the real bytes - that must fail
+# loudly, never silently degrade to the placeholder look.
+# --------------------------------------------------------------------------- #
+REQUIRE_REAL_ASSETS = True
+
+_LFS_POINTER_PREFIX = b"version https://git-lfs.github.com/spec"
+
+
+def is_lfs_pointer(path: str) -> bool:
+    """True if ``path`` holds a Git-LFS pointer stub instead of real bytes."""
+    try:
+        if os.path.getsize(path) > 512:      # pointers are ~130 bytes
+            return False
+        with open(path, "rb") as fh:
+            return fh.read(len(_LFS_POINTER_PREFIX)) == _LFS_POINTER_PREFIX
+    except OSError:
+        return False
+
+
+def asset_file_exists(path: str) -> bool:
+    """Like os.path.isfile, but never accepts an LFS pointer stub as real.
+
+    With ``REQUIRE_REAL_ASSETS`` a stub raises instead of returning False, so
+    a broken checkout can't quietly render the developer/placeholder look.
+    """
+    if not os.path.isfile(path):
+        return False
+    if is_lfs_pointer(path):
+        if REQUIRE_REAL_ASSETS:
+            raise RuntimeError(
+                "Asset %r is a Git-LFS pointer stub, not real bytes. Run "
+                "`git lfs install && git lfs pull` (or `python "
+                "scripts/fetch_assets.py`) - ReadingLand must never ship the "
+                "placeholder look." % path
+            )
+        return False
+    return True

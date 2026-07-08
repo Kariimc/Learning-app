@@ -70,7 +70,7 @@ class AudioManager:
     def voice_path(self, key: str) -> Optional[str]:
         for ext in (".ogg", ".mp3", ".wav"):
             p = os.path.join(self.assets_dir, "audio", "voice", self.voice_pack, key + ext)
-            if os.path.exists(p):
+            if config.asset_file_exists(p):
                 return p
         return None
 
@@ -91,7 +91,7 @@ class AudioManager:
             return
         for ext in (".ogg", ".wav", ".mp3"):
             p = os.path.join(self.assets_dir, "audio", "sfx", name + ext)
-            if os.path.exists(p):
+            if config.asset_file_exists(p):
                 self._play_file(p)
                 return
 
@@ -100,7 +100,7 @@ class AudioManager:
             return
         for ext in (".ogg", ".mp3"):
             p = os.path.join(self.assets_dir, "audio", "music", name + ext)
-            if os.path.exists(p):
+            if config.asset_file_exists(p):
                 snd = self._load(p)
                 if snd:
                     snd.loop = loop

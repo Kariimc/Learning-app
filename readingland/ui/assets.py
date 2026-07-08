@@ -13,10 +13,62 @@ from .. import config
 
 _IMAGE_EXTS = (".png", ".webp", ".jpg", ".jpeg")
 
+# Assets the shipping app cannot boot without - the real generated art + Mabel
+# voice pack. If any is missing or is an LFS pointer stub, verify_assets()
+# raises so the app never starts in the placeholder look.
+_REQUIRED_ASSETS = (
+    ("images", "backgrounds", "bg_map.png"),
+    ("images", "backgrounds", "bg_visual.png"),
+    ("images", "backgrounds", "bg_alphabet.png"),
+    ("images", "backgrounds", "bg_phonics.png"),
+    ("images", "backgrounds", "bg_words.png"),
+    ("images", "backgrounds", "bg_sentences.png"),
+    ("images", "backgrounds", "bg_stories.png"),
+    ("images", "characters", "reading_rabbit", "portrait.png"),
+    ("images", "characters", "benny_bear", "portrait.png"),
+    ("images", "characters", "penny_penguin", "portrait.png"),
+    ("images", "characters", "ollie_owl", "portrait.png"),
+    ("images", "characters", "milo_monkey", "portrait.png"),
+    ("fonts", "Fredoka-Bold.ttf"),
+    ("audio", "voice", "mabel", "greet_home.mp3"),
+)
+
+_ASSET_EXTS = (".png", ".webp", ".jpg", ".jpeg", ".mp3", ".wav", ".ogg", ".ttf")
+
+
+def verify_assets(assets_dir: str = None) -> None:
+    """Fail fast if the real generated assets aren't fully on disk.
+
+    Checks 1) every required asset exists, and 2) no asset file anywhere in the
+    tree is a Git-LFS pointer stub. Called at app start so a broken checkout
+    (LFS objects not pulled) can never boot into placeholders/TTS.
+    """
+    base = assets_dir or config.ASSETS_DIR
+    missing = [os.path.join(*parts) for parts in _REQUIRED_ASSETS
+               if not os.path.isfile(os.path.join(base, *parts))]
+    stubs = []
+    for root, _dirs, files in os.walk(base):
+        for name in files:
+            if name.lower().endswith(_ASSET_EXTS):
+                p = os.path.join(root, name)
+                if config.is_lfs_pointer(p):
+                    stubs.append(os.path.relpath(p, base))
+    if missing or stubs:
+        raise RuntimeError(
+            "ReadingLand refuses to start without its real generated assets "
+            "(no placeholder fallback). Run `git lfs install && git lfs pull` "
+            "or `python scripts/fetch_assets.py`.\n"
+            + ("Missing: %s\n" % ", ".join(sorted(missing)) if missing else "")
+            + ("LFS pointer stubs: %s" % ", ".join(sorted(stubs)) if stubs else "")
+        )
+
 
 def _first_existing(*paths: str) -> Optional[str]:
     for p in paths:
-        if p and os.path.exists(p):
+        # asset_file_exists rejects (and, in shipping config, raises on)
+        # Git-LFS pointer stubs so a broken checkout can't silently fall
+        # back to placeholder art.
+        if p and config.asset_file_exists(p):
             return p
     return None
 
