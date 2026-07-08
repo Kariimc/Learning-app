@@ -46,6 +46,7 @@ class RoundedCard(BoxLayout):
     """BoxLayout with a soft rounded background + drop shadow + bounce scale."""
 
     bg_color = ListProperty(list(config.PALETTE["cream"]))
+    bg_image  = StringProperty("")   # painted art fills the card (prototype look)
     radius    = NumericProperty(dp(28))
     _bounce   = NumericProperty(1.0)
 
@@ -61,7 +62,17 @@ class RoundedCard(BoxLayout):
         with self.canvas.after:
             PopMatrix()
         self.bind(pos=self._sync, size=self._sync, bg_color=self._sync_color,
+                  bg_image=self._sync_image,
                   _bounce=self._update_scale, center=self._update_scale)
+        if self.bg_image:
+            self._sync_image()
+
+    def _sync_image(self, *_):
+        self._bg.source = self.bg_image or ""
+        # Show the art at full brightness; bg_color keeps working as a tint
+        # (e.g. dimmed for locked lands).
+        if self.bg_image:
+            self._bg_color_inst.rgba = self.bg_color
 
     def _sync(self, *_):
         off = dp(6)
@@ -332,7 +343,8 @@ class GlyphTile(ButtonBehavior, RoundedCard):
         )
         self._glyph_lbl = Label(
             text=self.glyph, font_size=theme.FONT_DISPLAY, bold=True,
-            color=self.glyph_color, size_hint_y=0.55, font_name=fn,
+            color=self.glyph_color, size_hint_y=0.55,
+            font_name=_font_for(self.glyph),
             halign="center", valign="middle",
         )
         self._emoji_lbl.bind(size=lambda w, s: setattr(w, "text_size", s))

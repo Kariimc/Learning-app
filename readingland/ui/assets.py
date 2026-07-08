@@ -120,6 +120,11 @@ def content_icon(item_id: Optional[str] = None, emoji: Optional[str] = None) -> 
     cands = []
     if item_id:
         cands += [os.path.join(base, f"icon_{item_id}" + ext) for ext in _IMAGE_EXTS]
+        # Content ids carry a category prefix (shape_circle, animal_dog...);
+        # the cutouts are stored by bare name (icon_circle, icon_dog...).
+        if "_" in item_id:
+            suffix = item_id.split("_", 1)[1]
+            cands += [os.path.join(base, f"icon_{suffix}" + ext) for ext in _IMAGE_EXTS]
     if emoji:
         slug = _EMOJI_ICON.get(emoji)
         if slug:
