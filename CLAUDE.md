@@ -39,27 +39,37 @@ curl -s -H "Accept: application/vnd.github.raw" "https://api.github.com/repos/Ka
 ## Production assets: generated in Higgsfield, fetched by script
 
 Real art (characters, land backgrounds, plush buttons, storybooks) and the
-Mabel voice pack are generated in Higgsfield and hosted on a CDN. `assets/` ships
-with only `.gitkeep` placeholders. `scripts/fetch_assets.py` maps every asset
-URL → its correct `assets/...` path; the app auto-uses them when present.
+Mabel voice pack are generated in Higgsfield. **They now live in the repo,
+tracked with Git LFS** (see `.gitattributes` — every `*.png/.jpg/.jpeg/.mp3/
+.wav/.mp4/.glb/.ttf` is an LFS object). So the normal way to get the real files
+into any clone is simply:
 
 ```bash
-python scripts/fetch_assets.py
+git lfs install
+git lfs pull
 ```
 
-**Cloud caveat:** the cloud environment's network policy blocks the Higgsfield
-CDN (`*.cloudfront.net` → proxy 403), so `fetch_assets.py` and image downloads
-fail *here*. Do NOT route around the egress policy. Get the real files in by
-either:
-1. Running `fetch_assets.py` on a machine with open internet (e.g. local
-   Windows Claude Code) and committing the files — then they live in git and are
-   present in every session forever, or
-2. Allowing `*.cloudfront.net` in the cloud environment's network policy
-   (https://code.claude.com/docs/en/claude-code-on-the-web), after which the
-   fetch runs here too.
+`scripts/fetch_assets.py` maps every asset URL → its correct `assets/...` path;
+the app auto-uses each file when present and falls back to placeholders + TTS
+when not. Use it to (re)populate `assets/` or to add newly generated art.
+
+**Cloud caveat:** the cloud environment's network policy 403s the Higgsfield
+CDN (`*.cloudfront.net`), `drive.google.com`, and the bare LFS CDN host — but
+`git lfs pull` works in the cloud anyway, because the objects are fetched over
+GitHub's signed-URL LFS transfer, which the proxy allows. Do NOT route around
+the egress policy. Three ways to get bytes in, in order of preference:
+1. `git lfs pull` — the assets are already in LFS on the remote, so this is all
+   you normally need, cloud or local.
+2. From a local folder of the raw Higgsfield exports (e.g. a Google Drive
+   download — the files are named by job id, exactly the tail of each CDN URL):
+   `python scripts/fetch_assets.py --from <folder>` copies each into place, then
+   `git add assets && git commit` re-stores them through LFS. Use this to
+   recover/refresh if any LFS object is ever missing.
+3. `python scripts/fetch_assets.py` (network) on a machine with open internet.
 
 When new art is generated in Higgsfield, add its URL→path mapping to
-`scripts/fetch_assets.py` so it self-files instead of sitting on the CDN.
+`scripts/fetch_assets.py` so it self-files, and commit it (LFS handles the
+binary).
 
 ## Prototypes
 
