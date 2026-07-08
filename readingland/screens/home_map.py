@@ -85,8 +85,10 @@ class HomeMapScreen(BaseScreen):
                                height=dp(120), padding=dp(12), spacing=dp(12))
             card.bg_color = list(config.STAGE_COLORS[sid]) if unlocked else list(config.PALETTE["shadow"])
 
+            from ..ui.assets import ui_image
+            land_art = ui_image(f"land_{stage['key']}") or ""
             icon = self._land_icon(STAGE_ICONS.get(sid, "⭐"), unlocked,
-                                   self._make_open(sid, unlocked))
+                                   self._make_open(sid, unlocked), image=land_art)
             card.add_widget(icon)
 
             info = BoxLayout(orientation="vertical", spacing=dp(4))
@@ -127,14 +129,20 @@ class HomeMapScreen(BaseScreen):
         card.add_widget(info)
         self.path.add_widget(card)
 
-    def _land_icon(self, emoji, unlocked, on_tap, vector=None):
-        """Crisp land icon: a vector glyph (lock when locked) on a cream tile."""
+    def _land_icon(self, emoji, unlocked, on_tap, vector=None, image=""):
+        """Crisp land icon: the real generated land art when present, else a
+        vector glyph (lock when locked) on a cream tile."""
         if not unlocked:
             btn = IconButton(icon="lock", size_hint=(None, 1), width=dp(96),
                              bg_color=list(config.PALETTE["cream"]),
                              icon_color=list(config.PALETTE["shadow"][:3]) + [0.6],
                              on_tap=on_tap)
             return btn
+        if image:
+            tile = GlyphTile(glyph="", emoji="", image=image, size_hint=(None, 1),
+                             width=dp(96), on_tap=on_tap)
+            tile.bg_color = list(config.PALETTE["cream"])
+            return tile
         if vector:
             btn = IconButton(icon=vector, size_hint=(None, 1), width=dp(96),
                              bg_color=list(config.PALETTE["cream"]),
