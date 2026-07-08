@@ -178,7 +178,8 @@ class MatchingStageScreen(BaseScreen):
         if not rewards:
             return
         r = rewards[0]
-        self.narrate(f"You earned a new {r.kind}! The {r.name}!")
+        self.narrate(f"You earned a new {r.kind}! The {r.name}!",
+                     key="ln_wonderful")
 
     # ------------------------------------------------------------------ #
     # Overridable presentation

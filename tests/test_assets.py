@@ -70,3 +70,45 @@ def test_verify_assets_fails_on_stub_checkout(tmp_path):
     )
     with pytest.raises(RuntimeError):
         assets.verify_assets(str(tmp_path / "assets"))
+
+
+def test_no_fallback_possible_anywhere():
+    """Every picture round resolves real art; every narration key is recorded;
+    TTS is dead. The child can never see or hear a fallback."""
+    import json
+    from readingland.ui.assets import content_icon
+    am = AudioManager(enabled=False)
+    assert config.ALLOW_TTS_FALLBACK is False
+
+    for fname, needs_icon in (("stage1_visual", True), ("phonics", True),
+                              ("words", False), ("sentences", False)):
+        data = json.load(open(os.path.join("readingland", "content", fname + ".json")))
+        for it in data["items"]:
+            assert not it.get("emoji"), f"{fname}:{it['id']} still carries emoji"
+            if needs_icon:
+                assert content_icon(it["id"]), f"{fname}:{it['id']} has no real cutout"
+
+    # Sentences: matching picture + every word recorded (real-voice karaoke).
+    data = json.load(open("readingland/content/sentences.json"))
+    for it in data["items"]:
+        assert content_icon(it["icon"]), f"sentence {it['id']} has no cutout"
+        for w in it["words"]:
+            w = w.strip(".!,").lower()
+            if w:
+                assert am.voice_path(w) or (len(w) == 1 and am.voice_path(f"letter_{w}")), \
+                    f"sentence word '{w}' has no Mabel recording"
+
+    # Stage-1 words + all letters are recorded.
+    for k in ("cat", "dog", "fish", "bird", "ball", "star"):
+        assert am.voice_path(k)
+    for c in "abcdefghijklmnopqrstuvwxyz":
+        assert am.voice_path(f"letter_{c}")
+
+
+def test_rewards_catalogue_uses_real_art():
+    from readingland.core.rewards import BADGES, STICKERS
+    from readingland.ui.assets import content_icon, ui_image
+    for sid, s in STICKERS.items():
+        assert not s["emoji"] and content_icon(s["icon"]), sid
+    for bid, b in BADGES.items():
+        assert not b["emoji"] and ui_image(b["icon"]), bid

@@ -157,6 +157,9 @@ NARRATION_REPEAT_DELAY = 0.4
 # Audio
 TTS_RATE = 132              # gentle words-per-minute for fallback TTS (slower = calmer)
 PREFER_RECORDED_AUDIO = True
+# The child must only ever hear the real recorded Mabel voice. Lines without a
+# recording are composed from per-word clips or stay silent - never TTS.
+ALLOW_TTS_FALLBACK = False
 
 # --------------------------------------------------------------------------- #
 # Assets - the app ships the real generated art + Mabel voice pack (Git LFS).

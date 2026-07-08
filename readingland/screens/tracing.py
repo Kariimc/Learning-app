@@ -264,7 +264,7 @@ class TracingScreen(BaseScreen):
         self._target = item
         color = list(config.hex_rgba(item.color)) if item.color else list(config.PALETTE["tangerine"])
         self.ref.glyph = item.label
-        self.ref.emoji = item.emoji
+        self.ref.emoji = ""   # the big letter is the reference - no emoji
         self.ref.glyph_color = color
         self.canvas_widget.load(item.label, color)
         self.prompt_lbl.text = f"Trace the letter {item.label}!"
