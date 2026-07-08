@@ -103,9 +103,15 @@ class Stage6Screen(BaseScreen):
         if not self.library.parent:
             self.content.add_widget(self.library)
         self.library.clear_widgets()
+        from ..ui.assets import card_image
         for book in app().content.items(self.STAGE):
-            tile = GlyphTile(glyph=book.emoji, emoji=book.label,
-                             on_tap=self._make_open(book))
+            cover = card_image(f"{book.id}_p0")   # the book's first illustrated page
+            if cover:
+                tile = GlyphTile(glyph=book.label, emoji="", image=cover,
+                                 on_tap=self._make_open(book))
+            else:
+                tile = GlyphTile(glyph=book.emoji, emoji=book.label,
+                                 on_tap=self._make_open(book))
             tile.bg_color = list(config.hex_rgba(book.color) if book.color else config.PALETTE["cream"])
             self.library.add_widget(tile)
         Clock.schedule_once(lambda dt: self.mascot.say(NAV_LINES["greet_story"], key="greet_story"), 0.3)

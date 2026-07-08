@@ -33,6 +33,7 @@ class MatchingStageScreen(BaseScreen):
     STAGE = 1
     GUIDE = "reading_rabbit"
     ACCENT = config.PALETTE["mint"]
+    PICTURE_TILES = False   # subclasses whose tiles are pictures opt in
 
     def __init__(self, **kwargs):
         self._target: Optional[ContentItem] = None
@@ -114,8 +115,17 @@ class MatchingStageScreen(BaseScreen):
         self.choice_row.rows = 1
         self.choice_row.clear_widgets()
         for item in self._choices:
+            glyph = self.tile_glyph(item)
+            img = ""
+            if self.PICTURE_TILES:
+                from ..ui.assets import content_icon
+                img = content_icon(item.id, item.emoji) or ""
+                # When the tile's "glyph" is really the picture-emoji, let the
+                # plush cutout stand in for it so we don't show both.
+                if img and glyph == (item.emoji or "●"):
+                    glyph = ""
             tile = GlyphTile(
-                glyph=self.tile_glyph(item), emoji=self.tile_emoji(item),
+                glyph=glyph, emoji=self.tile_emoji(item), image=img,
                 on_tap=self._make_handler(item),
             )
             tile.bg_color = list(config.PALETTE["cream"])

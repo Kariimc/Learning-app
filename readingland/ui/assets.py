@@ -43,3 +43,33 @@ def card_image(item_id: str) -> Optional[str]:
 def ui_image(name: str) -> Optional[str]:
     base = os.path.join(config.ASSETS_DIR, "images", "ui")
     return _first_existing(*[os.path.join(base, name + ext) for ext in _IMAGE_EXTS])
+
+
+# Content emoji -> plush cutout slug. Mirrors the map the owner defined in
+# prototypes/readingland-flow.html so the app and prototype stay in sync.
+_EMOJI_ICON = {
+    "\U0001F534": "circle", "\U0001F7E6": "square", "\U0001F53A": "triangle",
+    "⭐": "star", "❤️": "heart",
+    "\U0001F436": "dog", "\U0001F431": "cat", "\U0001F41F": "fish",
+    "\U0001F426": "bird", "⚽": "ball", "\U0001F34E": "apple",
+    "\U0001F697": "car", "\U0001F95A": "egg", "\U0001F410": "goat",
+    "\U0001F3A9": "hat",
+}
+
+
+def content_icon(item_id: Optional[str] = None, emoji: Optional[str] = None) -> Optional[str]:
+    """Plush cutout art for a content item, or ``None`` to fall back to emoji.
+
+    Resolves by the item id (``cards/icon_<id>.png``) first, then by the item's
+    emoji via the shared emoji->slug map. These are the real generated cutouts
+    already committed under ``assets/images/cards/`` - no new art needed.
+    """
+    base = os.path.join(config.ASSETS_DIR, "images", "cards")
+    cands = []
+    if item_id:
+        cands += [os.path.join(base, f"icon_{item_id}" + ext) for ext in _IMAGE_EXTS]
+    if emoji:
+        slug = _EMOJI_ICON.get(emoji)
+        if slug:
+            cands += [os.path.join(base, f"icon_{slug}" + ext) for ext in _IMAGE_EXTS]
+    return _first_existing(*cands)
