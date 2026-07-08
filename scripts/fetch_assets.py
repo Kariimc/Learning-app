@@ -303,6 +303,31 @@ def _arg_value(flag: str) -> "str | None":
     return None
 
 
+def _content_ok(header: bytes, ext: str) -> bool:
+    """True if ``header`` (first bytes of a file) matches the magic number for
+    ``ext``. Guards against silently placing a non-asset — e.g. a Google Drive
+    "quota exceeded" HTML page or a truncated download named like a real asset,
+    which would otherwise sail past a plain size check and land as a corrupt
+    image/audio file. Types we don't sniff (mp4/glb/unknown) are allowed through.
+
+    ``ext`` is taken from the *source* filename, not the destination, so the one
+    JPEG stored under a ``.png`` path (a storybook page) validates as a JPEG.
+    """
+    ext = ext.lower().lstrip(".")
+    if ext == "png":
+        return header.startswith(b"\x89PNG\r\n\x1a\n")
+    if ext in ("jpg", "jpeg"):
+        return header.startswith(b"\xff\xd8\xff")
+    if ext == "mp3":
+        return header.startswith(b"ID3") or (
+            len(header) >= 2 and header[0] == 0xFF and (header[1] & 0xE0) == 0xE0)
+    if ext == "wav":
+        return header[:4] == b"RIFF" and header[8:12] == b"WAVE"
+    if ext in ("ttf", "otf"):
+        return header[:4] in (b"\x00\x01\x00\x00", b"true", b"OTTO", b"ttcf")
+    return True  # mp4, glb, and anything unrecognised: don't over-police
+
+
 def _index_source_dir(src_dir: str) -> "dict[str, str]":
     """Map every filename found under ``src_dir`` (recursively) to its full path.
 
@@ -338,20 +363,29 @@ def main() -> int:
             continue
         os.makedirs(os.path.dirname(dest), exist_ok=True)
 
+        src_ext = url.rsplit("/", 1)[-1].rsplit(".", 1)[-1]
+
         # Local source first (if --from given and the job-id file is present).
+        # A present-but-invalid local file (too small / wrong magic) is not a
+        # hard failure — warn and fall through to the network so a bad export
+        # can still be recovered from the CDN.
         local = src_index.get(url.rsplit("/", 1)[-1]) if src_index else None
         if local:
             try:
-                if os.path.getsize(local) < 1024:
-                    raise ValueError(f"suspiciously small ({os.path.getsize(local)} bytes)")
+                size = os.path.getsize(local)
+                with open(local, "rb") as fh:
+                    header = fh.read(16)
+                if size < 1024:
+                    raise ValueError(f"suspiciously small ({size} bytes)")
+                if not _content_ok(header, src_ext):
+                    raise ValueError(f"not a valid {src_ext} file (bad magic bytes)")
                 shutil.copyfile(local, dest)
                 copied += 1
-                print(f"COPY {rel}  ({os.path.getsize(dest) // 1024} KB)")
+                print(f"COPY {rel}  ({size // 1024} KB)")
                 continue
             except Exception as exc:  # noqa: BLE001
-                failures += 1
-                print(f"FAIL {rel} (local copy): {exc}", file=sys.stderr)
-                continue
+                print(f"WARN {rel} (local copy rejected, trying network): {exc}",
+                      file=sys.stderr)
 
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "readingland-fetch"})
@@ -359,6 +393,8 @@ def main() -> int:
                 data = r.read()
             if len(data) < 1024:
                 raise ValueError(f"suspiciously small ({len(data)} bytes)")
+            if not _content_ok(data[:16], src_ext):
+                raise ValueError(f"not a valid {src_ext} file (bad magic bytes)")
             with open(dest, "wb") as fh:
                 fh.write(data)
             fetched += 1
