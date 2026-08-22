@@ -13,7 +13,7 @@ from kivy.uix.label import Label
 from kivy.uix.scrollview import ScrollView
 
 from .. import config
-from ..ui import particles, theme
+from ..ui import particles, sky, theme
 from ..ui.widgets import BigButton, GlyphTile, Mascot, RoundedCard
 from .base import BaseScreen, app
 
@@ -54,37 +54,35 @@ class RewardsRoomScreen(BaseScreen):
             "Party time! Look at all your treasures!"), 0.3)
 
     def _render(self):
+        """Every treasure stands on its own cloud. The grey boxes this replaced
+        were flat panels with a question mark printed on them."""
         self.column.clear_widgets()
         session = app().session
 
         # Stickers.
         self.column.add_widget(self._section_label("My Stickers"))
-        sticker_grid = GridLayout(cols=4, spacing=dp(10), size_hint_y=None)
+        sticker_grid = GridLayout(cols=4, spacing=dp(6), size_hint_y=None)
         sticker_grid.bind(minimum_height=sticker_grid.setter("height"))
         from ..ui.assets import content_icon
-        for s in session.rewards.sticker_book(session.pid):
-            art = content_icon(s.get("icon")) or "" if s["owned"] else ""
-            tile = GlyphTile(glyph="" if s["owned"] else "?",
-                             emoji=s["name"] if s["owned"] else "?",
-                             image=art, size_hint=(1, None), height=dp(120))
-            tile.bg_color = list(config.PALETTE["cream"]) if s["owned"] \
-                else list(config.PALETTE["shadow"])
-            sticker_grid.add_widget(tile)
+        for i, s in enumerate(session.rewards.sticker_book(session.pid)):
+            art = content_icon(s.get("icon")) if s["owned"] else ""
+            sticker_grid.add_widget(sky.Standing(
+                art=art or None, label=s["name"] if s["owned"] else "?",
+                which=(i % 2) + 1, dim=not s["owned"], size_hint=(1, None),
+                height=dp(150), label_size=theme.FONT_LABEL))
         self.column.add_widget(sticker_grid)
 
         # Badges.
         self.column.add_widget(self._section_label("My Badges"))
-        badge_grid = GridLayout(cols=4, spacing=dp(10), size_hint_y=None)
+        badge_grid = GridLayout(cols=4, spacing=dp(6), size_hint_y=None)
         badge_grid.bind(minimum_height=badge_grid.setter("height"))
         from ..ui.assets import ui_image
-        for b in session.rewards.badge_shelf(session.pid):
-            art = ui_image(b.get("icon")) or "" if b["owned"] else ""
-            tile = GlyphTile(glyph="" if b["owned"] else "?",
-                             emoji=b["name"] if b["owned"] else "Locked",
-                             image=art, size_hint=(1, None), height=dp(120))
-            tile.bg_color = list(config.PALETTE["sun"]) if b["owned"] \
-                else list(config.PALETTE["shadow"])
-            badge_grid.add_widget(tile)
+        for i, b in enumerate(session.rewards.badge_shelf(session.pid)):
+            art = ui_image(b.get("icon")) if b["owned"] else ""
+            badge_grid.add_widget(sky.Standing(
+                art=art or None, label=b["name"] if b["owned"] else "Locked",
+                which=(i % 2) + 1, dim=not b["owned"], size_hint=(1, None),
+                height=dp(150), label_size=theme.FONT_LABEL))
         self.column.add_widget(badge_grid)
 
     def _section_label(self, text):

@@ -197,3 +197,56 @@ TRAPS, do not rediscover these
   a texture, or you get an empty frame that looks like a broken design.
 - The Windows speech engine segfaults this app on his laptop. Stub pyttsx3 out
   when driving it headless.
+
+## The last four screens joined the sky — 2026-08-22, later
+
+STATE: on main, 37 tests pass. Steps 1 to 4 of the previous entry are done and
+every screen was opened and looked at.
+
+WHAT CHANGED
+- profile_select: the children stand on their own clouds in a zigzag down the
+  sky. The flat colour tiles and the half-clipped names are gone.
+- parent_dashboard: every figure stands on its own cloud; each land keeps its
+  own art, dimmed while locked. No cream cards left. The tick, flame and
+  padlock glyphs rendered as empty boxes on this laptop, so the report says
+  "right", "again", "Locked" in words instead.
+- rewards_room: stickers and badges stand on wool. No grey boxes.
+- splash: Reading Rabbit stands on wool in the middle of the frame; the
+  invitation is ink and never fades below half.
+- ui/sky.py gains `Standing`: the wool rule for anything a layout places,
+  rather than the sky. Use it inside grids and scrolling columns; `Perched` is
+  still the one for things that float free.
+
+TWO BUGS FOUND BY LOOKING, BOTH FIXED
+- Every mascot in the app drew at the window's bottom-left corner, over
+  whatever was there, because the portrait inside it had no pos_hint. A Kivy
+  FloatLayout only moves a child that asks to be moved.
+- Anything on wool inside a grid was laid out while the grid was still moving
+  it, so a whole row sat half a column left of its own labels. `Standing` now
+  lays out on the frame AFTER the change (Clock.create_trigger(-1)).
+
+STILL OPEN, IN ORDER
+1. flow-state, a separate project: local main is 16 behind. Carry his three
+   taste numbers onto the newer version by hand — THEME dark, IDLE_FADE 20,
+   pill W,H 150x23.
+2. sound: assets/audio/sfx and assets/audio/music are still EMPTY. Nine effects
+   and a theme tune are in docs/06. Needs the GPU, which needs his key.
+3. stage6 story picker is three flat colour columns — the same method he
+   rejected on the map. Not touched this session; his call whether the stage
+   screens move to wool too.
+
+NEEDS KARIIM
+- The two earned badges (`btn_mint`, `btn_coral`) have a transparency
+  checkerboard baked into their pixels. On the old grey tiles it was hidden; on
+  wool it reads as a broken grey rectangle. He said in July to leave those
+  assets alone, so nothing was changed. Cut them again, or leave them?
+- Story page art still carries baked-in titles, page numbers and two prompts
+  printed into the artwork. Inpaint, or regenerate?
+- Generating anything needs his Hugging Face key on this laptop. The
+  double-click file "Log in to Hugging Face" in this folder does it.
+
+HOW THE SCREENS WERE LOOKED AT
+A throwaway script drives the real app and calls export_to_png once every
+Image in the tree reports a texture. Both halves matter: Window.screenshot
+gives rainbow banding here, and a capture on a timer catches an empty frame
+that looks like a broken design.

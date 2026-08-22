@@ -195,7 +195,110 @@ class Perched(ButtonBehavior, Widget):
         self.wool.center = (cx, cy - h * 0.42)
         self.lbl.size = (ww, 44)
         self.lbl.text_size = (ww, None)
-        self.lbl.center = (cx, cy - h / 2 - 86)   # clear of the wool it stands on
+        if self.img is not None:
+            # measured off the wool, not off the picture: a tall portrait sinks
+            # its cloud lower, and a fixed drop let the name touch the wool
+            # the wool PNG carries transparent padding under the puff, so the
+            # name sits just inside the box rather than a fixed drop below it
+            self.lbl.center = (cx, self.wool.y + 10)
+        else:
+            # nothing standing on it, so the name stands on the wool itself
+            # rather than floating under a bare cloud
+            self.lbl.center = (cx, cy - h * 0.42 + wh * 0.04)
         # the tap target is the whole thing: art, wool and name together
         self.size = (ww, h + wh)
         self.center = (cx, cy - h * 0.18)
+
+
+class Standing(ButtonBehavior, Widget):
+    """Something standing on its own wool, inside a box a layout gives it.
+
+    ``Perched`` floats free in the sky and bobs; ``Standing`` takes its place
+    from a parent layout, so it can go in a scrolling column or a grid and
+    still obey the one rule: wool is the surface, and nothing sits on a flat
+    panel. Pass ``art`` for a picture standing on the cloud, or leave it out
+    and ``label`` sits on the wool itself. That is how a number gets a place
+    to be without a card being drawn behind it.
+    """
+
+    def __init__(self, art=None, label="", caption="", which=1, dim=False,
+                 on_tap=None, label_color=None, caption_color=None,
+                 label_size=None, **kw):
+        super().__init__(**kw)
+        from ..ui import theme
+        self._on_tap = on_tap
+        self.wool = KImage(source=wool_path(which), allow_stretch=True,
+                           keep_ratio=True, size_hint=(None, None))
+        self.add_widget(self.wool)
+        self.img = None
+        if art:
+            self.img = KImage(source=str(art), allow_stretch=True,
+                              keep_ratio=True, size_hint=(None, None))
+            self.add_widget(self.img)
+        ink = config.PALETTE["ink"]
+        self.lbl = Label(text=label, bold=True,
+                         font_size=label_size or theme.FONT_BODY,
+                         color=label_color or ink, size_hint=(None, None),
+                         halign="center", valign="middle")
+        self.add_widget(self.lbl)
+        self.cap = Label(text=caption, font_size=theme.FONT_LABEL,
+                         color=caption_color or ink, size_hint=(None, None),
+                         halign="center", valign="middle")
+        self.add_widget(self.cap)
+        if dim:
+            self.wool.opacity = 0.55
+            self.lbl.opacity = 0.70
+            if self.img is not None:
+                self.img.opacity = 0.42
+        # Laid out on the frame AFTER the change, never during it. Binding
+        # straight to pos ran this while the grid was still moving the box, so
+        # every cloud kept the position it had mid-layout and the whole row sat
+        # half a column to the left of its own labels.
+        self._relay = Clock.create_trigger(self._lay, -1)
+        self.bind(pos=self._relay, size=self._relay)
+        self.wool.bind(texture=self._relay)
+        if self.img is not None:
+            self.img.bind(texture=self._relay)
+        self._relay()
+
+    def on_release(self):
+        if self._on_tap:
+            self._on_tap(self)
+
+    def _lay(self, *_):
+        if not self.wool.texture:
+            return
+        w, h = self.size
+        cx = self.center_x
+        has_cap = bool(self.cap.text)
+        has_art = self.img is not None and self.img.texture
+        # The box is read from the bottom up: caption, then name, then the
+        # wool, then whatever stands on it. Getting this order wrong once put
+        # the name underneath its own figures.
+        # one cloud height for both kinds, so a row of them lines up whether or
+        # not each box happens to have a picture standing on it
+        ww = w * 0.72
+        wh = ww * self.wool.texture.height / self.wool.texture.width
+        wool_cy = self.y + h * (0.48 if has_art else 0.50)
+        self.wool.size = (ww, wh)
+        self.wool.center = (cx, wool_cy)
+        if has_art:
+            ah = h * 0.46
+            aw = ah * self.img.texture.width / self.img.texture.height
+            if aw > w * 0.72:                     # keep it inside its own box
+                aw = w * 0.72
+                ah = aw * self.img.texture.height / self.img.texture.width
+            self.img.size = (aw, ah)
+            self.img.center = (cx, wool_cy + ah * 0.40)
+            self.lbl.size = (w, h * 0.14)
+            self.lbl.text_size = self.lbl.size
+            self.lbl.center = (cx, self.y + h * (0.20 if has_cap else 0.10))
+        else:
+            # no picture: the words stand on the wool instead
+            self.lbl.size = (ww * 0.92, wh * 0.72)
+            self.lbl.text_size = self.lbl.size
+            self.lbl.center = (cx, wool_cy + wh * 0.05)
+        if has_cap:
+            self.cap.size = (w, h * 0.13)
+            self.cap.text_size = self.cap.size
+            self.cap.center = (cx, self.y + h * 0.07)

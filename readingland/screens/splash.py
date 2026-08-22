@@ -21,21 +21,25 @@ class SplashScreen(BaseScreen):
 
         self.logo = Label(text="ReadingLand", font_size=dp(64), bold=True,
                           color=config.PALETTE["ink"],
-                          pos_hint={"center_x": 0.5, "center_y": 0.72})
+                          pos_hint={"center_x": 0.5, "center_y": 0.84})
         self.content.add_widget(self.logo)
 
         self.tagline = Label(text="From pictures to stories!", font_size=theme.FONT_HEADING,
                              color=config.PALETTE["ink"],
-                             pos_hint={"center_x": 0.5, "center_y": 0.62})
+                             pos_hint={"center_x": 0.5, "center_y": 0.76})
         self.content.add_widget(self.tagline)
 
+        # Reading Rabbit stands on wool, like everything else in this sky.
         char = app().content.character("reading_rabbit") if app() else {"id": "reading_rabbit"}
-        self.mascot = Mascot(char=char, size_hint=(None, None), size=(dp(220), dp(260)),
-                             pos_hint={"center_x": 0.5, "center_y": 0.36})
+        self.mascot = Mascot(char=char, cloud=True, size_hint=(None, None),
+                             size=(dp(300), dp(400)),
+                             pos_hint={"center_x": 0.5, "center_y": 0.44})
         self.content.add_widget(self.mascot)
 
+        # Ink, not sun-yellow. The invitation sat in the brightest part of the
+        # golden sky and read as a smudge; yellow on gold is not a colour pair.
         self.tap_lbl = Label(text="Tap anywhere to start!", font_size=theme.FONT_TITLE,
-                             bold=True, color=config.PALETTE["sun"],
+                             bold=True, color=config.PALETTE["ink"],
                              pos_hint={"center_x": 0.5, "center_y": 0.12})
         self.content.add_widget(self.tap_lbl)
 
@@ -44,7 +48,9 @@ class SplashScreen(BaseScreen):
         self.mascot.idle()
         Clock.schedule_once(lambda dt: self.mascot.say(
             "Hi friend! I'm Reading Rabbit. Let's learn together!", key="greet"), 0.4)
-        pulse = (Animation(opacity=0.3, d=0.7) + Animation(opacity=1.0, d=0.7))
+        # never below half: the sky under this line is at its brightest and a
+        # 30% ink line disappeared into it entirely
+        pulse = (Animation(opacity=0.55, d=0.7) + Animation(opacity=1.0, d=0.7))
         pulse.repeat = True
         pulse.start(self.tap_lbl)
         Clock.schedule_once(lambda dt: particles.rising_bubbles(self.effects, 10), 0.2)

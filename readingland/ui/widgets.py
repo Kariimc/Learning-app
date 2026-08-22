@@ -234,8 +234,9 @@ class Mascot(FloatLayout):
     body_color = ListProperty(list(config.PALETTE["bubblegum"]))
     emoji      = StringProperty("🐰")
 
-    def __init__(self, char: Optional[dict] = None, **kwargs):
+    def __init__(self, char: Optional[dict] = None, cloud: bool = False, **kwargs):
         super().__init__(**kwargs)
+        self._cloud_img = None
         if char:
             self.char_id = char.get("id", self.char_id)
             self.emoji = char.get("emoji", self.emoji)
@@ -247,8 +248,26 @@ class Mascot(FloatLayout):
         from kivy.uix.image import Image as KivyImage
         self._image_path = character_image(self.char_id)
         if self._image_path:
+            # A mascot standing in the sky needs somewhere to stand, like
+            # everything else here. The wool goes in first so the character
+            # stands on it rather than behind it.
+            from . import sky as _sky
+            if cloud and _sky.wool_path(1):
+                self._cloud_img = KivyImage(source=_sky.wool_path(1),
+                                            allow_stretch=True, keep_ratio=True,
+                                            size_hint=(None, None))
+                self.add_widget(self._cloud_img)
+                self.bind(pos=self._place_cloud, size=self._place_cloud)
+                self._cloud_img.bind(texture=self._place_cloud)
+            # pos_hint is not optional here. A FloatLayout only moves a child
+            # that asks to be moved; without it the portrait stayed at the
+            # window's bottom-left corner while the mascot itself sat wherever
+            # the screen had placed it. Every mascot in the app drew in that
+            # corner, on top of whatever else was there.
             self._img = KivyImage(source=self._image_path, allow_stretch=True,
-                                  keep_ratio=True, mipmap=True)
+                                  keep_ratio=True, mipmap=True,
+                                  pos_hint={"x": 0, "y": 0.16 if cloud else 0},
+                                  size_hint=(1, 0.84 if cloud else 1))
             self.add_widget(self._img)
             return
 
@@ -269,6 +288,14 @@ class Mascot(FloatLayout):
                            font_name=theme.EMOJI_FONT_NAME if theme.register_fonts() else "Roboto")
         self.add_widget(self._face)
         self.bind(pos=self._place_face, size=self._place_face)
+
+    def _place_cloud(self, *_):
+        img = self._cloud_img
+        if img is None or not img.texture:
+            return
+        w = self.width * 1.45
+        img.size = (w, w * img.texture.height / img.texture.width)
+        img.center = (self.center_x, self.y + self.height * 0.15)
 
     def _recolor(self, *_):
         self._c.rgba = self.body_color
