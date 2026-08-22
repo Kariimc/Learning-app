@@ -259,14 +259,38 @@ CHECK: `python scratchpad/scan_checkers.py` style test — open every PNG under
 assets/images, flag any with no alpha whose border ring is two flat greys.
 It listed nine before and lists none now.
 
-NEEDS KARIIM
-- Story page art still carries baked-in titles, page numbers and two prompts
-  printed into the artwork. HIS ANSWER, 2026-08-22: paint the words out, do not
-  regenerate. BLOCKED: inpainting needs the GPU, and this laptop's command line
-  has never been given his Hugging Face key (checked: no stored key, none in
-  the environment, no token file). He is signed in on the website — that is a
-  different thing. To clear it: File Explorer, the learning-app folder, double
-  click "Log in to Hugging Face", no administrator rights, paste the key.
+## The words are out of the story pages — 2026-08-22, his order
+
+All twelve pages are clean. No title, no page number, no leftover generation
+prompt. He said paint them out, not regenerate, and that is what happened: the
+scenes, characters and colours are the ones that were already there.
+
+THE KEY WAS NEVER MISSING, and the earlier entry saying so was WRONG. It is in
+his own key locker at ~/.claude/keys, outside every repo, which is why looking
+in the usual Hugging Face places found nothing. Check it with
+`python bin/locker-services.py` in the control plane. It signs in as KariimC on
+PRO.
+
+"No GPU was available after 60s" IS THE QUEUE, NOT THE KEY. His words,
+2026-08-22: "the token works already it just needs 60s". The card took 55 to 83
+seconds to come free on every one of these twelve. Anything that gives up at 60
+will report a refusal that never happened. Use gradio_client and let it wait.
+
+WHAT IT COST: 15 minutes 33 seconds of his 40 daily GPU minutes, all recorded
+in the ledger. One page missed the card first time and went through on a
+retry.
+
+TWO THINGS TO KNOW BEFORE REDOING ANY OF THIS
+- The card hands back 1024 by 1024 where the originals were 2048. The page sits
+  in a card well under half the screen, so nothing visible is lost, but it is a
+  real reduction and he has not been asked to accept it as permanent.
+- Telling it to "keep the sign, just blank" left an empty white card floating in
+  the sky on two pages. Say remove the panel and carry the background across.
+  The Big Dog cover keeps a blank wooden sign on purpose: it reads as a garden
+  sign rather than a hole.
+
+CHECK: open every page under assets/images/cards and look. There is no text in
+any of them.
 - Generating anything needs his Hugging Face key on this laptop. The
   double-click file "Log in to Hugging Face" in this folder does it.
 
