@@ -122,12 +122,14 @@ class Stage3Screen(BaseScreen):
             Animation(opacity=0.5, d=0.3).start(tile)
 
     def _build_choices(self):
+        from ..ui.assets import content_icon
         session = app().session
         choices = session.build_choices(self.STAGE, self._target)
         self.choice_row.cols = len(choices)
         self.choice_row.clear_widgets()
         for item in choices:
-            tile = GlyphTile(glyph=item.emoji or "?", emoji="",
+            tile = GlyphTile(glyph="", emoji="",
+                             image=content_icon(item.id, item.emoji) or "",
                              on_tap=self._make_choice_handler(item))
             tile.bg_color = list(config.PALETTE["cream"])
             self.choice_row.add_widget(tile)
@@ -147,7 +149,7 @@ class Stage3Screen(BaseScreen):
             app().audio.play_sfx("correct")
             outcome = app().session.answer(self.STAGE, self._target, True)
             self.mascot.react()
-            self.mascot.say(f"You blended {self._target.label}!")
+            self.mascot.say(f"You blended {self._target.label}!", key="ln_you_did_it")
             self.star_counter.bump(outcome.result.stars_awarded)
             self._update_progress()
             self.celebrate(big=outcome.celebrate)

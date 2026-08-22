@@ -46,6 +46,7 @@ class RoundedCard(BoxLayout):
     """BoxLayout with a soft rounded background + drop shadow + bounce scale."""
 
     bg_color = ListProperty(list(config.PALETTE["cream"]))
+    bg_image  = StringProperty("")   # painted art fills the card (prototype look)
     radius    = NumericProperty(dp(28))
     _bounce   = NumericProperty(1.0)
 
@@ -61,7 +62,17 @@ class RoundedCard(BoxLayout):
         with self.canvas.after:
             PopMatrix()
         self.bind(pos=self._sync, size=self._sync, bg_color=self._sync_color,
+                  bg_image=self._sync_image,
                   _bounce=self._update_scale, center=self._update_scale)
+        if self.bg_image:
+            self._sync_image()
+
+    def _sync_image(self, *_):
+        self._bg.source = self.bg_image or ""
+        # Show the art at full brightness; bg_color keeps working as a tint
+        # (e.g. dimmed for locked lands).
+        if self.bg_image:
+            self._bg_color_inst.rgba = self.bg_color
 
     def _sync(self, *_):
         off = dp(6)
@@ -313,6 +324,7 @@ class GlyphTile(ButtonBehavior, RoundedCard):
 
     glyph       = StringProperty("A")
     emoji       = StringProperty("")
+    image       = StringProperty("")   # optional plush cutout; replaces the emoji
     glyph_color = ListProperty(list(config.PALETTE["ink"]))
 
     def __init__(self, on_tap: Optional[Callable] = None, **kwargs):
@@ -321,6 +333,9 @@ class GlyphTile(ButtonBehavior, RoundedCard):
         self.padding = dp(8)
         self._on_tap = on_tap
         fn = theme.FONT_MAIN if theme.register_main_font() else "Roboto"
+        from kivy.uix.image import Image as KivyImage
+        self._img = KivyImage(source=self.image, allow_stretch=True, keep_ratio=True,
+                              mipmap=True, size_hint_y=0.72)
         self._emoji_lbl = Label(
             text=self.emoji, font_size=dp(40), size_hint_y=0.45,
             color=config.PALETTE["ink"], font_name=_font_for(self.emoji),
@@ -328,20 +343,40 @@ class GlyphTile(ButtonBehavior, RoundedCard):
         )
         self._glyph_lbl = Label(
             text=self.glyph, font_size=theme.FONT_DISPLAY, bold=True,
-            color=self.glyph_color, size_hint_y=0.55, font_name=fn,
+            color=self.glyph_color, size_hint_y=0.55,
+            font_name=_font_for(self.glyph),
             halign="center", valign="middle",
         )
         self._emoji_lbl.bind(size=lambda w, s: setattr(w, "text_size", s))
         self._glyph_lbl.bind(size=lambda w, s: setattr(w, "text_size", s))
+        self.add_widget(self._img)
         self.add_widget(self._emoji_lbl)
         self.add_widget(self._glyph_lbl)
-        self.bind(glyph=self._on_glyph, emoji=self._on_emoji,
+        self.bind(glyph=self._on_glyph, emoji=self._on_emoji, image=self._on_image,
                   glyph_color=lambda *_: setattr(self._glyph_lbl, "color", self.glyph_color),
                   size=self._scale)
+        self._apply_image()
+
+    def _apply_image(self, *_):
+        """Show the plush cutout in place of the emoji when an image is set.
+        Layout: image on top, text glyph (letter/word/title) below."""
+        has = bool(self.image)
+        self._img.source = self.image
+        self._img.opacity = 1 if has else 0
+        gy = 0.30 if self.glyph.strip() else 0.02
+        self._img.size_hint_y = (1.0 - gy) if has else 0.0001
+        self._emoji_lbl.opacity = 0 if has else 1
+        self._emoji_lbl.size_hint_y = 0.0001 if has else 0.45
+        self._glyph_lbl.size_hint_y = gy if has else 0.55
+
+    def _on_image(self, *_):
+        self._apply_image()
 
     def _on_glyph(self, *_):
         self._glyph_lbl.text = self.glyph
         self._glyph_lbl.font_name = _font_for(self.glyph)
+        if self.image:
+            self._apply_image()
 
     def _on_emoji(self, *_):
         self._emoji_lbl.text = self.emoji

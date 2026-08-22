@@ -12,8 +12,23 @@ The app already *uses* every file when present (see ``readingland/ui/assets.py``
 the ``Mascot``/``BaseScreen`` widgets and ``readingland/core/audio.py``); until
 fetched it falls back to programmatic placeholders + warm TTS, so it runs either
 way. Re-running only fetches what's missing unless you pass ``--force``.
+
+Offline / firewalled source
+---------------------------
+Some environments block the CDN (e.g. cloud sessions, whose network policy 403s
+``*.cloudfront.net`` and ``drive.google.com``). If you already have the generated
+files locally — for instance a Google Drive folder of the raw Higgsfield exports,
+which are named by their job id (``hf_<ts>_<uuid>.<ext>``, exactly the tail of
+each CDN url) — point the script at that folder instead of the network::
+
+    python scripts/fetch_assets.py --from ~/Downloads/readingland-assets
+
+Each asset is matched to its source file by that ``hf_...`` filename and copied
+to the right ``assets/...`` path. Anything not found in the folder (e.g. the
+Fredoka font, which comes from GitHub) falls back to the normal network fetch.
 """
 import os
+import shutil
 import sys
 import urllib.request
 
@@ -278,29 +293,119 @@ ASSETS = {
 }
 
 
+def _arg_value(flag: str) -> "str | None":
+    """Return the value following ``flag`` in argv (``--from DIR`` or ``--from=DIR``)."""
+    for i, tok in enumerate(sys.argv):
+        if tok == flag and i + 1 < len(sys.argv):
+            return sys.argv[i + 1]
+        if tok.startswith(flag + "="):
+            return tok.split("=", 1)[1]
+    return None
+
+
+def _content_ok(header: bytes, ext: str) -> bool:
+    """True if ``header`` (first bytes of a file) matches the magic number for
+    ``ext``. Guards against silently placing a non-asset — e.g. a Google Drive
+    "quota exceeded" HTML page or a truncated download named like a real asset,
+    which would otherwise sail past a plain size check and land as a corrupt
+    image/audio file. Types we don't sniff (mp4/glb/unknown) are allowed through.
+
+    ``ext`` is taken from the *source* filename, not the destination, so the one
+    JPEG stored under a ``.png`` path (a storybook page) validates as a JPEG.
+    """
+    ext = ext.lower().lstrip(".")
+    if ext == "png":
+        return header.startswith(b"\x89PNG\r\n\x1a\n")
+    if ext in ("jpg", "jpeg"):
+        return header.startswith(b"\xff\xd8\xff")
+    if ext == "mp3":
+        return header.startswith(b"ID3") or (
+            len(header) >= 2 and header[0] == 0xFF and (header[1] & 0xE0) == 0xE0)
+    if ext == "wav":
+        return header[:4] == b"RIFF" and header[8:12] == b"WAVE"
+    if ext in ("ttf", "otf"):
+        return header[:4] in (b"\x00\x01\x00\x00", b"true", b"OTTO", b"ttcf")
+    return True  # mp4, glb, and anything unrecognised: don't over-police
+
+
+def _index_source_dir(src_dir: str) -> "dict[str, str]":
+    """Map every filename found under ``src_dir`` (recursively) to its full path.
+
+    The Higgsfield exports are named by job id, which is the tail of each CDN url,
+    so a plain basename lookup is enough to wire a folder of raw exports to the
+    right asset paths — no matter how the download tool arranged subfolders.
+    """
+    index: "dict[str, str]" = {}
+    for root, _dirs, files in os.walk(src_dir):
+        for name in files:
+            index.setdefault(name, os.path.join(root, name))
+    return index
+
+
 def main() -> int:
     force = "--force" in sys.argv
-    failures = skipped = fetched = 0
+    src_dir = _arg_value("--from")
+    src_index: "dict[str, str]" = {}
+    if src_dir:
+        src_dir = os.path.expanduser(src_dir)
+        if not os.path.isdir(src_dir):
+            print(f"--from: not a directory: {src_dir}", file=sys.stderr)
+            return 2
+        src_index = _index_source_dir(src_dir)
+        print(f"Sourcing from {src_dir} ({len(src_index)} files); "
+              f"network fallback for anything not found there.\n")
+
+    failures = skipped = fetched = copied = 0
     for rel, url in ASSETS.items():
         dest = os.path.join(ROOT, rel)
         if os.path.exists(dest) and not force:
             skipped += 1
             continue
         os.makedirs(os.path.dirname(dest), exist_ok=True)
+
+        src_ext = url.rsplit("/", 1)[-1].rsplit(".", 1)[-1]
+
+        # Local source first (if --from given and the job-id file is present).
+        # A present-but-invalid local file (too small / wrong magic) is not a
+        # hard failure — warn and fall through to the network so a bad export
+        # can still be recovered from the CDN.
+        local = src_index.get(url.rsplit("/", 1)[-1]) if src_index else None
+        if local:
+            try:
+                size = os.path.getsize(local)
+                with open(local, "rb") as fh:
+                    header = fh.read(16)
+                if size < 1024:
+                    raise ValueError(f"suspiciously small ({size} bytes)")
+                if not _content_ok(header, src_ext):
+                    raise ValueError(f"not a valid {src_ext} file (bad magic bytes)")
+                shutil.copyfile(local, dest)
+                copied += 1
+                print(f"COPY {rel}  ({size // 1024} KB)")
+                continue
+            except Exception as exc:  # noqa: BLE001
+                print(f"WARN {rel} (local copy rejected, trying network): {exc}",
+                      file=sys.stderr)
+
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "readingland-fetch"})
             with urllib.request.urlopen(req, timeout=30) as r:
                 data = r.read()
             if len(data) < 1024:
                 raise ValueError(f"suspiciously small ({len(data)} bytes)")
+            if not _content_ok(data[:16], src_ext):
+                raise ValueError(f"not a valid {src_ext} file (bad magic bytes)")
             with open(dest, "wb") as fh:
                 fh.write(data)
             fetched += 1
             print(f"OK   {rel}  ({len(data) // 1024} KB)")
         except Exception as exc:  # noqa: BLE001
             failures += 1
-            print(f"FAIL {rel}: {exc}", file=sys.stderr)
-    print(f"\nFetched {fetched}, skipped {skipped} (already present), failed {failures}.")
+            hint = " (not in --from folder, and network fetch failed)" if src_dir else ""
+            print(f"FAIL {rel}{hint}: {exc}", file=sys.stderr)
+
+    tally = f"\nCopied {copied}, fetched {fetched}, skipped {skipped} (already present), failed {failures}."
+    print(tally)
     if failures:
         print("The app still runs with placeholders + TTS for anything missing.",
               file=sys.stderr)
