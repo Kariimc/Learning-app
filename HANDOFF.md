@@ -143,3 +143,57 @@ branch rescue/laptop-sweep meanwhile.
 DEAD ROUTE: the Higgsfield CDN links inside scripts/fetch_assets.py were all
 refused on 2026-08-22, including a file already held locally, while the CDN host
 itself answered. Do not spend time on them. Git LFS is the route that works.
+
+## Session close, 2026-08-22: the sky world is live
+
+STATE: on main, clean tree, 37 tests pass, main matches the remote. The sky
+world is shipped and running.
+
+WHAT CHANGED THIS SESSION
+- readingland/ui/sky.py is new. ShaderSky is the sky (a fragment shader on the
+  graphics card). WoolCloud is felted wool grown and lit in Blender, drifting in
+  layers at different speeds. Perched puts anything on its own cloud, tappable,
+  dimmed when locked.
+- BaseScreen: any screen without painted land art now stands in that sky. The
+  four drawn ellipses and two gradient rectangles it replaced were the method
+  Kariim rejected outright.
+- home_map: SIX FLOATING ISLANDS on wool, tappable, locked ones dimmed.
+  bg_image_key is None, so the sky IS the map. The old scrolling banner list is
+  kept as _unused_old_path for reference only.
+- cream text became ink wherever it sits on the sky. Cream vanished into a pale
+  golden sky. Cream is kept over painted land art, where it still reads.
+- new assets, all through LFS: assets/images/sky/wool_*.png and
+  assets/images/lands/*.png (the six plush lands cut out).
+- main was 3 behind the remote and two earlier merges had been refused. Merged
+  by hand: CLAUDE.md stays deleted (the August reset is newer than the July
+  edit); HANDOFF.md keeps BOTH histories.
+
+EXACT NEXT STEPS, in the order they should be taken
+1. profile_select: perch the children on wool. Copy the pattern from
+   home_map._build_path, which is the reference implementation.
+2. parent_dashboard: move each figure onto its own cloud. It is still a dense
+   table with the sky merely behind it.
+3. rewards_room: same treatment, still grey boxes.
+4. splash: the text reads faint over the brightest part of the sky. Darken it or
+   move it up the frame.
+5. sound: assets/audio/sfx and assets/audio/music are EMPTY. Nine effects and a
+   theme tune are specified in docs/06. Generating them needs the GPU.
+
+OPEN DECISIONS, needing Kariim
+- the story page art in assets/images/cards carries baked-in titles, page
+  numbers, and two pictures with the generation prompt printed on them
+  ("A gentle giant, a tender touch"; "Handmade textures, soft lighting").
+  Inpaint them out, or regenerate those pages? His call.
+- generating anything needs his Hugging Face key handed to this laptop. He is
+  signed in on the website; the laptop's tools have never had the key. The
+  double-click file "Log in to Hugging Face" in this folder does it.
+
+TRAPS, do not rediscover these
+- After committing, check the COMMIT is an ancestor of the branch you mean to
+  ship. This session's sky commit was made on a side branch and the unpushed
+  count read 0, which was true and meaningless. It nearly shipped nothing.
+- Window.screenshot returns rainbow banding on Kariim's laptop. Use
+  export_to_png, and never fire a capture on a timer: wait until every image has
+  a texture, or you get an empty frame that looks like a broken design.
+- The Windows speech engine segfaults this app on his laptop. Stub pyttsx3 out
+  when driving it headless.
