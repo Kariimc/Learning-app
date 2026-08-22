@@ -235,13 +235,38 @@ STILL OPEN, IN ORDER
    rejected on the map. Not touched this session; his call whether the stage
    screens move to wool too.
 
+## The checkerboards are gone — 2026-08-22, his order
+
+He said cut them again. Nine pictures under `assets/images/ui/` were flat RGB
+with a transparency checkerboard painted into the pixels, so they showed a grey
+rectangle on any background: `btn_mint`, `btn_coral`, `btn_gold`, `icon_trace`,
+and the five `land_*` signposts. All nine now carry real transparency. Only the
+alpha channel was added; not one colour pixel was repainted.
+
+HOW, because the obvious way is wrong three different ways:
+- flood from the border, never a blanket colour key, so a grey INSIDE the art
+  is never punched out;
+- across the whole grey band between the checker's two levels, not two narrow
+  windows around them, because the squares meet on a soft seam whose value
+  sits between the two and a gap there leaves most of the checker behind;
+- neutral to within 6 levels, not 22: a checker square is exactly neutral and
+  the felt these characters are made of is warm off-white, and at 22 the
+  Sentence River character lost a thumb;
+- a walled-in patch, like the one inside the pencil's blue swoosh, is cut only
+  when it is unmistakably checker: nearly every pixel on one of the two levels,
+  both levels well represented. Artwork never looks like that.
+CHECK: `python scratchpad/scan_checkers.py` style test — open every PNG under
+assets/images, flag any with no alpha whose border ring is two flat greys.
+It listed nine before and lists none now.
+
 NEEDS KARIIM
-- The two earned badges (`btn_mint`, `btn_coral`) have a transparency
-  checkerboard baked into their pixels. On the old grey tiles it was hidden; on
-  wool it reads as a broken grey rectangle. He said in July to leave those
-  assets alone, so nothing was changed. Cut them again, or leave them?
 - Story page art still carries baked-in titles, page numbers and two prompts
-  printed into the artwork. Inpaint, or regenerate?
+  printed into the artwork. HIS ANSWER, 2026-08-22: paint the words out, do not
+  regenerate. BLOCKED: inpainting needs the GPU, and this laptop's command line
+  has never been given his Hugging Face key (checked: no stored key, none in
+  the environment, no token file). He is signed in on the website — that is a
+  different thing. To clear it: File Explorer, the learning-app folder, double
+  click "Log in to Hugging Face", no administrator rights, paste the key.
 - Generating anything needs his Hugging Face key on this laptop. The
   double-click file "Log in to Hugging Face" in this folder does it.
 
