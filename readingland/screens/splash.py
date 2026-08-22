@@ -20,12 +20,12 @@ class SplashScreen(BaseScreen):
         self.bg_bottom = config.PALETTE["grape"]
 
         self.logo = Label(text="ReadingLand", font_size=dp(64), bold=True,
-                          color=config.PALETTE["cream"],
+                          color=config.PALETTE["ink"],
                           pos_hint={"center_x": 0.5, "center_y": 0.72})
         self.content.add_widget(self.logo)
 
         self.tagline = Label(text="From pictures to stories!", font_size=theme.FONT_HEADING,
-                             color=config.PALETTE["cream"],
+                             color=config.PALETTE["ink"],
                              pos_hint={"center_x": 0.5, "center_y": 0.62})
         self.content.add_widget(self.tagline)
 

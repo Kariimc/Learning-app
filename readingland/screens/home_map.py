@@ -14,7 +14,7 @@ from kivy.uix.scrollview import ScrollView
 
 from .. import config
 from ..core.voice_lines import NAV_LINES
-from ..ui import theme
+from ..ui import sky, theme
 from kivy.uix.behaviors import ButtonBehavior
 
 from ..ui.icons import Icon, IconButton
@@ -38,7 +38,7 @@ class _LandCard(ButtonBehavior, RoundedCard):
 
 class HomeMapScreen(BaseScreen):
     title = "ReadingLand"
-    bg_image_key = "map"
+    bg_image_key = None   # the sky IS the map now; see ui/sky.py
 
     def build(self):
         # Top-bar button switches child profile (a 'swap' icon, not the home one).
@@ -54,7 +54,7 @@ class HomeMapScreen(BaseScreen):
         self.content.add_widget(self.rewards_btn)
 
         self.daily_lbl = Label(text="", font_size=theme.FONT_LABEL, bold=True,
-                               color=config.PALETTE["cream"],
+                               color=config.PALETTE["ink"],
                                pos_hint={"center_x": 0.5, "y": 0.02}, size_hint=(0.5, None),
                                height=dp(40))
         self.content.add_widget(self.daily_lbl)
@@ -64,13 +64,12 @@ class HomeMapScreen(BaseScreen):
                              pos_hint={"right": 0.99, "y": 0.02})
         self.content.add_widget(self.mascot)
 
-        # Scrollable land path.
-        self.scroll = ScrollView(size_hint=(1, 0.8), pos_hint={"x": 0, "top": 0.86})
-        self.path = BoxLayout(orientation="vertical", size_hint_y=None, spacing=dp(16),
-                              padding=[dp(20), dp(20)])
-        self.path.bind(minimum_height=self.path.setter("height"))
-        self.scroll.add_widget(self.path)
-        self.content.add_widget(self.scroll)
+        # Six lands as floating islands, each perched on its own wool.
+        # This replaced a scrolling list of banner cards: Kariim asked for
+        # floating islands in the sky, and the banners buried their own art
+        # under low-contrast text.
+        self.islands = []
+        self._island_ev = None
 
     def on_back(self):
         app().go("profiles")
@@ -87,8 +86,39 @@ class HomeMapScreen(BaseScreen):
         Clock.schedule_once(lambda dt: self.mascot.say(
             NAV_LINES["greet_home"], key="greet_home"), 0.4)
 
+    # where each land floats, and how big. Read top to bottom as the journey.
+    ISLAND_SPOTS = [(0.26, 0.860, 0.145), (0.74, 0.720, 0.134),
+                    (0.24, 0.575, 0.141), (0.76, 0.430, 0.145),
+                    (0.27, 0.285, 0.137), (0.73, 0.135, 0.152)]
+
     def _build_path(self):
-        self.path.clear_widgets()
+        for isl in self.islands:
+            self.content.remove_widget(isl)
+        self.islands = []
+        session = app().session
+        W = self.width or dp(400)
+        for n, stage in enumerate(config.STAGES):
+            sid = stage["id"]
+            summ = session.stage_summary(sid)
+            cx, cy, wf = self.ISLAND_SPOTS[n % len(self.ISLAND_SPOTS)]
+            isl = sky.Perched(art=sky.land_art(stage["key"]) or None,
+                              cxf=cx, cyf=cy, wpx=W * wf,
+                              label=stage["title"], phase=n * 1.13,
+                              which=(n % 2) + 1, dim=not summ.unlocked,
+                              on_tap=self._make_open(sid, summ.unlocked))
+            self.content.add_widget(isl)
+            self.islands.append(isl)
+        if self._island_ev is None:
+            self._island_ev = Clock.schedule_interval(self._float, 1 / 60.0)
+        self._t = 0.0
+        return
+
+    def _float(self, dt):
+        self._t = getattr(self, "_t", 0.0) + dt
+        for isl in self.islands:
+            isl.step(self._t, self.width, self.height)
+
+    def _unused_old_path(self):
         session = app().session
         for stage in config.STAGES:
             sid = stage["id"]
@@ -110,12 +140,12 @@ class HomeMapScreen(BaseScreen):
 
             info = BoxLayout(orientation="vertical", spacing=dp(4))
             info.add_widget(Label(text=stage["title"], font_size=theme.FONT_HEADING,
-                                  bold=True, color=config.PALETTE["cream"],
+                                  bold=True, color=config.PALETTE["ink"],
                                   outline_color=(0.15, 0.12, 0.2, 1), outline_width=dp(2),
                                   halign="left", size_hint=(1, 0.4)))
             sub = "Locked - keep learning to open!" if not unlocked else stage["subtitle"]
             info.add_widget(Label(text=sub, font_size=theme.FONT_LABEL,
-                                  color=config.PALETTE["cream"],
+                                  color=config.PALETTE["ink"],
                                   outline_color=(0.15, 0.12, 0.2, 1), outline_width=dp(1.5),
                                   size_hint=(1, 0.3)))
             bar = ChunkyProgressBar(size_hint=(1, None), height=dp(18))
@@ -123,7 +153,7 @@ class HomeMapScreen(BaseScreen):
             bar.bar_color = list(config.PALETTE["sun"])
             info.add_widget(bar)
             info.add_widget(Label(text=f"{summ.mastered}/{summ.total} mastered",
-                                  font_size=dp(14), color=config.PALETTE["cream"],
+                                  font_size=dp(14), color=config.PALETTE["ink"],
                                   outline_color=(0.15, 0.12, 0.2, 1), outline_width=dp(1),
                                   size_hint=(1, 0.2)))
             card.add_widget(info)
@@ -142,11 +172,11 @@ class HomeMapScreen(BaseScreen):
         card.add_widget(icon)
         info = BoxLayout(orientation="vertical", spacing=dp(4))
         info.add_widget(Label(text="Trace Letters", font_size=theme.FONT_HEADING, bold=True,
-                              color=config.PALETTE["cream"], size_hint=(1, 0.5)))
+                              color=config.PALETTE["ink"], size_hint=(1, 0.5)))
         sub = "Practice writing letters with your finger!" if unlocked \
             else "Opens with Letter Land!"
         info.add_widget(Label(text=sub, font_size=theme.FONT_LABEL,
-                              color=config.PALETTE["cream"], size_hint=(1, 0.5)))
+                              color=config.PALETTE["ink"], size_hint=(1, 0.5)))
         card.add_widget(info)
         self.path.add_widget(card)
 
